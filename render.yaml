@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: gate-tracker-api
+    runtime: python
+    plan: free
+    buildCommand: "chmod +x build.sh && ./build.sh"
+    startCommand: "gunicorn gate_tracker.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false  # Set this to your Vercel URL after deploying frontend
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false  # Set this to https://your-app.vercel.app
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gate-tracker-db
+          property: connectionString
+
+databases:
+  - name: gate-tracker-db
+    plan: free
+    databaseName: gate_tracker

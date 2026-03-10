@@ -1,0 +1,66 @@
+import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Layout from './components/Layout'
+import Dashboard from './pages/Dashboard'
+import StartStudy from './pages/StartStudy'
+import Analytics from './pages/Analytics'
+import History from './pages/History'
+import Progress from './pages/Progress'
+import Login from './pages/Login'
+
+interface User {
+  id: number
+  username: string
+  email: string
+}
+
+export default function App() {
+  const [user, setUser] = useState<User | null>(null)
+  const [checking, setChecking] = useState(true)
+
+  // Check for stored user on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('gate-user')
+    if (stored) {
+      try { setUser(JSON.parse(stored)) } catch { /* ignore */ }
+    }
+    setChecking(false)
+  }, [])
+
+  const handleLogin = (u: User) => {
+    setUser(u)
+    localStorage.setItem('gate-user', JSON.stringify(u))
+  }
+
+  const handleLogout = () => {
+    setUser(null)
+    localStorage.removeItem('gate-user')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/logout/`, { method: 'POST' }).catch(() => { })
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
+        <div className="w-5 h-5 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Login onLogin={handleLogin} />
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout user={user} onLogout={handleLogout} />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/start-study" element={<StartStudy />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/progress" element={<Progress />} />
+          <Route path="/history" element={<History />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  )
+}

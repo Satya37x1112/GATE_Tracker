@@ -1,0 +1,610 @@
+"""
+Views for the GATE Study Intelligence Tracker.
+
+API endpoints (JSON) for React frontend + HTML template views + CSV export.
+"""
+
+import csv
+import json
+from datetime import date, timedelta
+
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.db.models import Sum, Count
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+from .models import StudySession, DailyStats
+
+
+# ══════════════════════════════════════════════
+#  AUTH API ENDPOINTS
+# ══════════════════════════════════════════════
+
+@csrf_exempt
+@require_POST
+def api_register(request):
+    """Register a new user with username, email, password."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    username = data.get('username', '').strip()
+    email = data.get('email', '').strip()
+    password = data.get('password', '')
+
+    if not username or not email or not password:
+        return JsonResponse({'error': 'All fields are required'}, status=400)
+    if len(password) < 6:
+        return JsonResponse({'error': 'Password must be at least 6 characters'}, status=400)
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({'error': 'Username already taken'}, status=400)
+    if User.objects.filter(email=email).exists():
+        return JsonResponse({'error': 'Email already registered'}, status=400)
+
+    user = User.objects.create_user(username=username, email=email, password=password)
+    login(request, user)
+    return JsonResponse({
+        'status': 'ok',
+        'user': {'id': user.id, 'username': user.username, 'email': user.email}
+    })
+
+
+@csrf_exempt
+@require_POST
+def api_login(request):
+    """Log in with username and password."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    username = data.get('username', '').strip()
+    password = data.get('password', '')
+
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+        return JsonResponse({
+            'status': 'ok',
+            'user': {'id': user.id, 'username': user.username, 'email': user.email}
+        })
+    return JsonResponse({'error': 'Invalid credentials'}, status=401)
+
+
+@csrf_exempt
+def api_logout(request):
+    """Log out the current user."""
+    logout(request)
+    return JsonResponse({'status': 'ok'})
+
+
+def api_check_auth(request):
+    """Check if user is authenticated."""
+    if request.user.is_authenticated:
+        return JsonResponse({
+            'authenticated': True,
+            'user': {
+                'id': request.user.id,
+                'username': request.user.username,
+                'email': request.user.email,
+            }
+        })
+    return JsonResponse({'authenticated': False})
+
+
+def api_multi_week_progress(request):
+    """
+    JSON: Last 8 weeks of study data for histogram + trends.
+    Each week has total hours, questions, sessions, subject breakdown.
+    Includes week-over-week changes and motivational alerts.
+    """
+    today = date.today()
+    monday = today - timedelta(days=today.weekday())
+    weeks = []
+
+    for w in range(7, -1, -1):  # 8 weeks, oldest first
+        wk_start = monday - timedelta(weeks=w)
+        wk_end = wk_start + timedelta(days=6)
+        actual_end = min(wk_end, today)
+
+        stats = DailyStats.objects.filter(date__gte=wk_start, date__lte=actual_end)
+        total_mins = stats.aggregate(t=Sum('total_study_time'))['t'] or 0
+        total_q = stats.aggregate(q=Sum('total_questions'))['q'] or 0
+        total_lec = stats.aggregate(l=Sum('total_lectures'))['l'] or 0
+
+        sessions = StudySession.objects.filter(date__gte=wk_start, date__lte=actual_end)
+        session_count = sessions.count()
+
+        # Days actually studied
+        days_studied = stats.filter(total_study_time__gt=0).count()
+
+        # Subject breakdown for this week
+        subj = (
+            sessions.values('subject')
+            .annotate(total=Sum('duration_minutes'))
+            .order_by('-total')[:5]
+        )
+        subject_breakdown = [
+            {'subject': SUBJECT_MAP.get(s['subject'], s['subject']),
+             'hours': round(s['total'] / 60, 2)}
+            for s in subj
+        ]
+
+        # Best day
+        best_day = stats.order_by('-total_study_time').first()
+
+        weeks.append({
+            'week_label': f"{wk_start.strftime('%b %d')}",
+            'week_range': f"{wk_start.strftime('%b %d')} – {wk_end.strftime('%b %d')}",
+            'hours': round(total_mins / 60, 2),
+            'questions': total_q,
+            'lectures': total_lec,
+            'sessions': session_count,
+            'days_studied': days_studied,
+            'subject_breakdown': subject_breakdown,
+            'best_day_hours': round((best_day.total_study_time / 60), 1) if best_day else 0,
+            'best_day_date': str(best_day.date) if best_day else None,
+            'is_current': w == 0,
+        })
+
+    # Week-over-week analysis
+    alerts = []
+    for i in range(1, len(weeks)):
+        prev_h = weeks[i - 1]['hours']
+        curr_h = weeks[i]['hours']
+        if prev_h > 0 and curr_h < prev_h:
+            drop_pct = round(((prev_h - curr_h) / prev_h) * 100)
+            if drop_pct > 30:
+                alerts.append({
+                    'week': weeks[i]['week_label'],
+                    'type': 'critical',
+                    'message': f"⚠️ {drop_pct}% drop in study hours!",
+                    'suggestion': "Try setting a daily 2-hour minimum goal.",
+                })
+            elif drop_pct > 10:
+                alerts.append({
+                    'week': weeks[i]['week_label'],
+                    'type': 'warning',
+                    'message': f"📉 {drop_pct}% decrease from previous week.",
+                    'suggestion': "Stay consistent — small sessions add up!",
+                })
+        elif curr_h > prev_h and prev_h > 0:
+            gain_pct = round(((curr_h - prev_h) / prev_h) * 100)
+            if gain_pct > 20:
+                alerts.append({
+                    'week': weeks[i]['week_label'],
+                    'type': 'success',
+                    'message': f"🚀 {gain_pct}% increase! Great momentum!",
+                    'suggestion': "Keep this pace — you're on fire!",
+                })
+
+    # Consistency score (avg days studied per week)
+    total_days = sum(w['days_studied'] for w in weeks)
+    consistency = round((total_days / (len(weeks) * 7)) * 100)
+
+    # Total across all weeks
+    total_hours = sum(w['hours'] for w in weeks)
+    total_questions = sum(w['questions'] for w in weeks)
+    avg_weekly = round(total_hours / max(len([w for w in weeks if w['hours'] > 0]), 1), 1)
+
+    return JsonResponse({
+        'weeks': weeks,
+        'alerts': alerts,
+        'consistency_score': min(consistency, 100),
+        'total_hours': round(total_hours, 1),
+        'total_questions': total_questions,
+        'avg_weekly_hours': avg_weekly,
+    })
+# ──────────────────────────────────────────────
+
+SUBJECT_MAP = dict(StudySession.SUBJECT_CHOICES)
+
+
+def _calculate_streak():
+    """Calculate current and longest consecutive-day study streaks."""
+    dates_with_sessions = (
+        StudySession.objects
+        .values_list('date', flat=True)
+        .distinct()
+        .order_by('-date')
+    )
+    dates_set = set(dates_with_sessions)
+
+    # Current streak: count back from today
+    current_streak = 0
+    day = date.today()
+    while day in dates_set:
+        current_streak += 1
+        day -= timedelta(days=1)
+
+    # Longest streak
+    if not dates_set:
+        return 0, 0
+    sorted_dates = sorted(dates_set)
+    longest = 1
+    run = 1
+    for i in range(1, len(sorted_dates)):
+        if (sorted_dates[i] - sorted_dates[i - 1]).days == 1:
+            run += 1
+            longest = max(longest, run)
+        else:
+            run = 1
+
+    return current_streak, longest
+
+
+def _session_to_dict(s):
+    """Serialize a StudySession to a dictionary."""
+    return {
+        'id': s.id,
+        'date': str(s.date),
+        'subject': s.subject,
+        'subject_display': SUBJECT_MAP.get(s.subject, s.subject),
+        'study_type': s.study_type,
+        'duration_minutes': s.duration_minutes,
+        'questions_solved': s.questions_solved,
+        'lecture_minutes': s.lecture_minutes,
+        'notes_created': s.notes_created,
+        'created_at': s.created_at.isoformat() if s.created_at else None,
+    }
+
+
+# ══════════════════════════════════════════════
+#  JSON API ENDPOINTS (for React frontend)
+# ══════════════════════════════════════════════
+
+def api_dashboard(request):
+    """JSON: today's stats + streaks + recent sessions."""
+    today = date.today()
+    today_sessions = StudySession.objects.filter(date=today)
+
+    today_hours = (today_sessions.aggregate(s=Sum('duration_minutes'))['s'] or 0) / 60
+    today_questions = today_sessions.aggregate(q=Sum('questions_solved'))['q'] or 0
+    today_lectures = today_sessions.aggregate(l=Sum('lecture_minutes'))['l'] or 0
+
+    current_streak, longest_streak = _calculate_streak()
+    recent = [_session_to_dict(s) for s in StudySession.objects.all()[:5]]
+
+    return JsonResponse({
+        'today_hours': round(today_hours, 2),
+        'today_questions': today_questions,
+        'today_lectures': today_lectures,
+        'current_streak': current_streak,
+        'longest_streak': longest_streak,
+        'recent_sessions': recent,
+        'total_sessions': StudySession.objects.count(),
+    })
+
+
+def api_analytics(request):
+    """JSON: analytics summary stats."""
+    total_days = DailyStats.objects.count()
+    avg_daily = 0
+    if total_days:
+        total_mins = DailyStats.objects.aggregate(s=Sum('total_study_time'))['s'] or 0
+        avg_daily = round((total_mins / total_days) / 60, 2)
+
+    subject_agg = (
+        StudySession.objects
+        .values('subject')
+        .annotate(total=Sum('duration_minutes'))
+        .order_by('-total')
+    )
+    most_studied = subject_agg.first()
+    least_studied = subject_agg.last()
+
+    most_name = SUBJECT_MAP.get(most_studied['subject'], '—') if most_studied else '—'
+    least_name = SUBJECT_MAP.get(least_studied['subject'], '—') if least_studied else '—'
+
+    current_streak, longest_streak = _calculate_streak()
+
+    return JsonResponse({
+        'avg_daily_hours': avg_daily,
+        'most_studied': most_name,
+        'least_studied': least_name,
+        'current_streak': current_streak,
+        'longest_streak': longest_streak,
+    })
+
+
+def api_chart_data(request):
+    """JSON: chart data for Chart.js (daily hours, questions, subjects, types)."""
+    fourteen_days_ago = date.today() - timedelta(days=13)
+    daily = DailyStats.objects.filter(date__gte=fourteen_days_ago).order_by('date')
+
+    daily_labels = [d.date.strftime('%b %d') for d in daily]
+    daily_hours = [round(d.total_study_time / 60, 2) for d in daily]
+    daily_questions = [d.total_questions for d in daily]
+
+    # Subject distribution
+    subject_dist = (
+        StudySession.objects
+        .values('subject')
+        .annotate(total=Sum('duration_minutes'))
+        .order_by('-total')
+    )
+    subject_labels = [SUBJECT_MAP.get(s['subject'], s['subject']) for s in subject_dist]
+    subject_values = [round(s['total'] / 60, 2) for s in subject_dist]
+
+    # Type comparison
+    type_totals = []
+    for t in ['Lecture', 'Practice', 'Theory', 'Revision']:
+        mins = StudySession.objects.filter(study_type=t).aggregate(t=Sum('duration_minutes'))['t'] or 0
+        type_totals.append(round(mins / 60, 2))
+
+    return JsonResponse({
+        'daily_labels': daily_labels,
+        'daily_hours': daily_hours,
+        'daily_questions': daily_questions,
+        'subject_labels': subject_labels,
+        'subject_values': subject_values,
+        'type_labels': ['Lecture', 'Practice', 'Theory', 'Revision'],
+        'type_values': type_totals,
+    })
+
+
+def api_history(request):
+    """JSON: filtered list of study sessions."""
+    sessions = StudySession.objects.all()
+
+    subject = request.GET.get('subject')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    search = request.GET.get('search')
+
+    if subject:
+        sessions = sessions.filter(subject=subject)
+    if date_from:
+        sessions = sessions.filter(date__gte=date_from)
+    if date_to:
+        sessions = sessions.filter(date__lte=date_to)
+    if search:
+        sessions = sessions.filter(subject__icontains=search)
+
+    return JsonResponse([_session_to_dict(s) for s in sessions[:200]], safe=False)
+
+
+def api_heatmap(request):
+    """JSON: {date_string: total_minutes} for the last 365 days."""
+    one_year_ago = date.today() - timedelta(days=364)
+    daily = DailyStats.objects.filter(date__gte=one_year_ago).order_by('date')
+    data = {str(d.date): round(d.total_study_time, 1) for d in daily}
+    return JsonResponse(data)
+
+
+def api_weekly_progress(request):
+    """
+    JSON: day-by-day breakdown for this week + comparison with last week.
+    Returns daily hours, questions, sessions for Mon–Sun of current week,
+    plus totals for this week and last week for comparison.
+    """
+    today = date.today()
+    # Monday of this week
+    monday = today - timedelta(days=today.weekday())
+    last_monday = monday - timedelta(days=7)
+
+    days = []
+    for i in range(7):
+        d = monday + timedelta(days=i)
+        stats = DailyStats.objects.filter(date=d).first()
+        sessions_count = StudySession.objects.filter(date=d).count()
+        days.append({
+            'date': str(d),
+            'day': d.strftime('%a'),
+            'hours': round((stats.total_study_time if stats else 0) / 60, 2),
+            'questions': stats.total_questions if stats else 0,
+            'lectures': stats.total_lectures if stats else 0,
+            'sessions': sessions_count,
+            'is_today': d == today,
+            'is_future': d > today,
+        })
+
+    # This week totals
+    this_week_mins = DailyStats.objects.filter(
+        date__gte=monday, date__lte=today
+    ).aggregate(t=Sum('total_study_time'))['t'] or 0
+    this_week_q = DailyStats.objects.filter(
+        date__gte=monday, date__lte=today
+    ).aggregate(q=Sum('total_questions'))['q'] or 0
+
+    # Last week totals
+    last_week_mins = DailyStats.objects.filter(
+        date__gte=last_monday, date__lt=monday
+    ).aggregate(t=Sum('total_study_time'))['t'] or 0
+    last_week_q = DailyStats.objects.filter(
+        date__gte=last_monday, date__lt=monday
+    ).aggregate(q=Sum('total_questions'))['q'] or 0
+
+    return JsonResponse({
+        'days': days,
+        'this_week_hours': round(this_week_mins / 60, 2),
+        'this_week_questions': this_week_q,
+        'last_week_hours': round(last_week_mins / 60, 2),
+        'last_week_questions': last_week_q,
+        'week_label': f"{monday.strftime('%b %d')} – {(monday + timedelta(days=6)).strftime('%b %d')}",
+    })
+
+
+def api_growth_tree(request):
+    """
+    JSON: study tree growth data. The tree grows stages based on total study hours.
+    Stage 0: seed (0 hrs), Stage 1: sprout (1 hr), Stage 2: sapling (5 hrs),
+    Stage 3: young tree (15 hrs), Stage 4: mature tree (40 hrs),
+    Stage 5: grand tree (100 hrs), Stage 6: legendary (200+ hrs).
+    """
+    total_mins = StudySession.objects.aggregate(t=Sum('duration_minutes'))['t'] or 0
+    total_hours = total_mins / 60
+
+    # Today's contribution
+    today_mins = StudySession.objects.filter(date=date.today()).aggregate(
+        t=Sum('duration_minutes'))['t'] or 0
+
+    stages = [
+        (0, 'Seed', 'Your journey begins here.'),
+        (1, 'Sprout', 'The first signs of growth!'),
+        (5, 'Sapling', 'Taking root, getting stronger.'),
+        (15, 'Young Tree', 'Branches reaching for the sky.'),
+        (40, 'Mature Tree', 'Strong and steady — keep going!'),
+        (100, 'Grand Tree', 'A towering achievement!'),
+        (200, 'Legendary Oak', 'You are unstoppable. 🏆'),
+    ]
+
+    current_stage = 0
+    for i, (threshold, _, _) in enumerate(stages):
+        if total_hours >= threshold:
+            current_stage = i
+
+    # Progress to next stage
+    next_threshold = stages[min(current_stage + 1, len(stages) - 1)][0]
+    curr_threshold = stages[current_stage][0]
+    if next_threshold > curr_threshold:
+        progress = min((total_hours - curr_threshold) / (next_threshold - curr_threshold), 1.0)
+    else:
+        progress = 1.0
+
+    return JsonResponse({
+        'total_hours': round(total_hours, 1),
+        'today_hours': round(today_mins / 60, 2),
+        'stage': current_stage,
+        'stage_name': stages[current_stage][1],
+        'stage_message': stages[current_stage][2],
+        'next_stage_name': stages[min(current_stage + 1, len(stages) - 1)][1],
+        'next_stage_hours': next_threshold,
+        'progress_to_next': round(progress, 3),
+        'total_stages': len(stages),
+    })
+
+
+# ══════════════════════════════════════════════
+#  SAVE SESSION (POST)
+# ══════════════════════════════════════════════
+
+@require_POST
+def save_session(request):
+    """Save a completed study session and update DailyStats."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    duration_sec = float(data.get('duration_seconds', 0))
+    duration_min = round(duration_sec / 60, 2)
+
+    session = StudySession.objects.create(
+        subject=data.get('subject', 'DSA'),
+        study_type=data.get('study_type', 'Theory'),
+        duration_minutes=duration_min,
+        questions_solved=int(data.get('questions_solved', 0)),
+        lecture_minutes=int(data.get('lecture_minutes', 0)),
+        notes_created=data.get('notes_created', False),
+    )
+
+    # Update DailyStats
+    today = session.date
+    stats, _ = DailyStats.objects.get_or_create(date=today)
+    agg = StudySession.objects.filter(date=today).aggregate(
+        total_time=Sum('duration_minutes'),
+        total_q=Sum('questions_solved'),
+        total_l=Sum('lecture_minutes'),
+    )
+    stats.total_study_time = agg['total_time'] or 0
+    stats.total_questions = agg['total_q'] or 0
+    stats.total_lectures = agg['total_l'] or 0
+    stats.save()
+
+    return JsonResponse({'status': 'ok', 'session_id': session.id})
+
+
+# ══════════════════════════════════════════════
+#  CSV EXPORT
+# ══════════════════════════════════════════════
+
+def export_csv(request):
+    """Stream all study sessions as a downloadable CSV file."""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="gate_study_data.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        'Date', 'Subject', 'Study Type', 'Duration (min)',
+        'Questions Solved', 'Lecture Minutes', 'Notes Created',
+    ])
+
+    for s in StudySession.objects.all():
+        writer.writerow([
+            s.date, s.get_subject_display(), s.study_type,
+            s.duration_minutes, s.questions_solved,
+            s.lecture_minutes, s.notes_created,
+        ])
+
+    return response
+
+
+# ══════════════════════════════════════════════
+#  HTML TEMPLATE VIEWS (optional fallback)
+# ══════════════════════════════════════════════
+
+def dashboard(request):
+    """HTML dashboard page."""
+    today = date.today()
+    today_sessions = StudySession.objects.filter(date=today)
+    today_hours = (today_sessions.aggregate(s=Sum('duration_minutes'))['s'] or 0) / 60
+    today_questions = today_sessions.aggregate(q=Sum('questions_solved'))['q'] or 0
+    today_lectures = today_sessions.aggregate(l=Sum('lecture_minutes'))['l'] or 0
+    current_streak, longest_streak = _calculate_streak()
+    recent = StudySession.objects.all()[:5]
+
+    return render(request, 'dashboard.html', {
+        'today_hours': round(today_hours, 2),
+        'today_questions': today_questions,
+        'today_lectures': today_lectures,
+        'current_streak': current_streak,
+        'longest_streak': longest_streak,
+        'recent_sessions': recent,
+        'total_sessions': StudySession.objects.count(),
+    })
+
+
+def start_study(request):
+    return render(request, 'start_study.html', {
+        'subjects': StudySession.SUBJECT_CHOICES,
+        'types': StudySession.TYPE_CHOICES,
+    })
+
+
+def analytics(request):
+    total_days = DailyStats.objects.count()
+    avg_daily = 0
+    if total_days:
+        total_mins = DailyStats.objects.aggregate(s=Sum('total_study_time'))['s'] or 0
+        avg_daily = round((total_mins / total_days) / 60, 2)
+    subject_agg = StudySession.objects.values('subject').annotate(total=Sum('duration_minutes')).order_by('-total')
+    most_studied = subject_agg.first()
+    least_studied = subject_agg.last()
+    most_name = SUBJECT_MAP.get(most_studied['subject'], '—') if most_studied else '—'
+    least_name = SUBJECT_MAP.get(least_studied['subject'], '—') if least_studied else '—'
+    current_streak, longest_streak = _calculate_streak()
+    return render(request, 'analytics.html', {
+        'avg_daily_hours': avg_daily, 'most_studied': most_name,
+        'least_studied': least_name, 'current_streak': current_streak,
+        'longest_streak': longest_streak,
+    })
+
+
+def history(request):
+    sessions = StudySession.objects.all()
+    subject = request.GET.get('subject')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    if subject: sessions = sessions.filter(subject=subject)
+    if date_from: sessions = sessions.filter(date__gte=date_from)
+    if date_to: sessions = sessions.filter(date__lte=date_to)
+    return render(request, 'history.html', {
+        'sessions': sessions, 'subjects': StudySession.SUBJECT_CHOICES,
+        'current_subject': subject or '', 'current_from': date_from or '',
+        'current_to': date_to or '',
+    })

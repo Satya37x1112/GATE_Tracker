@@ -1,0 +1,337 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Font Stack: Poppins + Oregano ─────────── */
+:root {
+  --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: 'Oregano', cursive;
+  --font-mono: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* ── Global ────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+/* Poppins everywhere, except Font Awesome icons */
+*:not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]) {
+  font-family: var(--font-sans) !important;
+}
+
+/* Oregano for headings & branding */
+h1,
+h2,
+.font-display {
+  font-family: var(--font-display) !important;
+  font-weight: 400;
+}
+
+/* Premium dark theme */
+.dark body,
+.dark {
+  background: #09090b;
+  color: #fafafa;
+}
+
+.light body,
+.light {
+  background: #fafafa;
+  color: #09090b;
+}
+
+/* ── Scrollbar ─────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, .08);
+  border-radius: 10px;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, .1);
+}
+
+/* ── Stat Card ─────────────────────────────── */
+.stat-card {
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.25s cubic-bezier(.4, 0, .2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .08), transparent);
+}
+
+.stat-card:hover {
+  background: rgba(255, 255, 255, .05);
+  border-color: rgba(255, 255, 255, .1);
+  transform: translateY(-1px);
+}
+
+.light .stat-card {
+  background: #fff;
+  border-color: rgba(0, 0, 0, .06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+
+.light .stat-card::before {
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, .04), transparent);
+}
+
+.light .stat-card:hover {
+  background: #fff;
+  border-color: rgba(0, 0, 0, .1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .06);
+}
+
+/* ── Chart Card ────────────────────────────── */
+.chart-card {
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.light .chart-card {
+  background: #fff;
+  border-color: rgba(0, 0, 0, .06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+
+/* ── Glass Panel ───────────────────────────── */
+.glass-panel {
+  background: rgba(255, 255, 255, .03);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, .06);
+  border-radius: 16px;
+}
+
+.light .glass-panel {
+  background: rgba(255, 255, 255, .8);
+  border-color: rgba(0, 0, 0, .06);
+}
+
+/* ── Nav Link ──────────────────────────────── */
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, .45);
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: rgba(255, 255, 255, .8);
+  background: rgba(255, 255, 255, .04);
+}
+
+.nav-link.active {
+  color: #fff;
+  background: rgba(255, 255, 255, .06);
+}
+
+.light .nav-link {
+  color: rgba(0, 0, 0, .4);
+}
+
+.light .nav-link:hover {
+  color: rgba(0, 0, 0, .7);
+  background: rgba(0, 0, 0, .03);
+}
+
+.light .nav-link.active {
+  color: #000;
+  background: rgba(0, 0, 0, .05);
+}
+
+/* ── Form Controls ─────────────────────────── */
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(255, 255, 255, .04);
+  color: #fafafa;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  border-color: rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .06);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, .04);
+}
+
+.light .form-input {
+  background: #f4f4f5;
+  border-color: rgba(0, 0, 0, .08);
+  color: #09090b;
+}
+
+.light .form-input:focus {
+  border-color: rgba(0, 0, 0, .2);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, .04);
+}
+
+/* ── Animations ────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, .35);
+  }
+
+  70% {
+    box-shadow: 0 0 0 14px rgba(34, 197, 94, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes treeSway {
+
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+
+  50% {
+    transform: rotate(1deg);
+  }
+}
+
+@keyframes leafGrow {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 2s infinite;
+}
+
+.animate-tree-sway {
+  animation: treeSway 4s ease-in-out infinite;
+}
+
+/* ── Heatmap ───────────────────────────────── */
+.heatmap-cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  transition: transform 0.1s;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.8);
+}
+
+/* ── Sections ──────────────────────────────── */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .3);
+}
+
+.light .section-label {
+  color: rgba(0, 0, 0, .35);
+}
+
+/* ── Tree Container ────────────────────────── */
+.tree-container {
+  background: linear-gradient(180deg, rgba(34, 197, 94, .03) 0%, transparent 100%);
+  border: 1px solid rgba(34, 197, 94, .1);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.tree-container::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(180deg, transparent, rgba(34, 197, 94, .04));
+}
+
+/* ── Weekly Bar ────────────────────────────── */
+.weekly-bar {
+  transition: height 0.6s cubic-bezier(.4, 0, .2, 1);
+  border-radius: 6px 6px 0 0;
+}

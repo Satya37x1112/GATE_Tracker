@@ -1,0 +1,230 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import {
+    Chart as ChartJS, CategoryScale, LinearScale, PointElement,
+    LineElement, BarElement, ArcElement, Tooltip, Legend, Filler
+} from 'chart.js'
+import { Line, Doughnut } from 'react-chartjs-2'
+import { Clock, HelpCircle, GraduationCap, Flame, ArrowRight } from 'lucide-react'
+import StatCard from '../components/StatCard'
+import Heatmap from '../components/Heatmap'
+import GrowthTree from '../components/GrowthTree'
+import WeeklyProgress from '../components/WeeklyProgress'
+import { fetchDashboard, fetchChartData, fetchHeatmapData, type DashboardData, type ChartData } from '../api/api'
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend, Filler)
+
+export default function Dashboard() {
+    const [dash, setDash] = useState<DashboardData | null>(null)
+    const [charts, setCharts] = useState<ChartData | null>(null)
+    const [heatmap, setHeatmap] = useState<Record<string, number>>({})
+
+    useEffect(() => {
+        fetchDashboard().then(setDash).catch(console.error)
+        fetchChartData().then(setCharts).catch(console.error)
+        fetchHeatmapData().then(setHeatmap).catch(console.error)
+    }, [])
+
+    if (!dash) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="w-5 h-5 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+            </div>
+        )
+    }
+
+    return (
+        <div className="space-y-10">
+            {/* Header */}
+            <div className="flex items-end justify-between">
+                <div>
+                    <h1 className="text-[32px] font-semibold tracking-tight leading-tight">Dashboard</h1>
+                    <p className="text-[14px] opacity-30 mt-1">Your GATE preparation at a glance.</p>
+                </div>
+                <Link
+                    to="/start-study"
+                    className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-[13px] font-medium transition-all active:scale-[.97]"
+                >
+                    Start Studying <ArrowRight size={14} />
+                </Link>
+            </div>
+
+            {/* Stat cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <StatCard
+                    label="Study Hours" value={`${dash.today_hours}h`} sub="Today"
+                    icon={<Clock size={16} strokeWidth={1.8} />}
+                    iconBg="bg-blue-500/10 text-blue-400"
+                />
+                <StatCard
+                    label="Questions" value={dash.today_questions} sub="Solved today"
+                    icon={<HelpCircle size={16} strokeWidth={1.8} />}
+                    iconBg="bg-emerald-500/10 text-emerald-400"
+                />
+                <StatCard
+                    label="Lectures" value={`${dash.today_lectures}m`} sub="Today"
+                    icon={<GraduationCap size={16} strokeWidth={1.8} />}
+                    iconBg="bg-violet-500/10 text-violet-400"
+                />
+                <StatCard
+                    label="Streak" value={`${dash.current_streak}d`}
+                    sub={`Best: ${dash.longest_streak} days`}
+                    icon={<Flame size={16} strokeWidth={1.8} />}
+                    iconBg="bg-orange-500/10 text-orange-400"
+                />
+            </div>
+
+            {/* Growth Tree + Weekly Progress (side by side) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <GrowthTree />
+                <WeeklyProgress />
+            </div>
+
+            {/* Study hours trend */}
+            {charts && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    {/* Line chart — 2 cols */}
+                    <div className="chart-card lg:col-span-2">
+                        <p className="section-label mb-1">Study Hours</p>
+                        <p className="text-lg font-semibold tracking-tight mb-4">Last 14 Days</p>
+                        <div style={{ height: 240 }}>
+                            <Line
+                                data={{
+                                    labels: charts.daily_labels,
+                                    datasets: [{
+                                        label: 'Hours',
+                                        data: charts.daily_hours,
+                                        borderColor: '#22c55e',
+                                        backgroundColor: 'rgba(34,197,94,.06)',
+                                        fill: true,
+                                        tension: 0.4,
+                                        pointRadius: 3,
+                                        pointBackgroundColor: '#22c55e',
+                                        borderWidth: 2,
+                                    }]
+                                }}
+                                options={lineOpts()}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Subject distribution — 1 col */}
+                    <div className="chart-card">
+                        <p className="section-label mb-1">Distribution</p>
+                        <p className="text-lg font-semibold tracking-tight mb-4">By Subject</p>
+                        <div style={{ height: 240 }}>
+                            <Doughnut
+                                data={{
+                                    labels: charts.subject_labels,
+                                    datasets: [{
+                                        data: charts.subject_values,
+                                        backgroundColor: [
+                                            '#22c55e', '#3b82f6', '#a855f7', '#f59e0b',
+                                            '#ef4444', '#06b6d4', '#ec4899', '#84cc16',
+                                            '#f97316', '#6366f1', '#14b8a6'
+                                        ],
+                                        borderWidth: 0,
+                                        hoverOffset: 4,
+                                    }]
+                                }}
+                                options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    cutout: '72%',
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom',
+                                            labels: {
+                                                color: 'rgba(255,255,255,.4)',
+                                                font: { size: 11, family: 'var(--font-sans)' },
+                                                padding: 8,
+                                                usePointStyle: true,
+                                                pointStyleWidth: 8,
+                                            }
+                                        }
+                                    },
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Heatmap */}
+            <Heatmap data={heatmap} />
+
+            {/* Recent sessions */}
+            <div>
+                <div className="flex items-center justify-between mb-4">
+                    <div>
+                        <p className="section-label mb-1">Sessions</p>
+                        <p className="text-lg font-semibold tracking-tight">Recent Activity</p>
+                    </div>
+                    <Link to="/history" className="text-[13px] opacity-30 hover:opacity-60 transition-opacity">
+                        View all →
+                    </Link>
+                </div>
+
+                {dash.recent_sessions.length > 0 ? (
+                    <div className="overflow-x-auto rounded-xl border border-white/[.06]">
+                        <table className="w-full text-[13px]">
+                            <thead>
+                                <tr className="border-b border-white/[.04]">
+                                    <th className="px-5 py-3 text-left section-label font-semibold">Date</th>
+                                    <th className="px-5 py-3 text-left section-label font-semibold">Subject</th>
+                                    <th className="px-5 py-3 text-left section-label font-semibold">Type</th>
+                                    <th className="px-5 py-3 text-right section-label font-semibold">Duration</th>
+                                    <th className="px-5 py-3 text-right section-label font-semibold">Questions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/[.03]">
+                                {dash.recent_sessions.map(s => (
+                                    <tr key={s.id} className="hover:bg-white/[.02] transition-colors">
+                                        <td className="px-5 py-3 opacity-50">{s.date}</td>
+                                        <td className="px-5 py-3">
+                                            <span className="px-2 py-0.5 rounded-md bg-emerald-500/8 text-emerald-400/80 text-[12px] font-medium">
+                                                {s.subject_display}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-3 opacity-40">{s.study_type}</td>
+                                        <td className="px-5 py-3 text-right font-mono tabular-nums opacity-60">
+                                            {Math.round(s.duration_minutes)}m
+                                        </td>
+                                        <td className="px-5 py-3 text-right font-mono tabular-nums opacity-60">
+                                            {s.questions_solved}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="text-center py-20 rounded-xl border border-dashed border-white/[.08]">
+                        <p className="text-[15px] opacity-30">No sessions yet.</p>
+                        <p className="text-[13px] opacity-20 mt-1">Start studying to see your progress grow.</p>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+function lineOpts() {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                ticks: { color: 'rgba(255,255,255,.2)', font: { size: 11 } },
+                grid: { color: 'rgba(255,255,255,.03)' },
+                border: { display: false },
+            },
+            y: {
+                ticks: { color: 'rgba(255,255,255,.2)', font: { size: 11 } },
+                grid: { color: 'rgba(255,255,255,.03)' },
+                border: { display: false },
+            },
+        },
+        plugins: { legend: { display: false } },
+    } as const
+}
