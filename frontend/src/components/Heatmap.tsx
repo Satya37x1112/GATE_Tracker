@@ -5,7 +5,7 @@ interface Props {
 }
 
 export default function Heatmap({ data }: Props) {
-    const { weeks, months } = useMemo(() => {
+    const { weeks } = useMemo(() => {
         const today = new Date()
         const cells: { date: string; mins: number; dayOfWeek: number }[] = []
 
