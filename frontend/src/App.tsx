@@ -6,6 +6,7 @@ import StartStudy from './pages/StartStudy'
 import Analytics from './pages/Analytics'
 import History from './pages/History'
 import Progress from './pages/Progress'
+import Resources from './pages/Resources'
 import Login from './pages/Login'
 
 interface User {
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="/start-study" element={<StartStudy />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/progress" element={<Progress />} />
+          <Route path="/resources" element={<Resources />} />
           <Route path="/history" element={<History />} />
         </Route>
       </Routes>
