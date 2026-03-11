@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from functools import wraps
 
@@ -34,6 +35,7 @@ def login_required_api(view_func):
 #  AUTH API ENDPOINTS
 # ══════════════════════════════════════════════
 
+@csrf_exempt
 def api_register(request):
     """Register a new user with username, email, password."""
     if request.method != 'POST':
@@ -62,6 +64,7 @@ def api_register(request):
     })
 
 
+@csrf_exempt
 def api_login(request):
     """Log in with username and password."""
     if request.method != 'POST':
@@ -83,6 +86,7 @@ def api_login(request):
     })
 
 
+@csrf_exempt
 def api_logout(request):
     """Log out the current user."""
     logout(request)
@@ -511,6 +515,7 @@ def api_growth_tree(request):
 #  SAVE SESSION (POST)
 # ══════════════════════════════════════════════
 
+@csrf_exempt
 @require_POST
 @login_required_api
 def save_session(request):

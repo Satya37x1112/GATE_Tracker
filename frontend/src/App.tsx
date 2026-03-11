@@ -36,7 +36,7 @@ export default function App() {
   const handleLogout = () => {
     setUser(null)
     localStorage.removeItem('gate-user')
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/logout/`, { method: 'POST' }).catch(() => { })
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/logout/`, { method: 'POST', credentials: 'include' }).catch(() => { })
   }
 
   if (checking) {

@@ -134,3 +134,12 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
 if CSRF_TRUSTED_ORIGINS == ['']:
     CSRF_TRUSTED_ORIGINS = []
+
+# ── Cross-origin session cookies (Vercel → Render) ──
+# In production, cookies must be SameSite=None + Secure for cross-site fetch
+if not DEBUG:
+    SESSION_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = 'None'
+    CSRF_COOKIE_SECURE = True
+

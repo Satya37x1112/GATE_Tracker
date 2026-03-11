@@ -5,6 +5,9 @@
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
+// Always send session cookies (needed for cross-origin Vercel→Render)
+const OPTS: RequestInit = { credentials: 'include' };
+
 // ── Types ───────────────────────────────────
 
 export interface StudySession {
@@ -89,60 +92,6 @@ export interface GrowthTree {
     total_stages: number;
 }
 
-// ── API Functions ───────────────────────────
-
-export async function fetchDashboard(): Promise<DashboardData> {
-    const res = await fetch(`${API_BASE}/api/dashboard/`);
-    if (!res.ok) throw new Error('Failed to fetch dashboard');
-    return res.json();
-}
-
-export async function fetchChartData(): Promise<ChartData> {
-    const res = await fetch(`${API_BASE}/api/chart-data/`);
-    if (!res.ok) throw new Error('Failed to fetch chart data');
-    return res.json();
-}
-
-export async function fetchAnalytics(): Promise<AnalyticsData> {
-    const res = await fetch(`${API_BASE}/api/analytics/`);
-    if (!res.ok) throw new Error('Failed to fetch analytics');
-    return res.json();
-}
-
-export async function fetchHistory(params: {
-    subject?: string;
-    date_from?: string;
-    date_to?: string;
-    search?: string;
-}): Promise<StudySession[]> {
-    const query = new URLSearchParams();
-    if (params.subject) query.set('subject', params.subject);
-    if (params.date_from) query.set('date_from', params.date_from);
-    if (params.date_to) query.set('date_to', params.date_to);
-    if (params.search) query.set('search', params.search);
-    const res = await fetch(`${API_BASE}/api/history/?${query}`);
-    if (!res.ok) throw new Error('Failed to fetch history');
-    return res.json();
-}
-
-export async function fetchHeatmapData(): Promise<Record<string, number>> {
-    const res = await fetch(`${API_BASE}/api/heatmap/`);
-    if (!res.ok) throw new Error('Failed to fetch heatmap');
-    return res.json();
-}
-
-export async function fetchWeeklyProgress(): Promise<WeeklyProgress> {
-    const res = await fetch(`${API_BASE}/api/weekly-progress/`);
-    if (!res.ok) throw new Error('Failed to fetch weekly progress');
-    return res.json();
-}
-
-export async function fetchGrowthTree(): Promise<GrowthTree> {
-    const res = await fetch(`${API_BASE}/api/growth-tree/`);
-    if (!res.ok) throw new Error('Failed to fetch growth tree');
-    return res.json();
-}
-
 export interface WeekData {
     week_label: string;
     week_range: string;
@@ -173,8 +122,62 @@ export interface MultiWeekProgress {
     avg_weekly_hours: number;
 }
 
+// ── API Functions ───────────────────────────
+
+export async function fetchDashboard(): Promise<DashboardData> {
+    const res = await fetch(`${API_BASE}/api/dashboard/`, OPTS);
+    if (!res.ok) throw new Error('Failed to fetch dashboard');
+    return res.json();
+}
+
+export async function fetchChartData(): Promise<ChartData> {
+    const res = await fetch(`${API_BASE}/api/chart-data/`, OPTS);
+    if (!res.ok) throw new Error('Failed to fetch chart data');
+    return res.json();
+}
+
+export async function fetchAnalytics(): Promise<AnalyticsData> {
+    const res = await fetch(`${API_BASE}/api/analytics/`, OPTS);
+    if (!res.ok) throw new Error('Failed to fetch analytics');
+    return res.json();
+}
+
+export async function fetchHistory(params: {
+    subject?: string;
+    date_from?: string;
+    date_to?: string;
+    search?: string;
+}): Promise<StudySession[]> {
+    const query = new URLSearchParams();
+    if (params.subject) query.set('subject', params.subject);
+    if (params.date_from) query.set('date_from', params.date_from);
+    if (params.date_to) query.set('date_to', params.date_to);
+    if (params.search) query.set('search', params.search);
+    const res = await fetch(`${API_BASE}/api/history/?${query}`, OPTS);
+    if (!res.ok) throw new Error('Failed to fetch history');
+    return res.json();
+}
+
+export async function fetchHeatmapData(): Promise<Record<string, number>> {
+    const res = await fetch(`${API_BASE}/api/heatmap/`, OPTS);
+    if (!res.ok) throw new Error('Failed to fetch heatmap');
+    return res.json();
+}
+
+export async function fetchWeeklyProgress(): Promise<WeeklyProgress> {
+    const res = await fetch(`${API_BASE}/api/weekly-progress/`, OPTS);
+    if (!res.ok) throw new Error('Failed to fetch weekly progress');
+    return res.json();
+}
+
+export async function fetchGrowthTree(): Promise<GrowthTree> {
+    const res = await fetch(`${API_BASE}/api/growth-tree/`, OPTS);
+    if (!res.ok) throw new Error('Failed to fetch growth tree');
+    return res.json();
+}
+
 export async function fetchMultiWeekProgress(): Promise<MultiWeekProgress> {
-    const res = await fetch(`${API_BASE}/api/progress/`);
+    const res = await fetch(`${API_BASE}/api/progress/`, OPTS);
     if (!res.ok) throw new Error('Failed to fetch progress');
     return res.json();
 }
@@ -184,6 +187,7 @@ export async function saveSession(payload: SaveSessionPayload): Promise<{ status
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
+        credentials: 'include',
     });
     if (!res.ok) throw new Error('Failed to save session');
     return res.json();

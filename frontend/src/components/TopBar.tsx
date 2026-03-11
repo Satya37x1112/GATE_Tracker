@@ -22,7 +22,7 @@ export default function TopBar({ onMenuClick, dark, onToggleDark, user }: Props)
         setDateStr(new Date().toLocaleDateString('en-IN', {
             weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
         }))
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/dashboard/`)
+        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/dashboard/`, { credentials: 'include' })
             .then(r => r.json())
             .then(d => setStreak(d.current_streak))
             .catch(() => { })
