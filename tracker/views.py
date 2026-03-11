@@ -15,8 +15,19 @@ from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
+from functools import wraps
 
 from .models import DailyStats, StudySession
+
+
+def login_required_api(view_func):
+    """Decorator: returns 401 JSON for unauthenticated API requests."""
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'Authentication required'}, status=401)
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 
 # ══════════════════════════════════════════════
@@ -96,6 +107,7 @@ def api_check_auth(request):
 #  MULTI-WEEK PROGRESS
 # ══════════════════════════════════════════════
 
+@login_required_api
 def api_multi_week_progress(request):
     """
     JSON: Last 8 weeks of study data for histogram + trends.
@@ -259,6 +271,7 @@ def _session_to_dict(s):
 #  JSON API ENDPOINTS (for React frontend)
 # ══════════════════════════════════════════════
 
+@login_required_api
 def api_dashboard(request):
     """JSON: today's stats + streaks + recent sessions."""
     user = request.user
@@ -283,6 +296,7 @@ def api_dashboard(request):
     })
 
 
+@login_required_api
 def api_analytics(request):
     """JSON: analytics summary stats."""
     user = request.user
@@ -315,6 +329,7 @@ def api_analytics(request):
     })
 
 
+@login_required_api
 def api_chart_data(request):
     """JSON: chart data for Chart.js (daily hours, questions, subjects, types)."""
     user = request.user
@@ -352,6 +367,7 @@ def api_chart_data(request):
     })
 
 
+@login_required_api
 def api_history(request):
     """JSON: filtered list of study sessions."""
     user = request.user
@@ -374,6 +390,7 @@ def api_history(request):
     return JsonResponse([_session_to_dict(s) for s in sessions[:200]], safe=False)
 
 
+@login_required_api
 def api_heatmap(request):
     """JSON: {date_string: total_minutes} for the last 365 days."""
     user = request.user
@@ -383,6 +400,7 @@ def api_heatmap(request):
     return JsonResponse(data)
 
 
+@login_required_api
 def api_weekly_progress(request):
     """
     JSON: day-by-day breakdown for this week + comparison with last week.
@@ -437,6 +455,7 @@ def api_weekly_progress(request):
     })
 
 
+@login_required_api
 def api_growth_tree(request):
     """
     JSON: study tree growth data. The tree grows stages based on total study hours.
@@ -493,6 +512,7 @@ def api_growth_tree(request):
 # ══════════════════════════════════════════════
 
 @require_POST
+@login_required_api
 def save_session(request):
     """Save a completed study session and update DailyStats."""
     try:
@@ -534,6 +554,7 @@ def save_session(request):
 #  CSV EXPORT
 # ══════════════════════════════════════════════
 
+@login_required_api
 def export_csv(request):
     """Stream all study sessions for the logged-in user as a downloadable CSV file."""
     user = request.user
