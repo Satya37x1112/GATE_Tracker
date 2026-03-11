@@ -2,9 +2,10 @@
 Models for the GATE Study Intelligence Tracker.
 
 StudySession: Records each individual study session with subject, type, duration, etc.
-DailyStats:  Aggregated daily statistics, auto-updated when sessions are saved.
+DailyStats:  Aggregated daily statistics per user, auto-updated when sessions are saved.
 """
 
+from django.conf import settings
 from django.db import models
 
 
@@ -34,6 +35,13 @@ class StudySession(models.Model):
         ('Revision', 'Revision'),
     ]
 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='study_sessions',
+        null=True,          # allows migration without data loss
+        blank=True,
+    )
     date = models.DateField(auto_now_add=True, help_text="Date of the study session")
     subject = models.CharField(max_length=10, choices=SUBJECT_CHOICES)
     study_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
@@ -47,15 +55,23 @@ class StudySession(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"{self.date} | {self.get_subject_display()} | {self.study_type} | {self.duration_minutes:.0f} min"
+        owner = self.user.username if self.user else '—'
+        return f"{self.date} | {owner} | {self.get_subject_display()} | {self.study_type} | {self.duration_minutes:.0f} min"
 
 
 class DailyStats(models.Model):
     """
-    Aggregated statistics for a single day.
+    Aggregated statistics for a single day per user.
     Updated automatically whenever a StudySession is saved via the save_session view.
     """
-    date = models.DateField(unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='daily_stats',
+        null=True,
+        blank=True,
+    )
+    date = models.DateField()
     total_study_time = models.FloatField(default=0, help_text="Total minutes studied")
     total_questions = models.IntegerField(default=0)
     total_lectures = models.IntegerField(default=0, help_text="Total lecture minutes")
@@ -63,6 +79,11 @@ class DailyStats(models.Model):
     class Meta:
         ordering = ['-date']
         verbose_name_plural = "Daily Stats"
+        # One row per user per date
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'date'], name='unique_user_date')
+        ]
 
     def __str__(self):
-        return f"{self.date} — {self.total_study_time:.0f} min studied"
+        owner = self.user.username if self.user else '—'
+        return f"{self.date} — {owner} — {self.total_study_time:.0f} min studied"
