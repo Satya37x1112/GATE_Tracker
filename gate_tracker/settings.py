@@ -136,10 +136,10 @@ if CSRF_TRUSTED_ORIGINS == ['']:
     CSRF_TRUSTED_ORIGINS = []
 
 # ── Cross-origin session cookies (Vercel → Render) ──
-# In production, cookies must be SameSite=None + Secure for cross-site fetch
-if not DEBUG:
-    SESSION_COOKIE_SAMESITE = 'None'
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SAMESITE = 'None'
-    CSRF_COOKIE_SECURE = True
+# SameSite=None + Secure is required for cross-site cookies
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+
 
