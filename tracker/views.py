@@ -9,11 +9,13 @@ import csv
 import json
 from datetime import date, timedelta
 
+import requests as http_requests
+from django.conf import settings as django_settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from functools import wraps
@@ -105,6 +107,190 @@ def api_check_auth(request):
             }
         })
     return JsonResponse({'authenticated': False})
+
+
+# ══════════════════════════════════════════════
+#  OAUTH ENDPOINTS (Google & GitHub)
+# ══════════════════════════════════════════════
+
+@csrf_exempt
+def oauth_google_start(request):
+    """Redirect browser to Google OAuth consent screen."""
+    from urllib.parse import urlencode
+    client_id = django_settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+    backend_url = request.build_absolute_uri('/')[:-1]  # e.g. https://x-gate.onrender.com
+    redirect_uri = f"{backend_url}/api/auth/google/callback/"
+    params = urlencode({
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'response_type': 'code',
+        'scope': 'openid email profile',
+        'access_type': 'online',
+        'prompt': 'select_account',
+    })
+    return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?{params}")
+
+
+@csrf_exempt
+def oauth_google_callback(request):
+    """Exchange Google auth code for tokens, create/login user, redirect to frontend."""
+    from urllib.parse import urlencode
+    code = request.GET.get('code')
+    if not code:
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=no_code")
+
+    backend_url = request.build_absolute_uri('/')[:-1]
+    redirect_uri = f"{backend_url}/api/auth/google/callback/"
+    provider = django_settings.SOCIALACCOUNT_PROVIDERS['google']['APP']
+
+    # Exchange code for tokens
+    token_resp = http_requests.post('https://oauth2.googleapis.com/token', data={
+        'code': code,
+        'client_id': provider['client_id'],
+        'client_secret': provider['secret'],
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code',
+    })
+    if token_resp.status_code != 200:
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=token_exchange_failed")
+
+    access_token = token_resp.json().get('access_token')
+
+    # Fetch user info
+    user_resp = http_requests.get(
+        'https://www.googleapis.com/oauth2/v2/userinfo',
+        headers={'Authorization': f'Bearer {access_token}'},
+    )
+    if user_resp.status_code != 200:
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=userinfo_failed")
+
+    info = user_resp.json()
+    email = info.get('email', '')
+    name = info.get('name', '')
+
+    # Find or create user
+    user = User.objects.filter(email=email).first()
+    if not user:
+        username = email.split('@')[0]
+        # Ensure unique username
+        base = username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base}{counter}"
+            counter += 1
+        user = User.objects.create_user(username=username, email=email, password=None)
+        user.first_name = name
+        user.save()
+
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+
+    # Redirect to frontend with user info as query params
+    params = urlencode({
+        'oauth': 'success',
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+    })
+    return redirect(f"{django_settings.FRONTEND_URL}/oauth/callback?{params}")
+
+
+@csrf_exempt
+def oauth_github_start(request):
+    """Redirect browser to GitHub OAuth authorization page."""
+    from urllib.parse import urlencode
+    client_id = django_settings.SOCIALACCOUNT_PROVIDERS['github']['APP']['client_id']
+    backend_url = request.build_absolute_uri('/')[:-1]
+    redirect_uri = f"{backend_url}/api/auth/github/callback/"
+    params = urlencode({
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'scope': 'user:email',
+    })
+    return redirect(f"https://github.com/login/oauth/authorize?{params}")
+
+
+@csrf_exempt
+def oauth_github_callback(request):
+    """Exchange GitHub auth code for tokens, create/login user, redirect to frontend."""
+    from urllib.parse import urlencode
+    code = request.GET.get('code')
+    if not code:
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=no_code")
+
+    backend_url = request.build_absolute_uri('/')[:-1]
+    redirect_uri = f"{backend_url}/api/auth/github/callback/"
+    provider = django_settings.SOCIALACCOUNT_PROVIDERS['github']['APP']
+
+    # Exchange code for access token
+    token_resp = http_requests.post(
+        'https://github.com/login/oauth/access_token',
+        headers={'Accept': 'application/json'},
+        data={
+            'client_id': provider['client_id'],
+            'client_secret': provider['secret'],
+            'code': code,
+            'redirect_uri': redirect_uri,
+        },
+    )
+    if token_resp.status_code != 200:
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=token_exchange_failed")
+
+    access_token = token_resp.json().get('access_token')
+    if not access_token:
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=no_access_token")
+
+    # Fetch user info
+    user_resp = http_requests.get(
+        'https://api.github.com/user',
+        headers={'Authorization': f'Bearer {access_token}'},
+    )
+    if user_resp.status_code != 200:
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=userinfo_failed")
+
+    info = user_resp.json()
+    gh_username = info.get('login', '')
+    name = info.get('name', '') or gh_username
+
+    # Fetch email (may be private)
+    email_resp = http_requests.get(
+        'https://api.github.com/user/emails',
+        headers={'Authorization': f'Bearer {access_token}'},
+    )
+    email = ''
+    if email_resp.status_code == 200:
+        emails = email_resp.json()
+        primary = next((e for e in emails if e.get('primary')), None)
+        if primary:
+            email = primary.get('email', '')
+        elif emails:
+            email = emails[0].get('email', '')
+
+    # Find or create user
+    user = None
+    if email:
+        user = User.objects.filter(email=email).first()
+    if not user:
+        user = User.objects.filter(username=gh_username).first()
+    if not user:
+        username = gh_username
+        base = username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base}{counter}"
+            counter += 1
+        user = User.objects.create_user(username=username, email=email, password=None)
+        user.first_name = name
+        user.save()
+
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+
+    params = urlencode({
+        'oauth': 'success',
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+    })
+    return redirect(f"{django_settings.FRONTEND_URL}/oauth/callback?{params}")
 
 
 # ══════════════════════════════════════════════

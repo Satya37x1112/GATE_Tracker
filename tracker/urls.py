@@ -12,6 +12,12 @@ urlpatterns = [
     path('api/auth/logout/', views.api_logout, name='api_logout'),
     path('api/auth/check/', views.api_check_auth, name='api_check_auth'),
 
+    # ── OAuth ──
+    path('api/auth/google/', views.oauth_google_start, name='oauth_google_start'),
+    path('api/auth/google/callback/', views.oauth_google_callback, name='oauth_google_callback'),
+    path('api/auth/github/', views.oauth_github_start, name='oauth_github_start'),
+    path('api/auth/github/callback/', views.oauth_github_callback, name='oauth_github_callback'),
+
     # ── JSON API endpoints (for React frontend) ──
     path('api/dashboard/', views.api_dashboard, name='api_dashboard'),
     path('api/analytics/', views.api_analytics, name='api_analytics'),

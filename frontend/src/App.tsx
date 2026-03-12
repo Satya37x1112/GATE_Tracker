@@ -8,6 +8,7 @@ import History from './pages/History'
 import Progress from './pages/Progress'
 import Resources from './pages/Resources'
 import Login from './pages/Login'
+import OAuthCallback from './pages/OAuthCallback'
 
 interface User {
   id: number
@@ -47,21 +48,25 @@ export default function App() {
     )
   }
 
-  if (!user) {
-    return <Login onLogin={handleLogin} />
-  }
-
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout user={user} onLogout={handleLogout} />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/start-study" element={<StartStudy />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/progress" element={<Progress />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/history" element={<History />} />
-        </Route>
+        {/* OAuth callback — always accessible, even if not logged in */}
+        <Route path="/oauth/callback" element={<OAuthCallback onLogin={handleLogin} />} />
+
+        {/* If not logged in, show login on all other routes */}
+        {!user ? (
+          <Route path="*" element={<Login onLogin={handleLogin} />} />
+        ) : (
+          <Route element={<Layout user={user} onLogout={handleLogout} />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/start-study" element={<StartStudy />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/progress" element={<Progress />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/history" element={<History />} />
+          </Route>
+        )}
       </Routes>
     </BrowserRouter>
   )
