@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ChevronDown, ChevronRight, ExternalLink, BookOpen, Clock, Play, CheckCircle2, RotateCcw } from 'lucide-react'
+import SEO from '../components/SEO'
 import {
     type Video, type Subject,
     SUBJECTS, CHANNELS,
@@ -59,6 +60,7 @@ export default function Resources() {
 
     return (
         <div className="space-y-8">
+            <SEO title="Study Resources" description="Curated GATE CSE YouTube lectures for DSA, OS, DBMS, CN, TOC, Compiler Design & more — organized by subject with progress tracking." path="/resources" />
             {/* Header */}
             <div>
                 <h1 className="text-[28px] font-semibold tracking-tight flex items-center gap-3">

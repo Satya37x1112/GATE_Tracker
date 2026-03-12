@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import { Play, Pause, Square, Check } from 'lucide-react'
+import SEO from '../components/SEO'
 import { saveSession } from '../api/api'
 
 const SUBJECTS = [
@@ -84,6 +85,7 @@ export default function StartStudy() {
 
     return (
         <div className="max-w-xl mx-auto space-y-10">
+            <SEO title="Study Timer" description="Start a focused GATE CSE study session. Track time, questions solved, and notes for DSA, OS, DBMS, CN, TOC & more." path="/start-study" />
             {/* Header */}
             <div className="text-center">
                 <h1 className="text-[32px] font-semibold tracking-tight">Study Timer</h1>

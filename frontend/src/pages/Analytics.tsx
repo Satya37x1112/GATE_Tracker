@@ -3,6 +3,7 @@ import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement,
     LineElement, BarElement, ArcElement, Tooltip, Legend, Filler
 } from 'chart.js'
+import SEO from '../components/SEO'
 import { Line, Bar, Doughnut } from 'react-chartjs-2'
 import { TrendingUp, BookOpen, AlertCircle, Flame } from 'lucide-react'
 import StatCard from '../components/StatCard'
@@ -30,6 +31,7 @@ export default function Analytics() {
 
     return (
         <div className="space-y-10">
+            <SEO title="Analytics" description="Deep dive into your GATE CSE preparation patterns — study trends, subject breakdown, streaks, and performance insights." path="/analytics" />
             <div>
                 <h1 className="text-[32px] font-semibold tracking-tight">Analytics</h1>
                 <p className="text-[14px] opacity-30 mt-1">Deep dive into your preparation patterns.</p>

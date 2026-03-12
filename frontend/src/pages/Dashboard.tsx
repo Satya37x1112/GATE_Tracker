@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import SEO from '../components/SEO'
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement,
     LineElement, BarElement, ArcElement, Tooltip, Legend, Filler
@@ -35,6 +36,7 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-10">
+            <SEO title="Dashboard" description="Track your GATE CSE 2027 preparation — daily study hours, questions solved, streaks, and progress overview." path="/" />
             {/* Header */}
             <div className="flex items-end justify-between">
                 <div>

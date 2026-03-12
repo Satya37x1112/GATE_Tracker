@@ -3,6 +3,7 @@ import {
     Chart as ChartJS, CategoryScale, LinearScale, BarElement,
     Tooltip, Legend
 } from 'chart.js'
+import SEO from '../components/SEO'
 import { Bar } from 'react-chartjs-2'
 import {
     TrendingUp, TrendingDown, AlertTriangle, Zap, Target,
@@ -42,6 +43,7 @@ export default function Progress() {
 
     return (
         <div className="space-y-10 animate-fade-in">
+            <SEO title="Progress" description="Track your weekly GATE CSE study patterns, momentum trends, and multi-week progress with visual charts." path="/progress" />
             {/* Header */}
             <div>
                 <h1 className="text-[32px] tracking-tight">Progress</h1>
