@@ -188,7 +188,7 @@ The frontend includes `vercel.json` for SPA routing configuration. Set `VITE_API
 ├── requirements.txt       # Python dependencies
 └── manage.py              # Django management CLI
 ```
-
 ## License
 
-This project is for educational/personal use.
+This project is licensed under a proprietary license.  
+The code is available for viewing only and may not be copied, modified, or redistributed without permission.
