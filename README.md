@@ -128,39 +128,6 @@ npm run dev
 
 The frontend runs at `http://localhost:5173` and expects the backend at `http://localhost:8000`.
 
-## Environment Variables
-
-### Backend (.env)
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://user:pass@host:5432/dbname?sslmode=require` |
-| `SECRET_KEY` | Django secret key | auto-generated for production |
-| `DEBUG` | Debug mode | `True` for dev, `False` for production |
-| `ALLOWED_HOSTS` | Comma-separated hostnames | `localhost,127.0.0.1` |
-| `CORS_ALLOWED_ORIGINS` | Allowed frontend origins | `https://gate-tracker.vercel.app` |
-| `CSRF_TRUSTED_ORIGINS` | Trusted CSRF origins | `https://gate-tracker.vercel.app` |
-
-### Frontend (Vercel)
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `VITE_API_URL` | Backend API base URL | `https://gate-tracker-api.onrender.com` |
-
-## Deployment
-
-### Backend (Render)
-
-The project includes `render.yaml` and `build.sh` for automated deployment. The build script:
-1. Installs Python dependencies
-2. Collects static files
-3. Runs database migrations
-
-Set `DATABASE_URL` in Render's environment variables pointing to your Neon PostgreSQL instance.
-
-### Frontend (Vercel)
-
-The frontend includes `vercel.json` for SPA routing configuration. Set `VITE_API_URL` in Vercel's environment variables to the Render backend URL.
 
 ## Project Structure
 
