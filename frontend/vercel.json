@@ -1,7 +1,19 @@
 {
     "rewrites": [
         {
-            "source": "/((?!sitemap\\.xml|robots\\.txt|google[a-z0-9]+\\.html).*)",
+            "source": "/sitemap.xml",
+            "destination": "/sitemap.xml"
+        },
+        {
+            "source": "/robots.txt",
+            "destination": "/robots.txt"
+        },
+        {
+            "source": "/google:path*.html",
+            "destination": "/google:path*.html"
+        },
+        {
+            "source": "/(.*)",
             "destination": "/index.html"
         }
     ],
