@@ -43,6 +43,9 @@ export default function Layout({ user, onLogout }: Props) {
                 <main className="flex-1 px-6 py-8 md:px-10 md:py-10 animate-fade-in max-w-[1400px]">
                     <Outlet />
                 </main>
+                <footer className="px-6 py-4 text-center text-[11px] opacity-20 border-t border-white/[.04]">
+                    Made with ♥ by <span className="font-medium opacity-70">Satya Sarthak Manohari</span>
+                </footer>
             </div>
 
             <BreakReminder />

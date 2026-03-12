@@ -162,7 +162,7 @@ export default function Login({ onLogin }: Props) {
 
                 {/* Footer */}
                 <p className="text-center text-[12px] text-white/15 mt-8">
-                    GATE Study Intelligence Tracker · v2.0
+                    Made with ♥ by Satya Sarthak Manohari
                 </p>
             </div>
         </div>
