@@ -62,6 +62,12 @@ GATE CSE subjects:
 - General Aptitude
 """.strip()
 
+VISTRA_PROMPT_TEMPLATE = (
+    f"{VISTRA_SYSTEM_PROMPT}\n\n"
+    "User request:\n{user_message}\n\n"
+    "Respond as Vistra AI."
+)
+
 
 def login_required_api(view_func):
     """Decorator: returns 401 JSON for unauthenticated API requests."""
@@ -100,9 +106,8 @@ def _generate_gemini_reply(user_message):
     model_name = getattr(django_settings, 'GEMINI_MODEL', 'gemini-1.5-flash')
     response = client.models.generate_content(
         model=model_name,
-        contents=user_message,
+        contents=VISTRA_PROMPT_TEMPLATE.format(user_message=user_message),
         config=types.GenerateContentConfig(
-            system_instruction=VISTRA_SYSTEM_PROMPT,
             temperature=0.35,
             max_output_tokens=450,
         ),
