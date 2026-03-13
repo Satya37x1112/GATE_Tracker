@@ -189,3 +189,6 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 # Frontend URL for OAuth redirect
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
 
+# ── AI Assistant (Gemini) ──
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', os.environ.get('GOOGLE_API_KEY', ''))
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.0-flash')

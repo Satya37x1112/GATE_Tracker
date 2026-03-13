@@ -22,6 +22,42 @@ from functools import wraps
 
 from .models import DailyStats, StudySession
 
+VISTRA_SYSTEM_PROMPT = """
+You are Vistra AI, an intelligent study assistant for GATE Computer Science aspirants.
+
+Purpose:
+- Help students improve productivity, discipline, and conceptual understanding.
+
+Responsibilities:
+- Help create daily study plans.
+- Suggest how to study specific GATE subjects.
+- Identify weak subjects and give practical improvement strategies.
+- Encourage consistency and revision.
+- Give short explanations for CS topics.
+- Motivate students when they lose consistency.
+
+Behavior rules:
+1. Keep answers concise and practical.
+2. Focus on actionable study advice, not long theory.
+3. Encourage solving previous year questions (PYQs).
+4. Promote discipline, consistency, and revision.
+5. Prefer structured responses (bullets, short steps, compact plans).
+6. Do not include irrelevant information unrelated to GATE prep.
+7. Never claim to replace teachers or coaching institutes.
+
+GATE CSE subjects:
+- Data Structures and Algorithms
+- Operating Systems
+- Database Management Systems
+- Computer Networks
+- Theory of Computation
+- Compiler Design
+- Computer Organization and Architecture
+- Digital Logic
+- Engineering Mathematics
+- General Aptitude
+""".strip()
+
 
 def login_required_api(view_func):
     """Decorator: returns 401 JSON for unauthenticated API requests."""
@@ -695,6 +731,65 @@ def api_growth_tree(request):
         'progress_to_next': round(progress, 3),
         'total_stages': len(stages),
     })
+
+
+# ══════════════════════════════════════════════
+#  VISTRA AI ASSISTANT (POST)
+# ══════════════════════════════════════════════
+
+@csrf_exempt
+@require_POST
+@login_required_api
+def api_assistant_chat(request):
+    """Proxy chat requests to Gemini using a server-side API key."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    user_message = (data.get('message') or '').strip()
+    if not user_message:
+        return JsonResponse({'error': 'Message is required'}, status=400)
+
+    api_key = django_settings.__dict__.get('GEMINI_API_KEY') or django_settings.__dict__.get('GOOGLE_API_KEY')
+    if not api_key:
+        return JsonResponse({'error': 'Assistant is not configured on server'}, status=500)
+
+    model = django_settings.__dict__.get('GEMINI_MODEL', 'gemini-2.0-flash')
+    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    payload = {
+        'systemInstruction': {'parts': [{'text': VISTRA_SYSTEM_PROMPT}]},
+        'contents': [{'role': 'user', 'parts': [{'text': user_message}]}],
+        'generationConfig': {
+            'temperature': 0.35,
+            'maxOutputTokens': 450,
+        },
+    }
+
+    try:
+        resp = http_requests.post(
+            endpoint,
+            params={'key': api_key},
+            json=payload,
+            timeout=20,
+        )
+    except http_requests.RequestException:
+        return JsonResponse({'error': 'Assistant request failed'}, status=502)
+
+    if resp.status_code != 200:
+        return JsonResponse({'error': 'Assistant provider error'}, status=502)
+
+    body = resp.json()
+    candidates = body.get('candidates', [])
+    if not candidates:
+        return JsonResponse({'error': 'No assistant response received'}, status=502)
+
+    parts = candidates[0].get('content', {}).get('parts', [])
+    reply = ''.join(part.get('text', '') for part in parts).strip()
+    if not reply:
+        return JsonResponse({'error': 'Empty assistant response'}, status=502)
+
+    return JsonResponse({'reply': reply})
 
 
 # ══════════════════════════════════════════════

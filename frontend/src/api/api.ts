@@ -122,6 +122,10 @@ export interface MultiWeekProgress {
     avg_weekly_hours: number;
 }
 
+export interface AssistantReply {
+    reply: string;
+}
+
 // ── API Functions ───────────────────────────
 
 export async function fetchDashboard(): Promise<DashboardData> {
@@ -195,4 +199,15 @@ export async function saveSession(payload: SaveSessionPayload): Promise<{ status
 
 export function getExportUrl(): string {
     return `${API_BASE}/export/`;
+}
+
+export async function chatWithAssistant(message: string): Promise<AssistantReply> {
+    const res = await fetch(`${API_BASE}/api/assistant/chat/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ message }),
+    });
+    if (!res.ok) throw new Error('Failed to get assistant response');
+    return res.json();
 }

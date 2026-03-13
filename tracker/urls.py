@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/weekly-progress/', views.api_weekly_progress, name='api_weekly'),
     path('api/growth-tree/', views.api_growth_tree, name='api_growth_tree'),
     path('api/progress/', views.api_multi_week_progress, name='api_progress'),
+    path('api/assistant/chat/', views.api_assistant_chat, name='api_assistant_chat'),
 
     # ── POST endpoints ──
     path('save-session/', views.save_session, name='save_session'),

@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import {
-    LayoutDashboard, Timer, BarChart3, History, Download, X, TreePine, LogOut, TrendingUp, BookOpen
+    LayoutDashboard, Timer, BarChart3, History, Download, X, TreePine, LogOut, TrendingUp, BookOpen, MessageSquare
 } from 'lucide-react'
 import { getExportUrl } from '../api/api'
 
@@ -23,6 +23,7 @@ const links = [
     { to: '/start-study', label: 'Start Study', icon: Timer },
     { to: '/analytics', label: 'Analytics', icon: BarChart3 },
     { to: '/progress', label: 'Progress', icon: TrendingUp },
+    { to: '/assistant', label: 'Vistra AI', icon: MessageSquare },
     { to: '/resources', label: 'Resources', icon: BookOpen },
     { to: '/history', label: 'History', icon: History },
 ]
