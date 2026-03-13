@@ -65,7 +65,10 @@ GATE CSE subjects:
 VISTRA_PROMPT_TEMPLATE = (
     f"{VISTRA_SYSTEM_PROMPT}\n\n"
     "User request:\n{user_message}\n\n"
-    "Respond as Vistra AI."
+    "Respond as Vistra AI.\n"
+    "Give a complete answer in one response.\n"
+    "Do not stop after an introduction.\n"
+    "For broad questions, provide 4-6 concise bullet points followed by a short action plan."
 )
 
 
@@ -109,10 +112,20 @@ def _generate_gemini_reply(user_message):
         contents=VISTRA_PROMPT_TEMPLATE.format(user_message=user_message),
         config=types.GenerateContentConfig(
             temperature=0.35,
-            max_output_tokens=450,
+            max_output_tokens=900,
         ),
     )
     reply = (getattr(response, 'text', '') or '').strip()
+    if not reply:
+        candidates = getattr(response, 'candidates', []) or []
+        parts = []
+        for candidate in candidates:
+            content = getattr(candidate, 'content', None)
+            for part in getattr(content, 'parts', []) or []:
+                text = getattr(part, 'text', '')
+                if text:
+                    parts.append(text)
+        reply = '\n'.join(parts).strip()
     if not reply:
         raise RuntimeError('Gemini returned an empty response')
     return reply
