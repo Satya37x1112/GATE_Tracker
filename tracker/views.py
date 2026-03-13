@@ -71,6 +71,16 @@ VISTRA_PROMPT_TEMPLATE = (
     "For broad questions, provide 4-6 concise bullet points followed by a short action plan."
 )
 
+VISTRA_COMPLETION_PROMPT_TEMPLATE = (
+    f"{VISTRA_SYSTEM_PROMPT}\n\n"
+    "The previous answer was incomplete.\n"
+    "User request:\n{user_message}\n\n"
+    "Incomplete draft:\n{draft_reply}\n\n"
+    "Write the full final answer from scratch.\n"
+    "Do not repeat that it was incomplete.\n"
+    "Return one complete response with practical bullet points and a short action plan."
+)
+
 
 def login_required_api(view_func):
     """Decorator: returns 401 JSON for unauthenticated API requests."""
@@ -112,9 +122,32 @@ def _generate_gemini_reply(user_message):
         contents=VISTRA_PROMPT_TEMPLATE.format(user_message=user_message),
         config=types.GenerateContentConfig(
             temperature=0.35,
-            max_output_tokens=900,
+            max_output_tokens=1200,
         ),
     )
+    reply = _extract_gemini_text(response)
+    if _looks_incomplete(reply):
+        follow_up = client.models.generate_content(
+            model=model_name,
+            contents=VISTRA_COMPLETION_PROMPT_TEMPLATE.format(
+                user_message=user_message,
+                draft_reply=reply or "(empty draft)",
+            ),
+            config=types.GenerateContentConfig(
+                temperature=0.3,
+                max_output_tokens=1200,
+            ),
+        )
+        completed_reply = _extract_gemini_text(follow_up)
+        if completed_reply:
+            reply = completed_reply
+    if not reply:
+        raise RuntimeError('Gemini returned an empty response')
+    return reply
+
+
+def _extract_gemini_text(response):
+    """Normalize text extraction across Gemini SDK response shapes."""
     reply = (getattr(response, 'text', '') or '').strip()
     if not reply:
         candidates = getattr(response, 'candidates', []) or []
@@ -126,9 +159,27 @@ def _generate_gemini_reply(user_message):
                 if text:
                     parts.append(text)
         reply = '\n'.join(parts).strip()
-    if not reply:
-        raise RuntimeError('Gemini returned an empty response')
     return reply
+
+
+def _looks_incomplete(reply):
+    """Heuristic for visibly cut-off assistant responses."""
+    if not reply:
+        return True
+
+    normalized = reply.strip()
+    if len(normalized) < 140:
+        return True
+
+    incomplete_endings = (':', ',', ';', ' and', ' or', ' but', ' because', ' so', ' that')
+    lower = normalized.lower()
+    if lower.endswith(incomplete_endings):
+        return True
+
+    if normalized.count('\n') == 0 and normalized.count('. ') < 2:
+        return True
+
+    return False
 
 
 def _gemini_status():
