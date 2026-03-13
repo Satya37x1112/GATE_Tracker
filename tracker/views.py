@@ -7,7 +7,9 @@ All data endpoints filter by request.user for per-user data isolation.
 
 import csv
 import json
+import logging
 from datetime import date, timedelta
+from functools import lru_cache
 
 import requests as http_requests
 from django.conf import settings as django_settings
@@ -21,6 +23,8 @@ from django.views.decorators.http import require_POST
 from functools import wraps
 
 from .models import DailyStats, StudySession
+
+logger = logging.getLogger(__name__)
 
 VISTRA_SYSTEM_PROMPT = """
 You are Vistra AI, an intelligent study assistant for GATE Computer Science aspirants.
@@ -67,6 +71,45 @@ def login_required_api(view_func):
             return JsonResponse({'error': 'Authentication required'}, status=401)
         return view_func(request, *args, **kwargs)
     return wrapper
+
+
+@lru_cache(maxsize=1)
+def _get_gemini_client():
+    """Create and cache a Gemini client from environment-backed Django settings."""
+    api_key = getattr(django_settings, 'GEMINI_API_KEY', '') or getattr(django_settings, 'GOOGLE_API_KEY', '')
+    if not api_key:
+        raise RuntimeError('GEMINI_API_KEY is not configured')
+
+    try:
+        from google import genai
+    except ImportError as exc:
+        raise RuntimeError('google-genai is not installed') from exc
+
+    return genai.Client(api_key=api_key)
+
+
+def _generate_gemini_reply(user_message):
+    """Generate a text reply from Gemini without risking app startup failures."""
+    try:
+        from google.genai import types
+    except ImportError as exc:
+        raise RuntimeError('google-genai is not installed') from exc
+
+    client = _get_gemini_client()
+    model_name = getattr(django_settings, 'GEMINI_MODEL', 'gemini-1.5-flash')
+    response = client.models.generate_content(
+        model=model_name,
+        contents=user_message,
+        config=types.GenerateContentConfig(
+            system_instruction=VISTRA_SYSTEM_PROMPT,
+            temperature=0.35,
+            max_output_tokens=450,
+        ),
+    )
+    reply = (getattr(response, 'text', '') or '').strip()
+    if not reply:
+        raise RuntimeError('Gemini returned an empty response')
+    return reply
 
 
 # ══════════════════════════════════════════════
@@ -751,45 +794,21 @@ def api_assistant_chat(request):
     if not user_message:
         return JsonResponse({'error': 'Message is required'}, status=400)
 
-    api_key = django_settings.__dict__.get('GEMINI_API_KEY') or django_settings.__dict__.get('GOOGLE_API_KEY')
-    if not api_key:
-        return JsonResponse({'error': 'Assistant is not configured on server'}, status=500)
-
-    model = django_settings.__dict__.get('GEMINI_MODEL', 'gemini-2.0-flash')
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-    payload = {
-        'systemInstruction': {'parts': [{'text': VISTRA_SYSTEM_PROMPT}]},
-        'contents': [{'role': 'user', 'parts': [{'text': user_message}]}],
-        'generationConfig': {
-            'temperature': 0.35,
-            'maxOutputTokens': 450,
-        },
-    }
-
     try:
-        resp = http_requests.post(
-            endpoint,
-            params={'key': api_key},
-            json=payload,
-            timeout=20,
-        )
-    except http_requests.RequestException:
+        reply = _generate_gemini_reply(user_message)
+    except RuntimeError as exc:
+        logger.warning('Gemini configuration error: %s', exc)
+        return JsonResponse({'error': 'Assistant is not configured on server'}, status=500)
+    except Exception:
+        logger.exception('Gemini request failed')
         return JsonResponse({'error': 'Assistant request failed'}, status=502)
 
-    if resp.status_code != 200:
-        return JsonResponse({'error': 'Assistant provider error'}, status=502)
-
-    body = resp.json()
-    candidates = body.get('candidates', [])
-    if not candidates:
-        return JsonResponse({'error': 'No assistant response received'}, status=502)
-
-    parts = candidates[0].get('content', {}).get('parts', [])
-    reply = ''.join(part.get('text', '') for part in parts).strip()
-    if not reply:
-        return JsonResponse({'error': 'Empty assistant response'}, status=502)
-
     return JsonResponse({'reply': reply})
+
+
+def api_health(request):
+    """Lightweight health endpoint for Render/Vercel checks."""
+    return JsonResponse({'status': 'ok'})
 
 
 # ══════════════════════════════════════════════

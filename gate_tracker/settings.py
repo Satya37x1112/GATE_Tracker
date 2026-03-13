@@ -23,12 +23,19 @@ SECRET_KEY = os.environ.get(
     'django-insecure-j$lb(itvx*%4qrnb$)3lg=ad)(4ac03w!_srsui!us_9)9fxkn'
 )
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    if host.strip()
+]
 
 # On Render, the hostname is set via RENDER_EXTERNAL_HOSTNAME
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Frontend URL for OAuth redirects and CORS/CSRF configuration.
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
 
 
 # Application definition
@@ -132,20 +139,24 @@ _cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', '')
 if _cors_origins:
     CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins.split(',') if o.strip()]
     CORS_ALLOW_ALL_ORIGINS = False
-else:
-    # Development fallback
+elif DEBUG:
     CORS_ALLOWED_ORIGINS = [
         'http://localhost:5173',
         'http://127.0.0.1:5173',
     ]
     CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [FRONTEND_URL]
+    CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOW_CREDENTIALS = True
 
 # ── CSRF ──
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
-if CSRF_TRUSTED_ORIGINS == ['']:
-    CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin.strip()
+]
 
 # ── Cross-origin session cookies (Vercel → Render) ──
 # SameSite=None + Secure is required for cross-site cookies
@@ -153,6 +164,8 @@ SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 
 # ── OAuth / django-allauth ──
@@ -186,9 +199,6 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
-# Frontend URL for OAuth redirect
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
-
 # ── AI Assistant (Gemini) ──
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', os.environ.get('GOOGLE_API_KEY', ''))
-GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.0-flash')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY', '')
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-1.5-flash')
