@@ -37,12 +37,16 @@ export default function Assistant() {
     try {
       const data = await chatWithAssistant(trimmed)
       setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
-    } catch {
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : 'Unable to fetch response now. Retry in a few seconds. Meanwhile, solve 10 PYQs and revise one weak topic.'
       setMessages(prev => [
         ...prev,
         {
           role: 'assistant',
-          content: 'Unable to fetch response now. Retry in a few seconds. Meanwhile, solve 10 PYQs and revise one weak topic.',
+          content: message,
         },
       ])
     } finally {

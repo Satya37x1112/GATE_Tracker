@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/growth-tree/', views.api_growth_tree, name='api_growth_tree'),
     path('api/progress/', views.api_multi_week_progress, name='api_progress'),
     path('api/assistant/chat/', views.api_assistant_chat, name='api_assistant_chat'),
+    path('api/assistant/health/', views.api_assistant_health, name='api_assistant_health'),
     path('api/health/', views.api_health, name='api_health'),
 
     # ── POST endpoints ──

@@ -112,6 +112,24 @@ def _generate_gemini_reply(user_message):
     return reply
 
 
+def _gemini_status():
+    """Report non-secret Gemini configuration status for debugging."""
+    api_key = getattr(django_settings, 'GEMINI_API_KEY', '') or getattr(django_settings, 'GOOGLE_API_KEY', '')
+    model_name = getattr(django_settings, 'GEMINI_MODEL', 'gemini-1.5-flash')
+
+    try:
+        import google.genai  # noqa: F401
+        sdk_installed = True
+    except ImportError:
+        sdk_installed = False
+
+    return {
+        'configured': bool(api_key),
+        'sdk_installed': sdk_installed,
+        'model': model_name,
+    }
+
+
 # ══════════════════════════════════════════════
 #  AUTH API ENDPOINTS
 # ══════════════════════════════════════════════
@@ -798,10 +816,10 @@ def api_assistant_chat(request):
         reply = _generate_gemini_reply(user_message)
     except RuntimeError as exc:
         logger.warning('Gemini configuration error: %s', exc)
-        return JsonResponse({'error': 'Assistant is not configured on server'}, status=500)
-    except Exception:
+        return JsonResponse({'error': str(exc)}, status=500)
+    except Exception as exc:
         logger.exception('Gemini request failed')
-        return JsonResponse({'error': 'Assistant request failed'}, status=502)
+        return JsonResponse({'error': f'Assistant request failed: {exc}'}, status=502)
 
     return JsonResponse({'reply': reply})
 
@@ -809,6 +827,14 @@ def api_assistant_chat(request):
 def api_health(request):
     """Lightweight health endpoint for Render/Vercel checks."""
     return JsonResponse({'status': 'ok'})
+
+
+@login_required_api
+def api_assistant_health(request):
+    """Debug endpoint for assistant configuration and SDK availability."""
+    status = _gemini_status()
+    http_status = 200 if status['configured'] and status['sdk_installed'] else 503
+    return JsonResponse(status, status=http_status)
 
 
 # ══════════════════════════════════════════════

@@ -208,6 +208,9 @@ export async function chatWithAssistant(message: string): Promise<AssistantReply
         credentials: 'include',
         body: JSON.stringify({ message }),
     });
-    if (!res.ok) throw new Error('Failed to get assistant response');
-    return res.json();
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+        throw new Error(data?.error || 'Failed to get assistant response');
+    }
+    return data;
 }
