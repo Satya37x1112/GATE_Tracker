@@ -87,3 +87,20 @@ class DailyStats(models.Model):
     def __str__(self):
         owner = self.user.username if self.user else '—'
         return f"{self.date} — {owner} — {self.total_study_time:.0f} min studied"
+
+
+class Feedback(models.Model):
+    """Community-submitted product feedback and ideas."""
+
+    name = models.CharField(max_length=120, blank=True)
+    email = models.EmailField(blank=True)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    upvotes = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        label = self.name or self.email or 'Anonymous'
+        return f"{label}: {self.message[:50]}"

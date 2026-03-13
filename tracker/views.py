@@ -13,16 +13,19 @@ from functools import lru_cache
 
 import requests as http_requests
 from django.conf import settings as django_settings
+from django.core.mail import send_mail
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.db.models import F
 from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from functools import wraps
 
-from .models import DailyStats, StudySession
+from .models import DailyStats, Feedback, StudySession
 
 logger = logging.getLogger(__name__)
 
@@ -1004,7 +1007,90 @@ def dashboard(request):
         'current_streak': current_streak,
         'longest_streak': longest_streak,
         'recent_sessions': recent,
+        'recent_feedback': Feedback.objects.order_by('-created_at')[:3],
     })
+
+
+def _send_feedback_notification(feedback_entry):
+    """Email the admin when new community feedback is submitted."""
+    admin_email = getattr(django_settings, 'ADMIN_EMAIL', '').strip()
+    if not admin_email:
+        logger.warning('Feedback submitted but ADMIN_EMAIL is not configured.')
+        return False
+
+    submitted_at = timezone.localtime(feedback_entry.created_at).strftime('%Y-%m-%d %H:%M:%S %Z')
+    subject = 'New community feedback submission'
+    body = (
+        'A new feedback submission was received.\n\n'
+        f'Name: {feedback_entry.name or "Anonymous"}\n'
+        f'Email: {feedback_entry.email or "Not provided"}\n'
+        f'Submission time: {submitted_at}\n\n'
+        'Message:\n'
+        f'{feedback_entry.message}\n'
+    )
+    reply_to = [feedback_entry.email] if feedback_entry.email else None
+    send_mail(
+        subject=subject,
+        message=body,
+        from_email=getattr(django_settings, 'DEFAULT_FROM_EMAIL', None),
+        recipient_list=[admin_email],
+        fail_silently=False,
+        reply_to=reply_to,
+    )
+    return True
+
+
+def feedback(request):
+    """Render and accept community feedback submissions."""
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+        message = request.POST.get('message', '').strip()
+
+        if not message:
+            recent_feedback = Feedback.objects.order_by('-created_at')[:6]
+            context = {
+                'recent_feedback': recent_feedback,
+                'form_values': {'name': name, 'email': email, 'message': message},
+                'form_error': 'Please share a feedback message before submitting.',
+            }
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'error': context['form_error']}, status=400)
+            return render(request, 'feedback.html', context, status=400)
+
+        entry = Feedback.objects.create(name=name, email=email, message=message)
+        try:
+            _send_feedback_notification(entry)
+        except Exception:
+            logger.exception('Failed to send feedback notification email for feedback_id=%s', entry.id)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'status': 'ok',
+                'feedback_id': entry.id,
+                'message': 'Thanks for sharing your feedback.',
+            })
+        return redirect(f"{request.path}?submitted=1")
+
+    return render(request, 'feedback.html', {
+        'submitted': request.GET.get('submitted') == '1',
+        'recent_feedback': Feedback.objects.order_by('-created_at')[:6],
+        'form_values': {'name': '', 'email': '', 'message': ''},
+    })
+
+
+@require_POST
+def upvote_feedback(request, feedback_id):
+    """Increment upvotes for a feedback idea."""
+    updated = Feedback.objects.filter(id=feedback_id).update(upvotes=F('upvotes') + 1)
+    if not updated:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Feedback not found'}, status=404)
+        return redirect('tracker:feedback')
+
+    feedback_item = Feedback.objects.get(id=feedback_id)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'ok', 'upvotes': feedback_item.upvotes})
+    return redirect('tracker:feedback')
 
 
 def start_study(request):

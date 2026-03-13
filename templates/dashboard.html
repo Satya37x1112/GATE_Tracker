@@ -88,7 +88,7 @@
             </svg>
             Start Studying
         </a>
-        <a href="{% url 'tracker:analytics' %}"
+        <a href="{% url 'tracker:analytics_page' %}"
             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-surface-700 hover:bg-surface-800 border border-white/5 text-gray-300 font-semibold text-sm transition-colors">
             View Analytics
         </a>
@@ -133,4 +133,9 @@
     </div>
 
 </div>
+
+<a href="{% url 'tracker:feedback' %}#feedback-form" class="feedback-fab" aria-label="Share feedback">
+    <span class="text-lg">💬</span>
+    <span>Share Feedback</span>
+</a>
 {% endblock %}

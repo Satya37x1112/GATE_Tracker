@@ -33,6 +33,8 @@ urlpatterns = [
 
     # ── POST endpoints ──
     path('save-session/', views.save_session, name='save_session'),
+    path('feedback', views.feedback, name='feedback'),
+    path('feedback/<int:feedback_id>/upvote/', views.upvote_feedback, name='feedback_upvote'),
 
     # ── CSV Export ──
     path('export/', views.export_csv, name='export_csv'),

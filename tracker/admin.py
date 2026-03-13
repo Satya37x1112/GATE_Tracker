@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-from .models import StudySession, DailyStats
+from .models import DailyStats, Feedback, StudySession
 
 
 # ── Enhance the built-in User admin ──────────
@@ -36,6 +36,18 @@ class DailyStatsAdmin(admin.ModelAdmin):
     list_display = ('date', 'user', 'total_study_time', 'total_questions', 'total_lectures')
     list_filter = ('user', 'date')
     ordering = ('-date',)
+
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'email', 'short_message', 'upvotes', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('name', 'email', 'message')
+    ordering = ('-created_at',)
+
+    @staticmethod
+    def short_message(obj):
+        return obj.message[:80]
 
 
 # Customize admin site header
