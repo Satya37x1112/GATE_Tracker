@@ -1040,6 +1040,54 @@ def _send_feedback_notification(feedback_entry):
     return True
 
 
+def _feedback_payload(feedback_entry):
+    """Serialize feedback records for JSON responses."""
+    return {
+        'id': feedback_entry.id,
+        'name': feedback_entry.name or 'Anonymous',
+        'email': feedback_entry.email,
+        'message': feedback_entry.message,
+        'created_at': timezone.localtime(feedback_entry.created_at).isoformat(),
+        'upvotes': feedback_entry.upvotes,
+    }
+
+
+@login_required_api
+def api_feedback_list(request):
+    """Return recent community feedback entries."""
+    recent_feedback = Feedback.objects.order_by('-created_at')[:12]
+    return JsonResponse({'items': [_feedback_payload(item) for item in recent_feedback]})
+
+
+@csrf_exempt
+@require_POST
+@login_required_api
+def api_feedback_submit(request):
+    """Accept feedback submissions from the React frontend."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    name = (data.get('name') or '').strip()
+    email = (data.get('email') or '').strip()
+    message = (data.get('message') or '').strip()
+    if not message:
+        return JsonResponse({'error': 'Please share a feedback message before submitting.'}, status=400)
+
+    entry = Feedback.objects.create(name=name, email=email, message=message)
+    try:
+        _send_feedback_notification(entry)
+    except Exception:
+        logger.exception('Failed to send feedback notification email for feedback_id=%s', entry.id)
+
+    return JsonResponse({
+        'status': 'ok',
+        'message': 'Thanks for sharing your feedback.',
+        'feedback': _feedback_payload(entry),
+    })
+
+
 def feedback(request):
     """Render and accept community feedback submissions."""
     if request.method == 'POST':
@@ -1091,6 +1139,19 @@ def upvote_feedback(request, feedback_id):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({'status': 'ok', 'upvotes': feedback_item.upvotes})
     return redirect('tracker:feedback')
+
+
+@csrf_exempt
+@require_POST
+@login_required_api
+def api_feedback_upvote(request, feedback_id):
+    """Increment upvotes for feedback ideas from the React frontend."""
+    updated = Feedback.objects.filter(id=feedback_id).update(upvotes=F('upvotes') + 1)
+    if not updated:
+        return JsonResponse({'error': 'Feedback not found'}, status=404)
+
+    feedback_item = Feedback.objects.get(id=feedback_id)
+    return JsonResponse({'status': 'ok', 'upvotes': feedback_item.upvotes})
 
 
 def start_study(request):
