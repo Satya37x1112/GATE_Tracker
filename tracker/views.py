@@ -85,7 +85,8 @@ def _get_gemini_client():
     except ImportError as exc:
         raise RuntimeError('google-genai is not installed') from exc
 
-    return genai.Client(api_key=api_key)
+    api_version = getattr(django_settings, 'GEMINI_API_VERSION', 'v1')
+    return genai.Client(api_key=api_key, http_options={'api_version': api_version})
 
 
 def _generate_gemini_reply(user_message):
@@ -116,6 +117,7 @@ def _gemini_status():
     """Report non-secret Gemini configuration status for debugging."""
     api_key = getattr(django_settings, 'GEMINI_API_KEY', '') or getattr(django_settings, 'GOOGLE_API_KEY', '')
     model_name = getattr(django_settings, 'GEMINI_MODEL', 'gemini-1.5-flash')
+    api_version = getattr(django_settings, 'GEMINI_API_VERSION', 'v1')
 
     try:
         import google.genai  # noqa: F401
@@ -127,6 +129,7 @@ def _gemini_status():
         'configured': bool(api_key),
         'sdk_installed': sdk_installed,
         'model': model_name,
+        'api_version': api_version,
     }
 
 

@@ -202,3 +202,4 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 # ── AI Assistant (Gemini) ──
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY', '')
 GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-1.5-flash')
+GEMINI_API_VERSION = os.environ.get('GEMINI_API_VERSION', 'v1')
