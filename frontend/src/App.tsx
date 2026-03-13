@@ -8,6 +8,7 @@ import History from './pages/History'
 import Progress from './pages/Progress'
 import Resources from './pages/Resources'
 import Assistant from './pages/Assistant'
+import Feedback from './pages/Feedback'
 import Login from './pages/Login'
 import OAuthCallback from './pages/OAuthCallback'
 
@@ -65,6 +66,7 @@ export default function App() {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/assistant" element={<Assistant />} />
+            <Route path="/feedback" element={<Feedback />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/history" element={<History />} />
           </Route>

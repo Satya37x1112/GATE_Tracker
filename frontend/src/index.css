@@ -223,6 +223,132 @@ select.form-input option {
   box-shadow: 0 0 0 4px rgba(0, 0, 0, .04);
 }
 
+.feedback-hero-panel {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, .16), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(99, 102, 241, .18), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+  overflow: hidden;
+}
+
+.feedback-callout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 250px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.feedback-alert {
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+}
+
+.feedback-alert-success {
+  background: rgba(16, 185, 129, .12);
+  border: 1px solid rgba(16, 185, 129, .22);
+  color: #a7f3d0;
+}
+
+.feedback-alert-error {
+  background: rgba(248, 113, 113, .12);
+  border: 1px solid rgba(248, 113, 113, .22);
+  color: #fecaca;
+}
+
+.feedback-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #06b6d4, #4f46e5);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .15s ease, opacity .15s ease;
+}
+
+.feedback-submit-btn:hover {
+  transform: translateY(-1px);
+}
+
+.feedback-submit-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.feedback-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .03);
+  border: 1px solid rgba(255, 255, 255, .08);
+}
+
+.feedback-like-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(255, 255, 255, .03);
+  color: rgba(255, 255, 255, .75);
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform .15s ease, background .15s ease;
+}
+
+.feedback-like-chip:hover {
+  transform: translateY(-1px);
+  background: rgba(34, 211, 238, .1);
+}
+
+.feedback-like-chip:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.light .feedback-hero-panel {
+  border-color: rgba(0, 0, 0, .08);
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, .12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(99, 102, 241, .12), transparent 36%),
+    #fff;
+}
+
+.light .feedback-callout,
+.light .feedback-card,
+.light .feedback-like-chip {
+  border-color: rgba(0, 0, 0, .08);
+  background: rgba(0, 0, 0, .02);
+  color: rgba(0, 0, 0, .75);
+}
+
+@media (max-width: 768px) {
+  .feedback-hero-panel {
+    padding: 20px;
+    border-radius: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 /* ── Animations ────────────────────────────── */
 @keyframes fadeIn {
   from {

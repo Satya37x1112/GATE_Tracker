@@ -35,56 +35,57 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="space-y-10">
-            <SEO title="Dashboard" description="Track your GATE CSE 2027 preparation — daily study hours, questions solved, streaks, and progress overview." path="/" />
-            {/* Header */}
-            <div className="flex items-end justify-between">
-                <div>
-                    <h1 className="text-[32px] font-semibold tracking-tight leading-tight">Dashboard</h1>
-                    <p className="text-[14px] opacity-30 mt-1">Your GATE preparation at a glance.</p>
+        <>
+            <div className="space-y-10">
+                <SEO title="Dashboard" description="Track your GATE CSE 2027 preparation — daily study hours, questions solved, streaks, and progress overview." path="/" />
+                {/* Header */}
+                <div className="flex items-end justify-between">
+                    <div>
+                        <h1 className="text-[32px] font-semibold tracking-tight leading-tight">Dashboard</h1>
+                        <p className="text-[14px] opacity-30 mt-1">Your GATE preparation at a glance.</p>
+                    </div>
+                    <Link
+                        to="/start-study"
+                        className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-[13px] font-medium transition-all active:scale-[.97]"
+                    >
+                        Start Studying <ArrowRight size={14} />
+                    </Link>
                 </div>
-                <Link
-                    to="/start-study"
-                    className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-[13px] font-medium transition-all active:scale-[.97]"
-                >
-                    Start Studying <ArrowRight size={14} />
-                </Link>
-            </div>
 
-            {/* Stat cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <StatCard
-                    label="Study Hours" value={`${dash.today_hours}h`} sub="Today"
-                    icon={<Clock size={16} strokeWidth={1.8} />}
-                    iconBg="bg-blue-500/10 text-blue-400"
-                />
-                <StatCard
-                    label="Questions" value={dash.today_questions} sub="Solved today"
-                    icon={<HelpCircle size={16} strokeWidth={1.8} />}
-                    iconBg="bg-emerald-500/10 text-emerald-400"
-                />
-                <StatCard
-                    label="Lectures" value={`${dash.today_lectures}m`} sub="Today"
-                    icon={<GraduationCap size={16} strokeWidth={1.8} />}
-                    iconBg="bg-violet-500/10 text-violet-400"
-                />
-                <StatCard
-                    label="Streak" value={`${dash.current_streak}d`}
-                    sub={`Best: ${dash.longest_streak} days`}
-                    icon={<Flame size={16} strokeWidth={1.8} />}
-                    iconBg="bg-orange-500/10 text-orange-400"
-                />
-            </div>
+                {/* Stat cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <StatCard
+                        label="Study Hours" value={`${dash.today_hours}h`} sub="Today"
+                        icon={<Clock size={16} strokeWidth={1.8} />}
+                        iconBg="bg-blue-500/10 text-blue-400"
+                    />
+                    <StatCard
+                        label="Questions" value={dash.today_questions} sub="Solved today"
+                        icon={<HelpCircle size={16} strokeWidth={1.8} />}
+                        iconBg="bg-emerald-500/10 text-emerald-400"
+                    />
+                    <StatCard
+                        label="Lectures" value={`${dash.today_lectures}m`} sub="Today"
+                        icon={<GraduationCap size={16} strokeWidth={1.8} />}
+                        iconBg="bg-violet-500/10 text-violet-400"
+                    />
+                    <StatCard
+                        label="Streak" value={`${dash.current_streak}d`}
+                        sub={`Best: ${dash.longest_streak} days`}
+                        icon={<Flame size={16} strokeWidth={1.8} />}
+                        iconBg="bg-orange-500/10 text-orange-400"
+                    />
+                </div>
 
-            {/* Growth Tree + Weekly Progress (side by side) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <GrowthTree />
-                <WeeklyProgress />
-            </div>
+                {/* Growth Tree + Weekly Progress (side by side) */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <GrowthTree />
+                    <WeeklyProgress />
+                </div>
 
-            {/* Study hours trend */}
-            {charts && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Study hours trend */}
+                {charts && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     {/* Line chart — 2 cols */}
                     <div className="chart-card lg:col-span-2">
                         <p className="section-label mb-1">Study Hours</p>
@@ -149,26 +150,26 @@ export default function Dashboard() {
                             />
                         </div>
                     </div>
-                </div>
-            )}
-
-            {/* Heatmap */}
-            <Heatmap data={heatmap} />
-
-            {/* Recent sessions */}
-            <div>
-                <div className="flex items-center justify-between mb-4">
-                    <div>
-                        <p className="section-label mb-1">Sessions</p>
-                        <p className="text-lg font-semibold tracking-tight">Recent Activity</p>
                     </div>
-                    <Link to="/history" className="text-[13px] opacity-30 hover:opacity-60 transition-opacity">
-                        View all →
-                    </Link>
-                </div>
+                )}
 
-                {dash.recent_sessions.length > 0 ? (
-                    <div className="overflow-x-auto rounded-xl border border-white/[.06]">
+                {/* Heatmap */}
+                <Heatmap data={heatmap} />
+
+                {/* Recent sessions */}
+                <div>
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <p className="section-label mb-1">Sessions</p>
+                            <p className="text-lg font-semibold tracking-tight">Recent Activity</p>
+                        </div>
+                        <Link to="/history" className="text-[13px] opacity-30 hover:opacity-60 transition-opacity">
+                            View all →
+                        </Link>
+                    </div>
+
+                    {dash.recent_sessions.length > 0 ? (
+                        <div className="overflow-x-auto rounded-xl border border-white/[.06]">
                         <table className="w-full text-[13px]">
                             <thead>
                                 <tr className="border-b border-white/[.04]">
@@ -199,15 +200,24 @@ export default function Dashboard() {
                                 ))}
                             </tbody>
                         </table>
-                    </div>
-                ) : (
-                    <div className="text-center py-20 rounded-xl border border-dashed border-white/[.08]">
-                        <p className="text-[15px] opacity-30">No sessions yet.</p>
-                        <p className="text-[13px] opacity-20 mt-1">Start studying to see your progress grow.</p>
-                    </div>
-                )}
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 rounded-xl border border-dashed border-white/[.08]">
+                            <p className="text-[15px] opacity-30">No sessions yet.</p>
+                            <p className="text-[13px] opacity-20 mt-1">Start studying to see your progress grow.</p>
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+
+            <Link
+                to="/feedback"
+                className="fixed right-5 bottom-5 z-30 inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white text-[13px] font-medium shadow-[0_18px_42px_rgba(10,16,32,0.45)] hover:translate-y-[-1px] transition-all"
+            >
+                <span className="text-[16px]">💬</span>
+                Share Feedback
+            </Link>
+        </>
     )
 }
 

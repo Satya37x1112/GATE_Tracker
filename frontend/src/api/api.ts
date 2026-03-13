@@ -126,6 +126,15 @@ export interface AssistantReply {
     reply: string;
 }
 
+export interface FeedbackItem {
+    id: number;
+    name: string;
+    email: string;
+    message: string;
+    created_at: string;
+    upvotes: number;
+}
+
 // ── API Functions ───────────────────────────
 
 export async function fetchDashboard(): Promise<DashboardData> {
@@ -211,6 +220,43 @@ export async function chatWithAssistant(message: string): Promise<AssistantReply
     const data = await res.json().catch(() => null);
     if (!res.ok) {
         throw new Error(data?.error || 'Failed to get assistant response');
+    }
+    return data;
+}
+
+export async function fetchFeedback(): Promise<FeedbackItem[]> {
+    const res = await fetch(`${API_BASE}/api/feedback/`, OPTS);
+    if (!res.ok) throw new Error('Failed to fetch feedback');
+    const data = await res.json();
+    return data.items;
+}
+
+export async function submitFeedback(payload: {
+    name?: string;
+    email?: string;
+    message: string;
+}): Promise<{ status: string; message: string; feedback: FeedbackItem }> {
+    const res = await fetch(`${API_BASE}/api/feedback/submit/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+        throw new Error(data?.error || 'Failed to submit feedback');
+    }
+    return data;
+}
+
+export async function upvoteFeedback(feedbackId: number): Promise<{ status: string; upvotes: number }> {
+    const res = await fetch(`${API_BASE}/api/feedback/${feedbackId}/upvote/`, {
+        method: 'POST',
+        credentials: 'include',
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+        throw new Error(data?.error || 'Failed to upvote feedback');
     }
     return data;
 }
