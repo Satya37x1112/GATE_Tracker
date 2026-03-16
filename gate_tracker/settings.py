@@ -54,16 +54,29 @@ if not SECRET_KEY:
         if not SECRET_KEY:
             raise ImproperlyConfigured('SECRET_KEY must be set when DEBUG is False')
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-    if host.strip()
-]
+def _split_env_list(value):
+    return [item.strip() for item in value.split(',') if item.strip()]
 
-# On Render, the hostname is set via RENDER_EXTERNAL_HOSTNAME
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+default_allowed_hosts = [
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+    'testserver',
+    '.onrender.com',
+    '.render.com',
+]
+ALLOWED_HOSTS = default_allowed_hosts + _split_env_list(os.environ.get('ALLOWED_HOSTS', ''))
+
+# Render can expose multiple hostnames depending on request path and proxy layer.
+for render_host in (
+    os.environ.get('RENDER_EXTERNAL_HOSTNAME', ''),
+    os.environ.get('RENDER_INTERNAL_HOSTNAME', ''),
+):
+    if render_host:
+        ALLOWED_HOSTS.append(render_host.strip())
+
+ALLOWED_HOSTS = list(dict.fromkeys(ALLOWED_HOSTS))
 
 # Frontend URL for OAuth redirects and CORS/CSRF configuration.
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
@@ -184,11 +197,7 @@ else:
 CORS_ALLOW_CREDENTIALS = True
 
 # ── CSRF ──
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
-    if origin.strip()
-]
+CSRF_TRUSTED_ORIGINS = _split_env_list(os.environ.get('CSRF_TRUSTED_ORIGINS', ''))
 
 # ── Cross-origin session cookies (Vercel → Render) ──
 # SameSite=None + Secure is required for cross-site cookies
@@ -197,7 +206,11 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
+
+# Trust proxy protocol headers, but avoid trusting forwarded hostnames by default.
+# Some platforms send internal X-Forwarded-Host values for health checks, which can
+# trigger DisallowedHost even when the public Host header is correct.
+USE_X_FORWARDED_HOST = os.environ.get('USE_X_FORWARDED_HOST', 'False').lower() in ('true', '1', 'yes')
 
 
 # ── OAuth / django-allauth ──

@@ -44,7 +44,7 @@ class FeedbackViewTests(TestCase):
         })
 
         self.assertEqual(response.status_code, 400)
-        self.assertContains(response, 'Please share a feedback message before submitting.')
+        self.assertContains(response, 'Please share a feedback message before submitting.', status_code=400)
         self.assertEqual(Feedback.objects.count(), 0)
 
     def test_feedback_upvote_increments_counter(self):
@@ -163,7 +163,7 @@ class SecurityHardeningTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], 'https://gate-tracker-wzwf.vercel.app//?error=invalid_state')
+        self.assertEqual(response['Location'], 'https://gate-tracker-wzwf.vercel.app/?error=invalid_state')
 
     def test_github_oauth_start_sets_state_in_session(self):
         response = self.client.get(reverse('tracker:oauth_github_start'))
@@ -171,3 +171,19 @@ class SecurityHardeningTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn('state=', response['Location'])
         self.assertTrue(self.client.session.get('oauth_github_state'))
+
+
+@override_settings(
+    ALLOWED_HOSTS=['.onrender.com', 'localhost', '127.0.0.1'],
+    USE_X_FORWARDED_HOST=False,
+)
+class RenderProxyTests(TestCase):
+    def test_health_endpoint_ignores_internal_forwarded_host(self):
+        response = self.client.get(
+            reverse('tracker:api_health'),
+            HTTP_HOST='gate-tracker-u3ut.onrender.com',
+            HTTP_X_FORWARDED_HOST='2ddsm',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'status': 'ok'})
