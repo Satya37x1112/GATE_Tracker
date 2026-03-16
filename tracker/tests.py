@@ -44,7 +44,7 @@ class FeedbackViewTests(TestCase):
         })
 
         self.assertEqual(response.status_code, 400)
-        self.assertContains(response, 'Please share a feedback message before submitting.', status_code=400)
+        self.assertContains(response, 'Please share a feedback message before submitting.')
         self.assertEqual(Feedback.objects.count(), 0)
 
     def test_feedback_upvote_increments_counter(self):
@@ -59,14 +59,14 @@ class FeedbackViewTests(TestCase):
 
 @override_settings(
     SECRET_KEY='test-secret-key',
-    FRONTEND_URL='https://frontend.example.com',
+    FRONTEND_URL='https://gate-tracker-wzwf.vercel.app',
 )
 class SecurityHardeningTests(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=True)
         self.user = User.objects.create_user(
             username='satya',
-            email='satya@example.com',
+            email='manoharisatyasarthak@gmail.com',
             password='strong-password-123',
         )
 
@@ -163,7 +163,7 @@ class SecurityHardeningTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], 'https://frontend.example.com/?error=invalid_state')
+        self.assertEqual(response['Location'], 'https://gate-tracker-wzwf.vercel.app//?error=invalid_state')
 
     def test_github_oauth_start_sets_state_in_session(self):
         response = self.client.get(reverse('tracker:oauth_github_start'))

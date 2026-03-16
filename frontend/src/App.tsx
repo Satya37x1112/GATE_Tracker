@@ -7,6 +7,7 @@ import Analytics from './pages/Analytics'
 import History from './pages/History'
 import Progress from './pages/Progress'
 import Resources from './pages/Resources'
+import NewsBlogs from './pages/NewsBlogs'
 import Assistant from './pages/Assistant'
 import Feedback from './pages/Feedback'
 import Login from './pages/Login'
@@ -77,6 +78,7 @@ export default function App() {
                             <Route path="/assistant" element={<Assistant />} />
                             <Route path="/feedback" element={<Feedback />} />
                             <Route path="/resources" element={<Resources />} />
+                            <Route path="/news-blogs" element={<NewsBlogs />} />
                             <Route path="/history" element={<History />} />
                         </Route>
                         <Route path="*" element={<Navigate to="/" replace />} />
