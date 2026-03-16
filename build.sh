@@ -3,7 +3,11 @@
 
 set -o errexit
 
-pip install -r requirements.txt
+# Render build hooks can run before generated secrets are injected.
+# Use a build-only fallback so collectstatic/migrate don't crash at import time.
+export SECRET_KEY="${SECRET_KEY:-render-build-only-secret-key}"
 
-python manage.py collectstatic --no-input
-python manage.py migrate
+python3 -m pip install -r requirements.txt
+
+python3 manage.py collectstatic --no-input
+python3 manage.py migrate
