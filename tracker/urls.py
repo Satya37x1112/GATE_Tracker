@@ -6,6 +6,8 @@ from . import views
 app_name = 'tracker'
 
 urlpatterns = [
+    path('api/csrf/', views.api_csrf, name='api_csrf'),
+
     # ── Auth API ──
     path('api/auth/register/', views.api_register, name='api_register'),
     path('api/auth/login/', views.api_login, name='api_login'),

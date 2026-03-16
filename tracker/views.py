@@ -8,20 +8,22 @@ All data endpoints filter by request.user for per-user data isolation.
 import csv
 import json
 import logging
+import secrets
 from datetime import date, timedelta
 from functools import lru_cache
 
 import requests as http_requests
 from django.conf import settings as django_settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db.models import F
 from django.db.models import Sum
 from django.http import HttpResponse, JsonResponse
+from django.middleware.csrf import get_token
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from functools import wraps
 
@@ -93,6 +95,12 @@ def login_required_api(view_func):
             return JsonResponse({'error': 'Authentication required'}, status=401)
         return view_func(request, *args, **kwargs)
     return wrapper
+
+
+@ensure_csrf_cookie
+def api_csrf(request):
+    """Issue a CSRF cookie and return the matching token for the SPA."""
+    return JsonResponse({'csrfToken': get_token(request)})
 
 
 @lru_cache(maxsize=1)
@@ -209,7 +217,6 @@ def _gemini_status():
 #  AUTH API ENDPOINTS
 # ══════════════════════════════════════════════
 
-@csrf_exempt
 def api_register(request):
     """Register a new user with username, email, password."""
     if request.method != 'POST':
@@ -231,14 +238,13 @@ def api_register(request):
         return JsonResponse({'error': 'Username already taken'}, status=409)
 
     user = User.objects.create_user(username=username, email=email, password=password)
-    login(request, user)
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     return JsonResponse({
         'status': 'ok',
         'user': {'id': user.id, 'username': user.username, 'email': user.email}
     })
 
 
-@csrf_exempt
 def api_login(request):
     """Log in with username and password."""
     if request.method != 'POST':
@@ -259,8 +265,7 @@ def api_login(request):
         'user': {'id': user.id, 'username': user.username, 'email': user.email}
     })
 
-
-@csrf_exempt
+@require_POST
 def api_logout(request):
     """Log out the current user."""
     logout(request)
@@ -285,13 +290,14 @@ def api_check_auth(request):
 #  OAUTH ENDPOINTS (Google & GitHub)
 # ══════════════════════════════════════════════
 
-@csrf_exempt
 def oauth_google_start(request):
     """Redirect browser to Google OAuth consent screen."""
     from urllib.parse import urlencode
     client_id = django_settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
     backend_url = request.build_absolute_uri('/')[:-1]  # e.g. https://x-gate.onrender.com
     redirect_uri = f"{backend_url}/api/auth/google/callback/"
+    state = secrets.token_urlsafe(32)
+    request.session['oauth_google_state'] = state
     params = urlencode({
         'client_id': client_id,
         'redirect_uri': redirect_uri,
@@ -299,14 +305,19 @@ def oauth_google_start(request):
         'scope': 'openid email profile',
         'access_type': 'online',
         'prompt': 'select_account',
+        'state': state,
     })
     return redirect(f"https://accounts.google.com/o/oauth2/v2/auth?{params}")
 
 
-@csrf_exempt
 def oauth_google_callback(request):
     """Exchange Google auth code for tokens, create/login user, redirect to frontend."""
     from urllib.parse import urlencode
+    state = request.GET.get('state', '')
+    expected_state = request.session.pop('oauth_google_state', '')
+    if not state or not expected_state or not secrets.compare_digest(state, expected_state):
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=invalid_state")
+
     code = request.GET.get('code')
     if not code:
         return redirect(f"{django_settings.FRONTEND_URL}/?error=no_code")
@@ -339,6 +350,8 @@ def oauth_google_callback(request):
     info = user_resp.json()
     email = info.get('email', '')
     name = info.get('name', '')
+    if not email or not info.get('verified_email', False):
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=unverified_email")
 
     # Find or create user
     user = User.objects.filter(email=email).first()
@@ -366,25 +379,31 @@ def oauth_google_callback(request):
     return redirect(f"{django_settings.FRONTEND_URL}/oauth/callback?{params}")
 
 
-@csrf_exempt
 def oauth_github_start(request):
     """Redirect browser to GitHub OAuth authorization page."""
     from urllib.parse import urlencode
     client_id = django_settings.SOCIALACCOUNT_PROVIDERS['github']['APP']['client_id']
     backend_url = request.build_absolute_uri('/')[:-1]
     redirect_uri = f"{backend_url}/api/auth/github/callback/"
+    state = secrets.token_urlsafe(32)
+    request.session['oauth_github_state'] = state
     params = urlencode({
         'client_id': client_id,
         'redirect_uri': redirect_uri,
         'scope': 'user:email',
+        'state': state,
     })
     return redirect(f"https://github.com/login/oauth/authorize?{params}")
 
 
-@csrf_exempt
 def oauth_github_callback(request):
     """Exchange GitHub auth code for tokens, create/login user, redirect to frontend."""
     from urllib.parse import urlencode
+    state = request.GET.get('state', '')
+    expected_state = request.session.pop('oauth_github_state', '')
+    if not state or not expected_state or not secrets.compare_digest(state, expected_state):
+        return redirect(f"{django_settings.FRONTEND_URL}/?error=invalid_state")
+
     code = request.GET.get('code')
     if not code:
         return redirect(f"{django_settings.FRONTEND_URL}/?error=no_code")
@@ -431,11 +450,13 @@ def oauth_github_callback(request):
     email = ''
     if email_resp.status_code == 200:
         emails = email_resp.json()
-        primary = next((e for e in emails if e.get('primary')), None)
+        primary = next((e for e in emails if e.get('primary') and e.get('verified')), None)
         if primary:
             email = primary.get('email', '')
-        elif emails:
-            email = emails[0].get('email', '')
+        else:
+            verified = next((e for e in emails if e.get('verified')), None)
+            if verified:
+                email = verified.get('email', '')
 
     # Find or create user
     user = None
@@ -873,7 +894,6 @@ def api_growth_tree(request):
 #  VISTRA AI ASSISTANT (POST)
 # ══════════════════════════════════════════════
 
-@csrf_exempt
 @require_POST
 @login_required_api
 def api_assistant_chat(request):
@@ -916,7 +936,6 @@ def api_assistant_health(request):
 #  SAVE SESSION (POST)
 # ══════════════════════════════════════════════
 
-@csrf_exempt
 @require_POST
 @login_required_api
 def save_session(request):
@@ -1029,14 +1048,14 @@ def _send_feedback_notification(feedback_entry):
         f'{feedback_entry.message}\n'
     )
     reply_to = [feedback_entry.email] if feedback_entry.email else None
-    send_mail(
+    message = EmailMessage(
         subject=subject,
-        message=body,
+        body=body,
         from_email=getattr(django_settings, 'DEFAULT_FROM_EMAIL', None),
-        recipient_list=[admin_email],
-        fail_silently=False,
-        reply_to=reply_to,
+        to=[admin_email],
+        reply_to=reply_to or None,
     )
+    message.send(fail_silently=False)
     return True
 
 
@@ -1059,7 +1078,6 @@ def api_feedback_list(request):
     return JsonResponse({'items': [_feedback_payload(item) for item in recent_feedback]})
 
 
-@csrf_exempt
 @require_POST
 @login_required_api
 def api_feedback_submit(request):
@@ -1141,7 +1159,6 @@ def upvote_feedback(request, feedback_id):
     return redirect('tracker:feedback')
 
 
-@csrf_exempt
 @require_POST
 @login_required_api
 def api_feedback_upvote(request, feedback_id):

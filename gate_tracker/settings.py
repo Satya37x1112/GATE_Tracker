@@ -10,6 +10,7 @@ from pathlib import Path
 
 import dj_database_url
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 load_dotenv()  # loads .env file (Supabase DATABASE_URL, etc.)
 
@@ -17,11 +18,17 @@ load_dotenv()  # loads .env file (Supabase DATABASE_URL, etc.)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ── Environment ──
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
-SECRET_KEY = os.environ.get(
-    'SECRET_KEY',
-    'django-insecure-j$lb(itvx*%4qrnb$)3lg=ad)(4ac03w!_srsui!us_9)9fxkn'
-)
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
+
+if DEBUG:
+    SECRET_KEY = os.environ.get(
+        'SECRET_KEY',
+        'dev-only-secret-key-not-for-production'
+    )
+else:
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    if not SECRET_KEY:
+        raise ImproperlyConfigured('SECRET_KEY must be set when DEBUG is False')
 
 ALLOWED_HOSTS = [
     host.strip()
@@ -64,6 +71,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

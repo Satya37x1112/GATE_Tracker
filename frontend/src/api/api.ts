@@ -3,10 +3,51 @@
  * In production, set VITE_API_URL to your Render backend URL.
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // Always send session cookies (needed for cross-origin Vercel→Render)
 const OPTS: RequestInit = { credentials: 'include' };
+let csrfToken: string | null = null;
+
+function buildHeaders(headers?: HeadersInit, extra?: Record<string, string>): Headers {
+    const merged = new Headers(headers || {});
+    Object.entries(extra || {}).forEach(([key, value]) => merged.set(key, value));
+    return merged;
+}
+
+export async function ensureCsrfToken(forceRefresh = false): Promise<string> {
+    if (csrfToken && !forceRefresh) return csrfToken;
+
+    const res = await fetch(`${API_BASE}/api/csrf/`, OPTS);
+    if (!res.ok) throw new Error('Failed to initialize secure session');
+
+    const data = await res.json().catch(() => null);
+    if (!data?.csrfToken) throw new Error('Missing CSRF token from server');
+
+    const token = data.csrfToken as string;
+    csrfToken = token;
+    return token;
+}
+
+export async function fetchWithCsrf(url: string, init: RequestInit): Promise<Response> {
+    let token = await ensureCsrfToken();
+    let res = await fetch(url, {
+        ...init,
+        credentials: 'include',
+        headers: buildHeaders(init.headers, { 'X-CSRFToken': token }),
+    });
+
+    if (res.status === 403) {
+        token = await ensureCsrfToken(true);
+        res = await fetch(url, {
+            ...init,
+            credentials: 'include',
+            headers: buildHeaders(init.headers, { 'X-CSRFToken': token }),
+        });
+    }
+
+    return res;
+}
 
 // ── Types ───────────────────────────────────
 
@@ -196,11 +237,10 @@ export async function fetchMultiWeekProgress(): Promise<MultiWeekProgress> {
 }
 
 export async function saveSession(payload: SaveSessionPayload): Promise<{ status: string; session_id: number }> {
-    const res = await fetch(`${API_BASE}/save-session/`, {
+    const res = await fetchWithCsrf(`${API_BASE}/save-session/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-        credentials: 'include',
     });
     if (!res.ok) throw new Error('Failed to save session');
     return res.json();
@@ -211,10 +251,9 @@ export function getExportUrl(): string {
 }
 
 export async function chatWithAssistant(message: string): Promise<AssistantReply> {
-    const res = await fetch(`${API_BASE}/api/assistant/chat/`, {
+    const res = await fetchWithCsrf(`${API_BASE}/api/assistant/chat/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ message }),
     });
     const data = await res.json().catch(() => null);
@@ -236,10 +275,9 @@ export async function submitFeedback(payload: {
     email?: string;
     message: string;
 }): Promise<{ status: string; message: string; feedback: FeedbackItem }> {
-    const res = await fetch(`${API_BASE}/api/feedback/submit/`, {
+    const res = await fetchWithCsrf(`${API_BASE}/api/feedback/submit/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => null);
@@ -250,9 +288,8 @@ export async function submitFeedback(payload: {
 }
 
 export async function upvoteFeedback(feedbackId: number): Promise<{ status: string; upvotes: number }> {
-    const res = await fetch(`${API_BASE}/api/feedback/${feedbackId}/upvote/`, {
+    const res = await fetchWithCsrf(`${API_BASE}/api/feedback/${feedbackId}/upvote/`, {
         method: 'POST',
-        credentials: 'include',
     });
     const data = await res.json().catch(() => null);
     if (!res.ok) {

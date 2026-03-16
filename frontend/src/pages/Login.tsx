@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom'
 import { TreePine, LogIn, UserPlus } from 'lucide-react'
 import SEO from '../components/SEO'
 import PublicShell from '../components/PublicShell'
+import { API_BASE, fetchWithCsrf } from '../api/api'
 
 interface Props {
     onLogin: (user: { id: number; username: string; email: string }) => void
 }
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 function GoogleIcon() {
     return (
@@ -43,19 +42,18 @@ export default function Login({ onLogin }: Props) {
         setLoading(true)
 
         const url = mode === 'login'
-            ? `${API}/api/auth/login/`
-            : `${API}/api/auth/register/`
+            ? `${API_BASE}/api/auth/login/`
+            : `${API_BASE}/api/auth/register/`
 
         const body = mode === 'login'
             ? { username, password }
             : { username, email, password }
 
         try {
-            const res = await fetch(url, {
+            const res = await fetchWithCsrf(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
-                credentials: 'include',
             })
             const data = await res.json()
             if (!res.ok) {
@@ -209,14 +207,14 @@ export default function Login({ onLogin }: Props) {
 
                             <div className="flex gap-3">
                                 <a
-                                    href={`${API}/api/auth/google/`}
+                                    href={`${API_BASE}/api/auth/google/`}
                                     className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-white/[.08] bg-white/[.05] py-3 text-[14px] font-medium text-white transition-all hover:border-white/[.12] hover:bg-white/[.08] active:scale-[.98]"
                                 >
                                     <GoogleIcon />
                                     Google
                                 </a>
                                 <a
-                                    href={`${API}/api/auth/github/`}
+                                    href={`${API_BASE}/api/auth/github/`}
                                     className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-white/[.08] bg-white/[.05] py-3 text-[14px] font-medium text-white transition-all hover:border-white/[.12] hover:bg-white/[.08] active:scale-[.98]"
                                 >
                                     <GitHubIcon />
