@@ -5,7 +5,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                sans: ['Manrope', 'system-ui', '-apple-system', 'sans-serif'],
             },
             colors: {
                 surface: {

@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Font Stack: Poppins + Oregano ─────────── */
+/* ── Font Stack: Manrope + Sora ───────────── */
 :root {
-  --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-display: 'Oregano', cursive;
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: 'Sora', 'Manrope', sans-serif;
   --font-mono: 'SF Mono', 'Fira Code', monospace;
   --app-bg: #f5f7fb;
   --app-text: #0f172a;
@@ -107,12 +107,13 @@ body {
   font-family: var(--font-sans) !important;
 }
 
-/* Oregano for headings & branding */
+/* Professional display face for headings */
 h1,
 h2,
 .font-display {
   font-family: var(--font-display) !important;
-  font-weight: 400;
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 html,
