@@ -13,7 +13,6 @@ interface User {
 interface Props {
     open: boolean
     onClose: () => void
-    dark: boolean
     onLogout: () => void
     user: User
 }
@@ -30,7 +29,7 @@ const links = [
     { to: '/history', label: 'History', icon: History },
 ]
 
-export default function Sidebar({ open, onClose, dark, onLogout, user }: Props) {
+export default function Sidebar({ open, onClose, onLogout, user }: Props) {
     const overlay = open ? 'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden' : 'hidden'
     const sidebarCls = `app-sidebar fixed inset-y-0 left-0 z-50 w-[260px] flex flex-col border-r transition-transform duration-300 ease-out ${open ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`
@@ -96,7 +95,7 @@ export default function Sidebar({ open, onClose, dark, onLogout, user }: Props) 
                         </div>
                         <button
                             onClick={onLogout}
-                            className="theme-ghost-button p-2 rounded-lg transition-all hover:text-red-400 dark:hover:text-red-400 light:hover:text-red-500"
+                            className="theme-ghost-button p-2 rounded-lg transition-all hover:text-red-500 dark:hover:text-red-400"
                             title="Sign out"
                         >
                             <LogOut size={15} />

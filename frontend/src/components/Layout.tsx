@@ -31,7 +31,7 @@ export default function Layout({ user, onLogout }: Props) {
 
     return (
         <div className="app-shell min-h-screen flex">
-            <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} dark={dark} onLogout={onLogout} user={user} />
+            <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={onLogout} user={user} />
 
             <div className="flex-1 flex flex-col lg:ml-[260px] min-h-screen">
                 <TopBar

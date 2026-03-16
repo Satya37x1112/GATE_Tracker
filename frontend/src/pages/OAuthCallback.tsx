@@ -29,12 +29,12 @@ export default function OAuthCallback({ onLogin }: Props) {
     }, [onLogin])
 
     return (
-        <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500 flex items-center justify-center shadow-xl shadow-emerald-500/20">
+        <div className="app-shell min-h-screen flex flex-col items-center justify-center gap-4">
+            <div className="glass-primary-button flex h-14 w-14 items-center justify-center rounded-[22px] text-white">
                 <TreePine size={24} className="text-white" />
             </div>
-            <div className="w-5 h-5 border-2 border-white/20 border-t-emerald-400 rounded-full animate-spin" />
-            <p className="text-white/30 text-sm">Signing you in…</p>
+            <div className="theme-spinner w-5 h-5 border-2 rounded-full animate-spin" />
+            <p className="theme-soft text-sm">Signing you in…</p>
         </div>
     )
 }

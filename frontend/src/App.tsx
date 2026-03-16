@@ -29,6 +29,9 @@ export default function App() {
 
   // Check for stored user on mount
   useEffect(() => {
+    const savedTheme = localStorage.getItem('gate-dark')
+    document.documentElement.className = savedTheme === 'false' ? 'light' : 'dark'
+
     const stored = localStorage.getItem('gate-user')
     if (stored) {
       try { setUser(JSON.parse(stored)) } catch { /* ignore */ }
@@ -50,8 +53,8 @@ export default function App() {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
-        <div className="w-5 h-5 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+      <div className="app-shell min-h-screen flex items-center justify-center">
+        <div className="theme-spinner w-5 h-5 border-2 rounded-full animate-spin" />
       </div>
     )
   }

@@ -22,15 +22,17 @@ export default function BreakReminder() {
 
     return (
         <div className="fixed bottom-6 right-6 z-50 animate-slide-up">
-            <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 max-w-sm">
-                <AlertTriangle size={22} className="flex-shrink-0" />
+            <div className="glass-toast flex max-w-sm items-center gap-3 rounded-[22px] px-6 py-4">
+                <div className="glass-primary-button flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl text-white">
+                    <AlertTriangle size={20} className="flex-shrink-0" />
+                </div>
                 <div>
                     <p className="font-bold">Time for a break! ☕</p>
-                    <p className="text-sm opacity-90">You've been studying for 50 minutes. Rest for 10 min.</p>
+                    <p className="theme-soft text-sm">You've been studying for 50 minutes. Rest for 10 min.</p>
                 </div>
                 <button
                     onClick={() => setVisible(false)}
-                    className="ml-3 text-white/70 hover:text-white text-xl leading-none"
+                    className="theme-ghost-button ml-3 rounded-full px-2 text-xl leading-none"
                 >
                     ×
                 </button>

@@ -22,7 +22,7 @@ function GoogleIcon() {
 
 function GitHubIcon() {
     return (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
         </svg>
     )
@@ -81,8 +81,8 @@ export default function Login({ onLogin }: Props) {
                 <div className="order-2 space-y-4 lg:order-1">
                     <div>
                         <p className="section-label mb-3">Study With Structure</p>
-                        <h1 className="text-[42px] leading-none tracking-tight text-white">GateTracker</h1>
-                        <p className="mt-4 max-w-xl text-[15px] leading-7 text-white/65">
+                        <h1 className="text-[42px] leading-none tracking-tight">GateTracker</h1>
+                        <p className="theme-soft mt-4 max-w-xl text-[15px] leading-7">
                             A focused workspace for GATE CSE preparation with session tracking, analytics, curated study
                             resources, and a public feedback loop for continuous improvement.
                         </p>
@@ -91,15 +91,15 @@ export default function Login({ onLogin }: Props) {
                     <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
                         <div className="glass-panel p-5">
                             <p className="text-[15px] font-semibold">Original, relevant study data</p>
-                            <p className="mt-2 text-[13px] leading-6 text-white/60">Your dashboard is built from your own study sessions and progress history, not recycled content.</p>
+                            <p className="theme-soft mt-2 text-[13px] leading-6">Your dashboard is built from your own study sessions and progress history, not recycled content.</p>
                         </div>
                         <div className="glass-panel p-5">
                             <p className="text-[15px] font-semibold">Clear public trust pages</p>
-                            <p className="mt-2 text-[13px] leading-6 text-white/60">Visitors can now review the product context on the <Link to="/about" className="text-emerald-300 hover:text-emerald-200">About Us</Link> and <Link to="/contact" className="text-emerald-300 hover:text-emerald-200">Contact Us</Link> pages before signing in.</p>
+                            <p className="theme-soft mt-2 text-[13px] leading-6">Visitors can now review the product context on the <Link to="/about" className="text-emerald-400 hover:text-emerald-300">About Us</Link> and <Link to="/contact" className="text-emerald-400 hover:text-emerald-300">Contact Us</Link> pages before signing in.</p>
                         </div>
                         <div className="glass-panel p-5">
                             <p className="text-[15px] font-semibold">Fresh improvements over time</p>
-                            <p className="mt-2 text-[13px] leading-6 text-white/60">Resources, feedback workflows, and product features are updated iteratively as the platform evolves.</p>
+                            <p className="theme-soft mt-2 text-[13px] leading-6">Resources, feedback workflows, and product features are updated iteratively as the platform evolves.</p>
                         </div>
                     </div>
                 </div>
@@ -107,29 +107,29 @@ export default function Login({ onLogin }: Props) {
                 <div className="order-1 w-full lg:order-2">
                     <div className="mx-auto w-full max-w-md">
                         <div className="mb-10 text-center">
-                            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500 shadow-xl shadow-emerald-500/20">
+                            <div className="glass-primary-button mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-[24px] text-white">
                                 <TreePine size={28} className="text-white" />
                             </div>
-                            <h2 className="text-4xl tracking-tight text-white">Welcome back</h2>
-                            <p className="mt-2 text-[14px] text-white/25">Study Intelligence for GATE 2027</p>
+                            <h2 className="text-4xl tracking-tight">Welcome back</h2>
+                            <p className="theme-soft mt-2 text-[14px]">Study Intelligence for GATE 2027</p>
                         </div>
 
-                        <div className="rounded-2xl border border-white/[.06] bg-white/[.03] p-8 backdrop-blur-xl">
-                            <div className="mb-8 flex rounded-xl bg-white/[.04] p-1">
+                        <div className="auth-panel p-8">
+                            <div className="glass-segment mb-8 flex p-1">
                                 <button
                                     onClick={() => { setMode('login'); setError('') }}
-                                    className={`flex-1 rounded-lg py-2.5 text-[14px] font-medium transition-all ${mode === 'login'
-                                        ? 'bg-white/[.08] text-white shadow-sm'
-                                        : 'text-white/30 hover:text-white/50'
+                                    className={`glass-segment-button flex-1 rounded-full py-2.5 text-[14px] font-medium transition-all ${mode === 'login'
+                                        ? 'active'
+                                        : 'hover:opacity-80'
                                         }`}
                                 >
                                     Sign In
                                 </button>
                                 <button
                                     onClick={() => { setMode('register'); setError('') }}
-                                    className={`flex-1 rounded-lg py-2.5 text-[14px] font-medium transition-all ${mode === 'register'
-                                        ? 'bg-white/[.08] text-white shadow-sm'
-                                        : 'text-white/30 hover:text-white/50'
+                                    className={`glass-segment-button flex-1 rounded-full py-2.5 text-[14px] font-medium transition-all ${mode === 'register'
+                                        ? 'active'
+                                        : 'hover:opacity-80'
                                         }`}
                                 >
                                     Create Account
@@ -138,7 +138,7 @@ export default function Login({ onLogin }: Props) {
 
                             <form onSubmit={handleSubmit} className="space-y-5">
                                 <div>
-                                    <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-white/30">
+                                    <label className="section-label mb-1.5 block">
                                         Username
                                     </label>
                                     <input
@@ -148,13 +148,13 @@ export default function Login({ onLogin }: Props) {
                                         placeholder="johndoe"
                                         required
                                         autoFocus
-                                        className="w-full rounded-xl border border-white/[.08] bg-white/[.04] px-4 py-3 text-[15px] text-white outline-none transition-all placeholder:text-white/15 focus:border-white/20 focus:bg-white/[.06]"
+                                        className="form-input w-full px-4 py-3 text-[15px] placeholder:text-slate-400/70"
                                     />
                                 </div>
 
                                 {mode === 'register' && (
                                     <div className="animate-slide-up">
-                                        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-white/30">
+                                        <label className="section-label mb-1.5 block">
                                             Email
                                         </label>
                                         <input
@@ -163,13 +163,13 @@ export default function Login({ onLogin }: Props) {
                                             onChange={e => setEmail(e.target.value)}
                                             placeholder="john@example.com"
                                             required
-                                            className="w-full rounded-xl border border-white/[.08] bg-white/[.04] px-4 py-3 text-[15px] text-white outline-none transition-all placeholder:text-white/15 focus:border-white/20 focus:bg-white/[.06]"
+                                            className="form-input w-full px-4 py-3 text-[15px] placeholder:text-slate-400/70"
                                         />
                                     </div>
                                 )}
 
                                 <div>
-                                    <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-white/30">
+                                    <label className="section-label mb-1.5 block">
                                         Password
                                     </label>
                                     <input
@@ -179,7 +179,7 @@ export default function Login({ onLogin }: Props) {
                                         placeholder="••••••••"
                                         required
                                         minLength={6}
-                                        className="w-full rounded-xl border border-white/[.08] bg-white/[.04] px-4 py-3 text-[15px] text-white outline-none transition-all placeholder:text-white/15 focus:border-white/20 focus:bg-white/[.06]"
+                                        className="form-input w-full px-4 py-3 text-[15px] placeholder:text-slate-400/70"
                                     />
                                 </div>
 
@@ -192,7 +192,7 @@ export default function Login({ onLogin }: Props) {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-emerald-500 py-3.5 text-[15px] font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400 disabled:opacity-40 active:scale-[.98]"
+                                    className="glass-primary-button flex w-full items-center justify-center gap-2.5 rounded-[18px] py-3.5 text-[15px] font-medium text-white transition-all disabled:opacity-40 active:scale-[.98]"
                                 >
                                     {mode === 'login' ? <LogIn size={16} /> : <UserPlus size={16} />}
                                     {loading ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
@@ -200,22 +200,22 @@ export default function Login({ onLogin }: Props) {
                             </form>
 
                             <div className="my-6 flex items-center gap-3">
-                                <div className="h-px flex-1 bg-white/[.08]" />
-                                <span className="text-[11px] font-medium uppercase tracking-wider text-white/20">or continue with</span>
-                                <div className="h-px flex-1 bg-white/[.08]" />
+                                <div className="theme-divider-bg h-px flex-1" />
+                                <span className="theme-soft text-[11px] font-medium uppercase tracking-wider">or continue with</span>
+                                <div className="theme-divider-bg h-px flex-1" />
                             </div>
 
                             <div className="flex gap-3">
                                 <a
                                     href={`${API_BASE}/api/auth/google/`}
-                                    className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-white/[.08] bg-white/[.05] py-3 text-[14px] font-medium text-white transition-all hover:border-white/[.12] hover:bg-white/[.08] active:scale-[.98]"
+                                    className="glass-secondary-button flex flex-1 items-center justify-center gap-2.5 rounded-[18px] py-3 text-[14px] font-medium transition-all active:scale-[.98]"
                                 >
                                     <GoogleIcon />
                                     Google
                                 </a>
                                 <a
                                     href={`${API_BASE}/api/auth/github/`}
-                                    className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-white/[.08] bg-white/[.05] py-3 text-[14px] font-medium text-white transition-all hover:border-white/[.12] hover:bg-white/[.08] active:scale-[.98]"
+                                    className="glass-secondary-button flex flex-1 items-center justify-center gap-2.5 rounded-[18px] py-3 text-[14px] font-medium transition-all active:scale-[.98]"
                                 >
                                     <GitHubIcon />
                                     GitHub
@@ -223,7 +223,7 @@ export default function Login({ onLogin }: Props) {
                             </div>
                         </div>
 
-                        <p className="mt-8 text-center text-[12px] text-white/15">
+                        <p className="theme-soft mt-8 text-center text-[12px]">
                             Made with ♥ by Satya Sarthak Manohari
                         </p>
                     </div>
