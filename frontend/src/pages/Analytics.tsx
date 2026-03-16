@@ -9,12 +9,15 @@ import { TrendingUp, BookOpen, AlertCircle, Flame } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import WeeklyProgress from '../components/WeeklyProgress'
 import { fetchAnalytics, fetchChartData, type AnalyticsData, type ChartData } from '../api/api'
+import { getChartTheme, isDarkTheme } from '../utils/theme'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend, Filler)
 
 export default function Analytics() {
     const [a, setA] = useState<AnalyticsData | null>(null)
     const [c, setC] = useState<ChartData | null>(null)
+    const dark = isDarkTheme()
+    const chartTheme = getChartTheme(dark)
 
     useEffect(() => {
         fetchAnalytics().then(setA).catch(console.error)
@@ -24,7 +27,7 @@ export default function Analytics() {
     if (!a || !c) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+                <div className="theme-spinner w-5 h-5 border-2 rounded-full animate-spin" />
             </div>
         )
     }
@@ -69,7 +72,7 @@ export default function Analytics() {
                                     pointBackgroundColor: '#22c55e', borderWidth: 2,
                                 }]
                             }}
-                            options={chartOpts()}
+                            options={chartOpts(dark)}
                         />
                     </div>
                 </div>
@@ -88,7 +91,7 @@ export default function Analytics() {
                                     borderRadius: 8, borderSkipped: false,
                                 }]
                             }}
-                            options={chartOpts()}
+                            options={chartOpts(dark)}
                         />
                     </div>
                 </div>
@@ -116,7 +119,7 @@ export default function Analytics() {
                                 plugins: {
                                     legend: {
                                         position: 'right',
-                                        labels: { color: 'rgba(255,255,255,.35)', font: { size: 12 }, padding: 10, usePointStyle: true, pointStyleWidth: 8, },
+                                        labels: { color: chartTheme.legend, font: { size: 12 }, padding: 10, usePointStyle: true, pointStyleWidth: 8, },
                                     },
                                 },
                             }}
@@ -128,12 +131,13 @@ export default function Analytics() {
     )
 }
 
-function chartOpts() {
+function chartOpts(dark: boolean) {
+    const theme = getChartTheme(dark)
     return {
         responsive: true, maintainAspectRatio: false,
         scales: {
-            x: { ticks: { color: 'rgba(255,255,255,.2)', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,.03)' }, border: { display: false } },
-            y: { ticks: { color: 'rgba(255,255,255,.2)', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,.03)' }, border: { display: false } },
+            x: { ticks: { color: theme.tick, font: { size: 11 } }, grid: { color: theme.grid }, border: { display: false } },
+            y: { ticks: { color: theme.tick, font: { size: 11 } }, grid: { color: theme.grid }, border: { display: false } },
         },
         plugins: { legend: { display: false } },
     } as const

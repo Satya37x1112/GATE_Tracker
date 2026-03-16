@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react'
 import { fetchWeeklyProgress, type WeeklyProgress as WPData } from '../api/api'
+import { isDarkTheme } from '../utils/theme'
 
 /**
  * Weekly progress section: 7-day bar chart + this vs last week comparison.
  */
 export default function WeeklyProgress() {
     const [data, setData] = useState<WPData | null>(null)
+    const dark = isDarkTheme()
 
     useEffect(() => {
         fetchWeeklyProgress().then(setData).catch(console.error)
@@ -77,12 +79,12 @@ export default function WeeklyProgress() {
                         <div className="w-full relative" style={{ height: '100%' }}>
                             <div
                                 className={`weekly-bar absolute bottom-0 left-0 right-0 transition-all duration-700 ${day.is_today
-                                        ? 'bg-gradient-to-t from-emerald-600 to-emerald-400'
+                                            ? 'bg-gradient-to-t from-emerald-600 to-emerald-400'
                                         : day.is_future
-                                            ? 'bg-white/[.03]'
+                                            ? dark ? 'bg-white/[.03]' : 'bg-slate-200'
                                             : day.hours > 0
-                                                ? 'bg-gradient-to-t from-white/10 to-white/20'
-                                                : 'bg-white/[.04]'
+                                                ? dark ? 'bg-gradient-to-t from-white/10 to-white/20' : 'bg-gradient-to-t from-slate-300 to-slate-200'
+                                                : dark ? 'bg-white/[.04]' : 'bg-slate-100'
                                     }`}
                                 style={{
                                     height: day.is_future ? '100%' :
@@ -101,7 +103,7 @@ export default function WeeklyProgress() {
             </div>
 
             {/* Daily details row */}
-            <div className="flex gap-3 mt-4 pt-4 border-t border-white/[.04]">
+            <div className="theme-divider flex gap-3 mt-4 pt-4 border-t">
                 {data.days.filter(d => !d.is_future && d.sessions > 0).map(day => (
                     <div key={day.date} className="text-[10px] opacity-30">
                         <span className="font-medium">{day.day}:</span> {day.sessions} session{day.sessions !== 1 ? 's' : ''}, {day.questions} Q

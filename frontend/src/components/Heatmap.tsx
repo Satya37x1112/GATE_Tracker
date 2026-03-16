@@ -1,10 +1,13 @@
 import { useMemo } from 'react'
+import { getChartTheme, isDarkTheme } from '../utils/theme'
 
 interface Props {
     data: Record<string, number>
 }
 
 export default function Heatmap({ data }: Props) {
+    const dark = isDarkTheme()
+    const theme = getChartTheme(dark)
     const { weeks } = useMemo(() => {
         const today = new Date()
         const cells: { date: string; mins: number; dayOfWeek: number }[] = []
@@ -49,11 +52,11 @@ export default function Heatmap({ data }: Props) {
     }, [data])
 
     function getColor(mins: number): string {
-        if (mins === 0) return 'bg-white/[.03]'
-        if (mins < 30) return 'bg-emerald-900/40'
-        if (mins < 60) return 'bg-emerald-700/50'
-        if (mins < 120) return 'bg-emerald-500/70'
-        return 'bg-emerald-400/90'
+        if (mins === 0) return theme.heatmapEmptyClass
+        if (mins < 30) return theme.heatmapLowClass
+        if (mins < 60) return theme.heatmapMidClass
+        if (mins < 120) return theme.heatmapHighClass
+        return theme.heatmapMaxClass
     }
 
     return (
@@ -90,11 +93,11 @@ export default function Heatmap({ data }: Props) {
             {/* Legend */}
             <div className="flex items-center gap-1.5 mt-3 text-[9px] opacity-25">
                 <span>Less</span>
-                <div className="heatmap-cell bg-white/[.03]" />
-                <div className="heatmap-cell bg-emerald-900/40" />
-                <div className="heatmap-cell bg-emerald-700/50" />
-                <div className="heatmap-cell bg-emerald-500/70" />
-                <div className="heatmap-cell bg-emerald-400/90" />
+                <div className={`heatmap-cell ${theme.heatmapEmptyClass}`} />
+                <div className={`heatmap-cell ${theme.heatmapLowClass}`} />
+                <div className={`heatmap-cell ${theme.heatmapMidClass}`} />
+                <div className={`heatmap-cell ${theme.heatmapHighClass}`} />
+                <div className={`heatmap-cell ${theme.heatmapMaxClass}`} />
                 <span>More</span>
             </div>
         </div>

@@ -30,7 +30,7 @@ export default function Layout({ user, onLogout }: Props) {
     }, [dark])
 
     return (
-        <div className={`min-h-screen flex ${dark ? 'bg-[#09090b] text-[#fafafa]' : 'bg-[#fafafa] text-[#09090b]'}`}>
+        <div className="app-shell min-h-screen flex">
             <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} dark={dark} onLogout={onLogout} user={user} />
 
             <div className="flex-1 flex flex-col lg:ml-[260px] min-h-screen">
@@ -40,15 +40,15 @@ export default function Layout({ user, onLogout }: Props) {
                     onToggleDark={() => setDark(d => !d)}
                     user={user}
                 />
-                <main className="flex-1 px-6 py-8 md:px-10 md:py-10 animate-fade-in max-w-[1400px]">
+                <main className="flex-1 px-6 py-8 md:px-10 md:py-10 animate-fade-in max-w-[1400px] w-full">
                     <Outlet />
                 </main>
-                <footer className="border-t border-white/[.04] px-6 py-4 text-[11px] opacity-25">
+                <footer className="app-footer border-t px-6 py-4 text-[11px]">
                     <div className="flex flex-col gap-2 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-                        <p>
-                            Made with ♥ by <span className="font-medium opacity-70">Satya Sarthak Manohari</span>
+                        <p className="theme-soft">
+                            Made with ♥ by <span className="font-medium theme-muted">Satya Sarthak Manohari</span>
                         </p>
-                        <div className="flex items-center justify-center gap-4 sm:justify-end">
+                        <div className="flex items-center justify-center gap-4 sm:justify-end theme-soft">
                             <Link to="/about" className="hover:opacity-70">About Us</Link>
                             <Link to="/contact" className="hover:opacity-70">Contact Us</Link>
                         </div>

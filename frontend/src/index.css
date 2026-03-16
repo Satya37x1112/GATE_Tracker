@@ -7,6 +7,67 @@
   --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-display: 'Oregano', cursive;
   --font-mono: 'SF Mono', 'Fira Code', monospace;
+  --app-bg: #f5f7fb;
+  --app-text: #0f172a;
+  --app-muted: rgba(15, 23, 42, .72);
+  --app-soft: rgba(15, 23, 42, .52);
+  --app-label: rgba(15, 23, 42, .42);
+  --surface: rgba(255, 255, 255, .72);
+  --surface-strong: rgba(255, 255, 255, .9);
+  --surface-solid: rgba(255, 255, 255, .82);
+  --border: rgba(15, 23, 42, .08);
+  --border-strong: rgba(15, 23, 42, .12);
+  --divider: rgba(15, 23, 42, .08);
+  --hover: rgba(15, 23, 42, .04);
+  --table-row: rgba(15, 23, 42, .03);
+  --skeleton: rgba(15, 23, 42, .08);
+  --track: rgba(15, 23, 42, .08);
+  --chrome-bg: rgba(255, 255, 255, .74);
+  --chrome-shadow: 0 18px 50px rgba(148, 163, 184, .14);
+  --glow-a: rgba(16, 185, 129, .14);
+  --glow-b: rgba(59, 130, 246, .12);
+  --glow-c: rgba(249, 115, 22, .08);
+  --mesh-line: rgba(148, 163, 184, .12);
+  --heatmap-empty: rgba(148, 163, 184, .2);
+  --heatmap-low: rgba(16, 185, 129, .26);
+  --heatmap-mid: rgba(16, 185, 129, .46);
+  --heatmap-high: rgba(16, 185, 129, .68);
+  --heatmap-max: rgba(16, 185, 129, .88);
+  --ghost-btn-text: rgba(15, 23, 42, .58);
+  --ghost-btn-hover: rgba(15, 23, 42, .06);
+  --ghost-btn-border: rgba(15, 23, 42, .08);
+}
+
+.dark {
+  --app-bg: #09090b;
+  --app-text: #fafafa;
+  --app-muted: rgba(255, 255, 255, .72);
+  --app-soft: rgba(255, 255, 255, .46);
+  --app-label: rgba(255, 255, 255, .32);
+  --surface: rgba(255, 255, 255, .04);
+  --surface-strong: rgba(20, 20, 25, .9);
+  --surface-solid: rgba(10, 10, 15, .92);
+  --border: rgba(255, 255, 255, .08);
+  --border-strong: rgba(255, 255, 255, .12);
+  --divider: rgba(255, 255, 255, .05);
+  --hover: rgba(255, 255, 255, .05);
+  --table-row: rgba(255, 255, 255, .02);
+  --skeleton: rgba(255, 255, 255, .08);
+  --track: rgba(255, 255, 255, .06);
+  --chrome-bg: rgba(10, 10, 14, .78);
+  --chrome-shadow: 0 22px 66px rgba(0, 0, 0, .34);
+  --glow-a: rgba(16, 185, 129, .16);
+  --glow-b: rgba(59, 130, 246, .12);
+  --glow-c: rgba(249, 115, 22, .1);
+  --mesh-line: rgba(255, 255, 255, .04);
+  --heatmap-empty: rgba(255, 255, 255, .03);
+  --heatmap-low: rgba(6, 95, 70, .45);
+  --heatmap-mid: rgba(5, 150, 105, .5);
+  --heatmap-high: rgba(16, 185, 129, .7);
+  --heatmap-max: rgba(52, 211, 153, .92);
+  --ghost-btn-text: rgba(255, 255, 255, .44);
+  --ghost-btn-hover: rgba(255, 255, 255, .05);
+  --ghost-btn-border: rgba(255, 255, 255, .08);
 }
 
 /* ── Global ────────────────────────────────── */
@@ -21,6 +82,14 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.01em;
+  background:
+    radial-gradient(circle at 12% 14%, var(--glow-a), transparent 24%),
+    radial-gradient(circle at 86% 8%, var(--glow-b), transparent 24%),
+    radial-gradient(circle at 76% 78%, var(--glow-c), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, .02), transparent 42%),
+    var(--app-bg);
+  color: var(--app-text);
+  transition: background .3s ease, color .3s ease;
 }
 
 /* Apply the product font consistently across the app */
@@ -36,17 +105,122 @@ h2,
   font-weight: 400;
 }
 
-/* Premium dark theme */
-.dark body,
-.dark {
-  background: #09090b;
-  color: #fafafa;
+html,
+body,
+#root {
+  min-height: 100%;
 }
 
-.light body,
+.dark,
 .light {
-  background: #fafafa;
-  color: #09090b;
+  color: var(--app-text);
+}
+
+.app-shell {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 12% 16%, var(--glow-a), transparent 26%),
+    radial-gradient(circle at 88% 4%, var(--glow-b), transparent 24%),
+    radial-gradient(circle at 74% 84%, var(--glow-c), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, .02), transparent 42%),
+    var(--app-bg);
+  color: var(--app-text);
+}
+
+.app-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--mesh-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--mesh-line) 1px, transparent 1px);
+  background-size: 120px 120px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, .32), transparent 68%);
+  pointer-events: none;
+  opacity: .75;
+  z-index: 0;
+}
+
+.app-shell>* {
+  position: relative;
+  z-index: 1;
+}
+
+.app-sidebar,
+.app-topbar,
+.app-footer {
+  background: var(--chrome-bg);
+  border-color: var(--divider);
+  box-shadow: var(--chrome-shadow);
+  backdrop-filter: blur(20px) saturate(1.2);
+}
+
+.theme-muted {
+  color: var(--app-muted);
+}
+
+.theme-soft {
+  color: var(--app-soft);
+}
+
+.theme-ghost-button {
+  color: var(--ghost-btn-text);
+  border: 1px solid transparent;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.theme-ghost-button:hover {
+  background: var(--ghost-btn-hover);
+  border-color: var(--ghost-btn-border);
+}
+
+.theme-divider {
+  border-color: var(--divider);
+}
+
+.theme-divider-bg {
+  background: var(--divider);
+}
+
+.theme-surface-soft {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.theme-progress-track {
+  background: var(--track);
+}
+
+.theme-table {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.theme-table-head {
+  border-color: var(--divider);
+}
+
+.theme-table-row {
+  border-color: var(--divider);
+}
+
+.theme-table-row:hover {
+  background: var(--table-row);
+}
+
+.theme-empty-state {
+  border: 1px dashed var(--border);
+  background: var(--surface);
+}
+
+.theme-skeleton {
+  background: var(--skeleton);
+}
+
+.theme-spinner {
+  border-color: color-mix(in srgb, var(--app-text) 16%, transparent);
+  border-top-color: color-mix(in srgb, var(--app-text) 52%, transparent);
 }
 
 /* ── Scrollbar ─────────────────────────────── */
@@ -69,13 +243,14 @@ h2,
 
 /* ── Stat Card ─────────────────────────────── */
 .stat-card {
-  background: rgba(255, 255, 255, .03);
-  border: 1px solid rgba(255, 255, 255, .06);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 24px;
   transition: all 0.25s cubic-bezier(.4, 0, .2, 1);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
 }
 
 .stat-card::before {
@@ -85,56 +260,32 @@ h2,
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .08), transparent);
+  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
 }
 
 .stat-card:hover {
-  background: rgba(255, 255, 255, .05);
-  border-color: rgba(255, 255, 255, .1);
+  background: var(--surface-strong);
+  border-color: var(--border-strong);
   transform: translateY(-1px);
-}
-
-.light .stat-card {
-  background: #fff;
-  border-color: rgba(0, 0, 0, .06);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
-}
-
-.light .stat-card::before {
-  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, .04), transparent);
-}
-
-.light .stat-card:hover {
-  background: #fff;
-  border-color: rgba(0, 0, 0, .1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .06);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, .09);
 }
 
 /* ── Chart Card ────────────────────────────── */
 .chart-card {
-  background: rgba(255, 255, 255, .03);
-  border: 1px solid rgba(255, 255, 255, .06);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 24px;
-}
-
-.light .chart-card {
-  background: #fff;
-  border-color: rgba(0, 0, 0, .06);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .05);
 }
 
 /* ── Glass Panel ───────────────────────────── */
 .glass-panel {
-  background: rgba(255, 255, 255, .03);
+  background: var(--surface);
   backdrop-filter: blur(20px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, .06);
+  border: 1px solid var(--border);
   border-radius: 16px;
-}
-
-.light .glass-panel {
-  background: rgba(255, 255, 255, .8);
-  border-color: rgba(0, 0, 0, .06);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, .05);
 }
 
 /* ── Nav Link ──────────────────────────────── */
@@ -147,33 +298,19 @@ h2,
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.01em;
-  color: rgba(255, 255, 255, .45);
+  color: var(--app-soft);
   transition: all 0.15s ease;
   text-decoration: none;
 }
 
 .nav-link:hover {
-  color: rgba(255, 255, 255, .8);
-  background: rgba(255, 255, 255, .04);
+  color: var(--app-muted);
+  background: var(--hover);
 }
 
 .nav-link.active {
-  color: #fff;
-  background: rgba(255, 255, 255, .06);
-}
-
-.light .nav-link {
-  color: rgba(0, 0, 0, .4);
-}
-
-.light .nav-link:hover {
-  color: rgba(0, 0, 0, .7);
-  background: rgba(0, 0, 0, .03);
-}
-
-.light .nav-link.active {
-  color: #000;
-  background: rgba(0, 0, 0, .05);
+  color: var(--app-text);
+  background: var(--surface-strong);
 }
 
 /* ── Form Controls ─────────────────────────── */
@@ -181,9 +318,9 @@ h2,
   width: 100%;
   padding: 10px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  background: rgba(255, 255, 255, .04);
-  color: #fafafa;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--app-text);
   font-size: 14px;
   font-family: var(--font-sans);
   outline: none;
@@ -191,9 +328,9 @@ h2,
 }
 
 .form-input:focus {
-  border-color: rgba(255, 255, 255, .2);
-  background: rgba(255, 255, 255, .06);
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, .04);
+  border-color: var(--border-strong);
+  background: var(--surface-strong);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--border-strong) 30%, transparent);
 }
 
 select.form-input {
@@ -213,14 +350,16 @@ select.form-input option {
 }
 
 .light .form-input {
-  background: #f4f4f5;
-  border-color: rgba(0, 0, 0, .08);
-  color: #09090b;
+  color-scheme: light;
 }
 
-.light .form-input:focus {
-  border-color: rgba(0, 0, 0, .2);
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, .04);
+.light select.form-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(15,23,42,0.45)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+.light select.form-input option {
+  background: #fff;
+  color: #0f172a;
 }
 
 .feedback-hero-panel {
@@ -446,11 +585,7 @@ select.form-input option {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, .3);
-}
-
-.light .section-label {
-  color: rgba(0, 0, 0, .35);
+  color: var(--app-label);
 }
 
 /* ── Tree Container ────────────────────────── */

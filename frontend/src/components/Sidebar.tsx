@@ -31,11 +31,8 @@ const links = [
 ]
 
 export default function Sidebar({ open, onClose, dark, onLogout, user }: Props) {
-    const bg = dark
-        ? 'bg-[#09090b] border-white/[.06]'
-        : 'bg-white border-black/[.06]'
     const overlay = open ? 'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden' : 'hidden'
-    const sidebarCls = `fixed inset-y-0 left-0 z-50 w-[260px] flex flex-col border-r transition-transform duration-300 ease-out ${bg} ${open ? 'translate-x-0' : '-translate-x-full'
+    const sidebarCls = `app-sidebar fixed inset-y-0 left-0 z-50 w-[260px] flex flex-col border-r transition-transform duration-300 ease-out ${open ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`
 
     return (
@@ -51,13 +48,12 @@ export default function Sidebar({ open, onClose, dark, onLogout, user }: Props) 
                         </div>
                         <div>
                             <span className="text-[15px] font-semibold tracking-tight">GateTracker</span>
-                            <span className={`block text-[10px] tracking-[0.15em] uppercase ${dark ? 'text-white/20' : 'text-black/25'
-                                }`}>
+                            <span className="theme-soft block text-[10px] tracking-[0.15em] uppercase">
                                 Study Intelligence
                             </span>
                         </div>
                     </div>
-                    <button onClick={onClose} className="lg:hidden p-1.5 rounded-lg hover:bg-white/5">
+                    <button onClick={onClose} className="theme-ghost-button lg:hidden p-1.5 rounded-lg">
                         <X size={16} />
                     </button>
                 </div>
@@ -77,7 +73,7 @@ export default function Sidebar({ open, onClose, dark, onLogout, user }: Props) 
                         </NavLink>
                     ))}
 
-                    <div className="h-px bg-white/[.04] my-4 mx-3" />
+                    <div className="theme-divider-bg h-px my-4 mx-3" />
                     <p className="section-label px-3 mb-3">Actions</p>
 
                     <a href={getExportUrl()} className="nav-link" target="_blank" rel="noopener noreferrer">
@@ -90,19 +86,17 @@ export default function Sidebar({ open, onClose, dark, onLogout, user }: Props) 
                 <div className={`px-4 py-4 border-t border-inherit`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold ${dark ? 'bg-white/[.06] text-white/60' : 'bg-black/5 text-black/50'
-                                }`}>
+                            <div className="theme-surface-soft theme-muted w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold">
                                 {user.username.charAt(0).toUpperCase()}
                             </div>
                             <div>
                                 <p className="text-[13px] font-medium leading-tight">{user.username}</p>
-                                <p className={`text-[11px] ${dark ? 'text-white/20' : 'text-black/25'}`}>{user.email}</p>
+                                <p className="theme-soft text-[11px]">{user.email}</p>
                             </div>
                         </div>
                         <button
                             onClick={onLogout}
-                            className={`p-2 rounded-lg transition-all ${dark ? 'hover:bg-white/5 text-white/25 hover:text-red-400' : 'hover:bg-black/5 text-black/25 hover:text-red-500'
-                                }`}
+                            className="theme-ghost-button p-2 rounded-lg transition-all hover:text-red-400 dark:hover:text-red-400 light:hover:text-red-500"
                             title="Sign out"
                         >
                             <LogOut size={15} />

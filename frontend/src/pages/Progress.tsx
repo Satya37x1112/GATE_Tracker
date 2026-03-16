@@ -15,12 +15,15 @@ import {
     type WeekData,
     type ProgressAlert,
 } from '../api/api'
+import { getChartTheme, isDarkTheme } from '../utils/theme'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
 export default function Progress() {
     const [data, setData] = useState<MultiWeekProgress | null>(null)
     const [selectedWeek, setSelectedWeek] = useState<WeekData | null>(null)
+    const dark = isDarkTheme()
+    const chartTheme = getChartTheme(dark)
 
     useEffect(() => {
         fetchMultiWeekProgress().then(d => {
@@ -34,7 +37,7 @@ export default function Progress() {
     if (!data) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+                <div className="theme-spinner w-5 h-5 border-2 rounded-full animate-spin" />
             </div>
         )
     }
@@ -77,7 +80,7 @@ export default function Progress() {
                         <Target size={15} className="text-violet-400 opacity-50" />
                     </div>
                     <p className="text-[26px] font-semibold tracking-tight">{data.consistency_score}%</p>
-                    <div className="mt-2 h-1.5 rounded-full bg-white/[.06] overflow-hidden">
+                    <div className="theme-progress-track mt-2 h-1.5 rounded-full overflow-hidden">
                         <div
                             className={`h-full rounded-full transition-all duration-1000 ${data.consistency_score >= 70 ? 'bg-emerald-500' :
                                 data.consistency_score >= 40 ? 'bg-amber-500' : 'bg-red-500'
@@ -120,7 +123,7 @@ export default function Progress() {
                                             <ArrowDown size={14} /> {delta.toFixed(1)}h
                                         </span>
                                     ) : (
-                                        <span className="text-white/30 text-sm flex items-center gap-0.5">
+                                        <span className="theme-soft text-sm flex items-center gap-0.5">
                                             <Minus size={14} /> 0h
                                         </span>
                                     )}
@@ -142,12 +145,12 @@ export default function Progress() {
                                 backgroundColor: data.weeks.map((w, i) => {
                                     if (w.is_current) return 'rgba(34, 197, 94, 0.8)'
                                     if (i > 0 && w.hours < data.weeks[i - 1].hours) return 'rgba(239, 68, 68, 0.4)'
-                                    return 'rgba(255, 255, 255, 0.12)'
+                                    return chartTheme.barNeutral
                                 }),
                                 borderColor: data.weeks.map((w, i) => {
                                     if (w.is_current) return 'rgba(34, 197, 94, 1)'
                                     if (i > 0 && w.hours < data.weeks[i - 1].hours) return 'rgba(239, 68, 68, 0.6)'
-                                    return 'rgba(255, 255, 255, 0.2)'
+                                    return chartTheme.barNeutralBorder
                                 }),
                                 borderWidth: 1,
                                 borderRadius: 8,
@@ -165,21 +168,23 @@ export default function Progress() {
                             },
                             scales: {
                                 x: {
-                                    ticks: { color: 'rgba(255,255,255,.25)', font: { size: 12 } },
+                                    ticks: { color: chartTheme.tick, font: { size: 12 } },
                                     grid: { display: false },
                                     border: { display: false },
                                 },
                                 y: {
-                                    ticks: { color: 'rgba(255,255,255,.2)', font: { size: 11 }, callback: v => v + 'h' },
-                                    grid: { color: 'rgba(255,255,255,.03)' },
+                                    ticks: { color: chartTheme.tick, font: { size: 11 }, callback: v => v + 'h' },
+                                    grid: { color: chartTheme.grid },
                                     border: { display: false },
                                 },
                             },
                             plugins: {
                                 legend: { display: false }, tooltip: {
-                                    backgroundColor: 'rgba(10,10,15,.9)',
-                                    borderColor: 'rgba(255,255,255,.1)',
+                                    backgroundColor: chartTheme.tooltipBg,
+                                    borderColor: chartTheme.tooltipBorder,
                                     borderWidth: 1,
+                                    titleColor: chartTheme.tooltipText,
+                                    bodyColor: chartTheme.tooltipText,
                                     titleFont: { size: 13 },
                                     bodyFont: { size: 12 },
                                     padding: 12,
@@ -199,12 +204,12 @@ export default function Progress() {
                 </div>
 
                 {/* Mini legend */}
-                <div className="flex items-center gap-5 mt-4 pt-4 border-t border-white/[.04]">
+                <div className="theme-divider flex items-center gap-5 mt-4 pt-4 border-t">
                     <div className="flex items-center gap-2 text-[11px] opacity-30">
                         <div className="w-3 h-3 rounded bg-emerald-500/80" /> This week
                     </div>
                     <div className="flex items-center gap-2 text-[11px] opacity-30">
-                        <div className="w-3 h-3 rounded bg-white/12" /> Normal
+                        <div className={`w-3 h-3 rounded ${dark ? 'bg-white/12' : 'bg-slate-400/35'}`} /> Normal
                     </div>
                     <div className="flex items-center gap-2 text-[11px] opacity-30">
                         <div className="w-3 h-3 rounded bg-red-500/40" /> Declined
@@ -226,15 +231,15 @@ export default function Progress() {
                         <div className="space-y-4">
                             {/* Stats grid */}
                             <div className="grid grid-cols-3 gap-3">
-                                <div className="bg-white/[.03] rounded-xl p-4 text-center">
+                                <div className="theme-surface-soft rounded-xl p-4 text-center">
                                     <p className="text-[22px] font-semibold">{selectedWeek.hours}h</p>
                                     <p className="text-[10px] opacity-30 mt-1">Total Hours</p>
                                 </div>
-                                <div className="bg-white/[.03] rounded-xl p-4 text-center">
+                                <div className="theme-surface-soft rounded-xl p-4 text-center">
                                     <p className="text-[22px] font-semibold">{selectedWeek.questions}</p>
                                     <p className="text-[10px] opacity-30 mt-1">Questions</p>
                                 </div>
-                                <div className="bg-white/[.03] rounded-xl p-4 text-center">
+                                <div className="theme-surface-soft rounded-xl p-4 text-center">
                                     <p className="text-[22px] font-semibold">{selectedWeek.days_studied}/7</p>
                                     <p className="text-[10px] opacity-30 mt-1">Days Active</p>
                                 </div>
@@ -249,7 +254,7 @@ export default function Progress() {
                                             key={i}
                                             className={`flex-1 h-8 rounded-lg flex items-center justify-center text-[10px] font-medium transition-all ${i < selectedWeek.days_studied
                                                 ? 'bg-emerald-500/20 text-emerald-400/80'
-                                                : 'bg-white/[.03] text-white/15'
+                                                : dark ? 'bg-white/[.03] text-white/15' : 'bg-slate-100 text-slate-400'
                                                 }`}
                                         >
                                             {day}
@@ -266,7 +271,7 @@ export default function Progress() {
                                         {selectedWeek.subject_breakdown.map(s => (
                                             <div key={s.subject} className="flex items-center gap-3">
                                                 <span className="text-[12px] w-24 truncate opacity-50">{s.subject}</span>
-                                                <div className="flex-1 h-2 rounded-full bg-white/[.04] overflow-hidden">
+                                                <div className="theme-progress-track flex-1 h-2 rounded-full overflow-hidden">
                                                     <div
                                                         className="h-full rounded-full bg-emerald-500/60"
                                                         style={{ width: `${Math.min((s.hours / selectedWeek.hours) * 100, 100)}%` }}
@@ -317,7 +322,7 @@ export default function Progress() {
                     )}
 
                     {/* Motivational tips */}
-                    <div className="mt-6 pt-4 border-t border-white/[.04]">
+                    <div className="theme-divider mt-6 pt-4 border-t">
                         <p className="text-[11px] opacity-20 mb-3">💡 Tips</p>
                         <div className="space-y-2">
                             {[
@@ -325,7 +330,7 @@ export default function Progress() {
                                 'Practice problems are weighted higher — solve daily',
                                 'Consistent 5-day weeks beat sporadic marathon sessions',
                             ].map((tip, i) => (
-                                <p key={i} className="text-[12px] opacity-25 pl-4 border-l-2 border-white/[.06]">{tip}</p>
+                                <p key={i} className="theme-soft theme-divider text-[12px] pl-4 border-l-2">{tip}</p>
                             ))}
                         </div>
                     </div>
@@ -339,7 +344,7 @@ export default function Progress() {
 
                 <table className="w-full text-[13px]">
                     <thead>
-                        <tr className="border-b border-white/[.04]">
+                        <tr className="theme-table-head border-b">
                             <th className="px-4 py-2.5 text-left section-label font-semibold">Week</th>
                             <th className="px-4 py-2.5 text-right section-label font-semibold">Hours</th>
                             <th className="px-4 py-2.5 text-right section-label font-semibold">Change</th>
@@ -349,7 +354,7 @@ export default function Progress() {
                             <th className="px-4 py-2.5 text-left section-label font-semibold">Visual</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/[.03]">
+                    <tbody>
                         {data.weeks.map((w, i) => {
                             const prev = i > 0 ? data.weeks[i - 1].hours : 0
                             const delta = i > 0 ? w.hours - prev : 0
@@ -357,7 +362,7 @@ export default function Progress() {
                             return (
                                 <tr
                                     key={w.week_label}
-                                    className={`cursor-pointer transition-colors ${selectedWeek?.week_label === w.week_label ? 'bg-emerald-500/5' : 'hover:bg-white/[.02]'
+                                    className={`theme-table-row cursor-pointer border-b transition-colors last:border-b-0 ${selectedWeek?.week_label === w.week_label ? 'bg-emerald-500/5' : ''
                                         } ${w.is_current ? 'font-medium' : ''}`}
                                     onClick={() => setSelectedWeek(w)}
                                 >
@@ -385,10 +390,10 @@ export default function Progress() {
                                     <td className="px-4 py-3 text-right tabular-nums opacity-50">{w.sessions}</td>
                                     <td className="px-4 py-3 text-right tabular-nums opacity-50">{w.days_studied}/7</td>
                                     <td className="px-4 py-3">
-                                        <div className="w-24 h-2 rounded-full bg-white/[.04] overflow-hidden">
+                                        <div className="theme-progress-track w-24 h-2 rounded-full overflow-hidden">
                                             <div
                                                 className={`h-full rounded-full transition-all ${w.is_current ? 'bg-emerald-500/70' :
-                                                    delta < 0 ? 'bg-red-500/40' : 'bg-white/15'
+                                                    delta < 0 ? 'bg-red-500/40' : dark ? 'bg-white/15' : 'bg-slate-400/45'
                                                     }`}
                                                 style={{ width: `${Math.min((w.hours / maxHours) * 100, 100)}%` }}
                                             />

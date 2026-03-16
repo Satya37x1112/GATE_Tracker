@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchGrowthTree, type GrowthTree as GrowthTreeData } from '../api/api'
+import { isDarkTheme } from '../utils/theme'
 
 /**
  * Animated SVG tree that grows based on total study hours.
@@ -7,6 +8,7 @@ import { fetchGrowthTree, type GrowthTree as GrowthTreeData } from '../api/api'
  */
 export default function GrowthTree() {
     const [tree, setTree] = useState<GrowthTreeData | null>(null)
+    const dark = isDarkTheme()
 
     useEffect(() => {
         fetchGrowthTree().then(setTree).catch(console.error)
@@ -42,7 +44,7 @@ export default function GrowthTree() {
                 <div className="animate-tree-sway" style={{ transformOrigin: 'bottom center' }}>
                     <svg width="200" height="220" viewBox="0 0 200 220">
                         {/* Ground */}
-                        <ellipse cx="100" cy="210" rx="70" ry="8" fill="rgba(34,197,94,.08)" />
+                        <ellipse cx="100" cy="210" rx="70" ry="8" fill={dark ? 'rgba(34,197,94,.08)' : 'rgba(16,185,129,.12)'} />
 
                         {/* Roots (stage >= 2) */}
                         {stage >= 2 && (
@@ -139,7 +141,7 @@ export default function GrowthTree() {
                     <span className="opacity-40">{stage_name}</span>
                     <span className="opacity-40">{next_stage_name} ({next_stage_hours}h)</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-white/[.06] overflow-hidden">
+                <div className="theme-progress-track h-1.5 rounded-full overflow-hidden">
                     <div
                         className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-1000"
                         style={{ width: `${progress_to_next * 100}%` }}

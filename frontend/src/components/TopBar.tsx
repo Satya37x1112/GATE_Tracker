@@ -37,24 +37,20 @@ export default function TopBar({ onMenuClick, dark, onToggleDark, user }: Props)
         return () => window.removeEventListener(DASHBOARD_UPDATED_EVENT, handleDashboardUpdate)
     }, [])
 
-    const bg = dark
-        ? 'bg-[#09090b]/80 backdrop-blur-xl border-white/[.04]'
-        : 'bg-white/80 backdrop-blur-xl border-black/[.04]'
-
     return (
-        <header className={`sticky top-0 z-30 border-b px-6 py-3.5 flex items-center justify-between ${bg}`}>
+        <header className="app-topbar sticky top-0 z-30 border-b px-6 py-3.5 flex items-center justify-between">
             <div className="flex items-center gap-4">
-                <button onClick={onMenuClick} className="lg:hidden p-2 rounded-lg hover:bg-white/5">
+                <button onClick={onMenuClick} className="theme-ghost-button lg:hidden p-2 rounded-lg">
                     <Menu size={18} />
                 </button>
-                <span className={`hidden md:block text-[13px] ${dark ? 'text-white/30' : 'text-black/30'}`}>
+                <span className="theme-soft hidden md:block text-[13px]">
                     {dateStr}
                 </span>
             </div>
 
             <div className="flex items-center gap-3">
                 {/* Welcome */}
-                <span className={`hidden sm:block text-[13px] ${dark ? 'text-white/25' : 'text-black/25'}`}>
+                <span className="theme-soft hidden sm:block text-[13px]">
                     Hi, {user.username}
                 </span>
 
@@ -68,8 +64,7 @@ export default function TopBar({ onMenuClick, dark, onToggleDark, user }: Props)
                 {/* Dark/Light toggle */}
                 <button
                     onClick={onToggleDark}
-                    className={`p-2 rounded-full transition-all ${dark ? 'hover:bg-white/5 text-white/30' : 'hover:bg-black/5 text-black/30'
-                        }`}
+                    className="theme-ghost-button p-2 rounded-full transition-all"
                 >
                     {dark ? <Sun size={16} /> : <Moon size={16} />}
                 </button>

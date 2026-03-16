@@ -13,6 +13,7 @@ import GrowthTree from '../components/GrowthTree'
 import WeeklyProgress from '../components/WeeklyProgress'
 import { fetchDashboard, fetchChartData, fetchHeatmapData, type DashboardData, type ChartData } from '../api/api'
 import { readCachedDashboard, writeCachedDashboard } from '../utils/dashboardCache'
+import { getChartTheme, isDarkTheme } from '../utils/theme'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend, Filler)
 
@@ -20,6 +21,8 @@ export default function Dashboard() {
     const [dash, setDash] = useState<DashboardData | null>(() => readCachedDashboard())
     const [charts, setCharts] = useState<ChartData | null>(null)
     const [heatmap, setHeatmap] = useState<Record<string, number>>({})
+    const dark = isDarkTheme()
+    const chartTheme = getChartTheme(dark)
 
     useEffect(() => {
         fetchDashboard()
@@ -110,7 +113,7 @@ export default function Dashboard() {
                                         borderWidth: 2,
                                     }]
                                 }}
-                                options={lineOpts()}
+                                options={lineOpts(dark)}
                             />
                         </div>
                     </div>
@@ -140,9 +143,9 @@ export default function Dashboard() {
                                     cutout: '72%',
                                     plugins: {
                                         legend: {
-                                            position: 'bottom',
+                                                position: 'bottom',
                                             labels: {
-                                                color: 'rgba(255,255,255,.4)',
+                                                color: chartTheme.legend,
                                                 font: { size: 11, family: 'var(--font-sans)' },
                                                 padding: 8,
                                                 usePointStyle: true,
@@ -174,10 +177,10 @@ export default function Dashboard() {
 
                 {dash ? (
                     dash.recent_sessions.length > 0 ? (
-                        <div className="overflow-x-auto rounded-xl border border-white/[.06]">
+                        <div className="theme-table overflow-x-auto rounded-xl">
                         <table className="w-full text-[13px]">
                             <thead>
-                                <tr className="border-b border-white/[.04]">
+                                <tr className="theme-table-head border-b">
                                     <th className="px-5 py-3 text-left section-label font-semibold">Date</th>
                                     <th className="px-5 py-3 text-left section-label font-semibold">Subject</th>
                                     <th className="px-5 py-3 text-left section-label font-semibold">Type</th>
@@ -185,20 +188,20 @@ export default function Dashboard() {
                                     <th className="px-5 py-3 text-right section-label font-semibold">Questions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/[.03]">
+                            <tbody>
                                 {dash.recent_sessions.map(s => (
-                                    <tr key={s.id} className="hover:bg-white/[.02] transition-colors">
-                                        <td className="px-5 py-3 opacity-50">{s.date}</td>
+                                    <tr key={s.id} className="theme-table-row border-b transition-colors last:border-b-0">
+                                        <td className="theme-soft px-5 py-3">{s.date}</td>
                                         <td className="px-5 py-3">
                                             <span className="px-2 py-0.5 rounded-md bg-emerald-500/8 text-emerald-400/80 text-[12px] font-medium">
                                                 {s.subject_display}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3 opacity-40">{s.study_type}</td>
-                                        <td className="px-5 py-3 text-right font-mono tabular-nums opacity-60">
+                                        <td className="theme-soft px-5 py-3">{s.study_type}</td>
+                                        <td className="theme-muted px-5 py-3 text-right font-mono tabular-nums">
                                             {Math.round(s.duration_minutes)}m
                                         </td>
-                                        <td className="px-5 py-3 text-right font-mono tabular-nums opacity-60">
+                                        <td className="theme-muted px-5 py-3 text-right font-mono tabular-nums">
                                             {s.questions_solved}
                                         </td>
                                     </tr>
@@ -207,7 +210,7 @@ export default function Dashboard() {
                         </table>
                         </div>
                     ) : (
-                        <div className="text-center py-20 rounded-xl border border-dashed border-white/[.08]">
+                        <div className="theme-empty-state text-center py-20 rounded-xl">
                             <p className="text-[15px] opacity-30">No sessions yet.</p>
                             <p className="text-[13px] opacity-20 mt-1">Start studying to see your progress grow.</p>
                         </div>
@@ -234,11 +237,11 @@ function StatCardSkeleton() {
         <div className="stat-card animate-pulse">
             <div className="flex items-start justify-between gap-4">
                 <div className="space-y-3">
-                    <div className="h-3 w-20 rounded bg-white/[.08]" />
-                    <div className="h-8 w-24 rounded bg-white/[.10]" />
-                    <div className="h-3 w-16 rounded bg-white/[.06]" />
+                    <div className="theme-skeleton h-3 w-20 rounded" />
+                    <div className="theme-skeleton h-8 w-24 rounded" />
+                    <div className="theme-skeleton h-3 w-16 rounded" />
                 </div>
-                <div className="h-10 w-10 rounded-2xl bg-white/[.06]" />
+                <div className="theme-skeleton h-10 w-10 rounded-2xl" />
             </div>
         </div>
     )
@@ -246,18 +249,18 @@ function StatCardSkeleton() {
 
 function RecentActivitySkeleton() {
     return (
-        <div className="overflow-hidden rounded-xl border border-white/[.06]">
-            <div className="border-b border-white/[.04] px-5 py-3">
-                <div className="h-3 w-40 rounded bg-white/[.08]" />
+        <div className="theme-table overflow-hidden rounded-xl">
+            <div className="theme-table-head border-b px-5 py-3">
+                <div className="theme-skeleton h-3 w-40 rounded" />
             </div>
-            <div className="divide-y divide-white/[.03]">
+            <div>
                 {Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="grid grid-cols-5 gap-4 px-5 py-4">
-                        <div className="h-3 w-20 rounded bg-white/[.06]" />
-                        <div className="h-6 w-24 rounded bg-white/[.06]" />
-                        <div className="h-3 w-16 rounded bg-white/[.06]" />
-                        <div className="ml-auto h-3 w-12 rounded bg-white/[.06]" />
-                        <div className="ml-auto h-3 w-10 rounded bg-white/[.06]" />
+                    <div key={index} className="theme-table-row grid grid-cols-5 gap-4 border-b px-5 py-4 last:border-b-0">
+                        <div className="theme-skeleton h-3 w-20 rounded" />
+                        <div className="theme-skeleton h-6 w-24 rounded" />
+                        <div className="theme-skeleton h-3 w-16 rounded" />
+                        <div className="theme-skeleton ml-auto h-3 w-12 rounded" />
+                        <div className="theme-skeleton ml-auto h-3 w-10 rounded" />
                     </div>
                 ))}
             </div>
@@ -265,19 +268,20 @@ function RecentActivitySkeleton() {
     )
 }
 
-function lineOpts() {
+function lineOpts(dark: boolean) {
+    const theme = getChartTheme(dark)
     return {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
             x: {
-                ticks: { color: 'rgba(255,255,255,.2)', font: { size: 11 } },
-                grid: { color: 'rgba(255,255,255,.03)' },
+                ticks: { color: theme.tick, font: { size: 11 } },
+                grid: { color: theme.grid },
                 border: { display: false },
             },
             y: {
-                ticks: { color: 'rgba(255,255,255,.2)', font: { size: 11 } },
-                grid: { color: 'rgba(255,255,255,.03)' },
+                ticks: { color: theme.tick, font: { size: 11 } },
+                grid: { color: theme.grid },
                 border: { display: false },
             },
         },
