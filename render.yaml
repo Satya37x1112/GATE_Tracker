@@ -3,6 +3,7 @@ services:
     name: gate-tracker-api
     runtime: python
     plan: free
+    healthCheckPath: /api/health/
     buildCommand: "chmod +x build.sh && ./build.sh"
     startCommand: "gunicorn gate_tracker.wsgi:application --bind 0.0.0.0:$PORT --workers ${WEB_CONCURRENCY:-1} --log-file -"
     envVars:

@@ -1008,16 +1008,27 @@ def export_csv(request):
 
 def dashboard(request):
     """HTML dashboard page."""
-    today = date.today()
     user = request.user
-    today_sessions = StudySession.objects.filter(user=user, date=today) if user.is_authenticated else StudySession.objects.none()
+    if not user.is_authenticated:
+        return render(request, 'dashboard.html', {
+            'today_hours': 0,
+            'today_questions': 0,
+            'today_lectures': 0,
+            'current_streak': 0,
+            'longest_streak': 0,
+            'recent_sessions': [],
+            'recent_feedback': [],
+        })
+
+    today = date.today()
+    today_sessions = StudySession.objects.filter(user=user, date=today)
 
     today_hours = (today_sessions.aggregate(s=Sum('duration_minutes'))['s'] or 0) / 60
     today_questions = today_sessions.aggregate(q=Sum('questions_solved'))['q'] or 0
     today_lectures = today_sessions.aggregate(l=Sum('lecture_minutes'))['l'] or 0
 
-    current_streak, longest_streak = _calculate_streak(user) if user.is_authenticated else (0, 0)
-    recent = today_sessions[:5] if user.is_authenticated else []
+    current_streak, longest_streak = _calculate_streak(user)
+    recent = today_sessions[:5]
 
     return render(request, 'dashboard.html', {
         'today_hours': round(today_hours, 2),
