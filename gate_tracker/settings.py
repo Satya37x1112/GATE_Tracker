@@ -6,6 +6,7 @@ Falls back to development defaults when env vars are not set.
 """
 
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -20,14 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ── Environment ──
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-if DEBUG:
-    SECRET_KEY = os.environ.get(
-        'SECRET_KEY',
-        'dev-only-secret-key-not-for-production'
-    )
-else:
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-    if not SECRET_KEY:
+BUILD_TIME_COMMANDS = {'collectstatic', 'migrate', 'makemigrations', 'showmigrations', 'test', 'check'}
+is_build_time_command = len(sys.argv) > 1 and sys.argv[1] in BUILD_TIME_COMMANDS
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'dev-only-secret-key-not-for-production'
+    elif is_build_time_command:
+        SECRET_KEY = 'render-build-only-secret-key'
+    else:
         raise ImproperlyConfigured('SECRET_KEY must be set when DEBUG is False')
 
 ALLOWED_HOSTS = [
