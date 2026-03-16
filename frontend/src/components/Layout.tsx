@@ -30,17 +30,17 @@ export default function Layout({ user, onLogout }: Props) {
     }, [dark])
 
     return (
-        <div className="app-shell min-h-screen flex">
+        <div className="app-shell min-h-screen flex overflow-x-hidden">
             <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={onLogout} user={user} />
 
-            <div className="flex-1 flex flex-col lg:ml-[260px] min-h-screen">
+            <div className="flex-1 min-w-0 flex flex-col lg:ml-[260px] min-h-screen">
                 <TopBar
                     onMenuClick={() => setSidebarOpen(true)}
                     dark={dark}
                     onToggleDark={() => setDark(d => !d)}
                     user={user}
                 />
-                <main className="flex-1 px-6 py-8 md:px-10 md:py-10 animate-fade-in max-w-[1400px] w-full">
+                <main className="flex-1 min-w-0 px-6 py-8 md:px-10 md:py-10 animate-fade-in max-w-[1400px] w-full">
                     <Outlet />
                 </main>
                 <footer className="app-footer border-t px-6 py-4 text-[11px]">

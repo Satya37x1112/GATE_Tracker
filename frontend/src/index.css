@@ -92,6 +92,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.01em;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at 12% 14%, var(--glow-a), transparent 24%),
     radial-gradient(circle at 86% 8%, var(--glow-b), transparent 24%),
@@ -120,6 +121,7 @@ html,
 body,
 #root {
   min-height: 100%;
+  max-width: 100%;
 }
 
 .dark,

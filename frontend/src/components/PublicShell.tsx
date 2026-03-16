@@ -20,7 +20,7 @@ const publicLinks = [
 
 export default function PublicShell({ children, user }: Props) {
     return (
-        <div className="app-shell min-h-screen">
+        <div className="app-shell min-h-screen overflow-x-hidden">
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[8%] h-72 w-72 rounded-full bg-emerald-500/[.08] blur-3xl" />
                 <div className="absolute bottom-[0%] right-[5%] h-96 w-96 rounded-full bg-cyan-500/[.07] blur-3xl" />
@@ -59,7 +59,7 @@ export default function PublicShell({ children, user }: Props) {
                 </div>
             </header>
 
-            <main className="relative z-10 mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+            <main className="relative z-10 mx-auto min-w-0 w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
                 {children}
             </main>
 
