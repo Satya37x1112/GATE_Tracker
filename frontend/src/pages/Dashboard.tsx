@@ -12,27 +12,25 @@ import Heatmap from '../components/Heatmap'
 import GrowthTree from '../components/GrowthTree'
 import WeeklyProgress from '../components/WeeklyProgress'
 import { fetchDashboard, fetchChartData, fetchHeatmapData, type DashboardData, type ChartData } from '../api/api'
+import { readCachedDashboard, writeCachedDashboard } from '../utils/dashboardCache'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend, Filler)
 
 export default function Dashboard() {
-    const [dash, setDash] = useState<DashboardData | null>(null)
+    const [dash, setDash] = useState<DashboardData | null>(() => readCachedDashboard())
     const [charts, setCharts] = useState<ChartData | null>(null)
     const [heatmap, setHeatmap] = useState<Record<string, number>>({})
 
     useEffect(() => {
-        fetchDashboard().then(setDash).catch(console.error)
+        fetchDashboard()
+            .then(data => {
+                setDash(data)
+                writeCachedDashboard(data)
+            })
+            .catch(console.error)
         fetchChartData().then(setCharts).catch(console.error)
         fetchHeatmapData().then(setHeatmap).catch(console.error)
     }, [])
-
-    if (!dash) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
-            </div>
-        )
-    }
 
     return (
         <>
@@ -54,27 +52,33 @@ export default function Dashboard() {
 
                 {/* Stat cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <StatCard
-                        label="Study Hours" value={`${dash.today_hours}h`} sub="Today"
-                        icon={<Clock size={16} strokeWidth={1.8} />}
-                        iconBg="bg-blue-500/10 text-blue-400"
-                    />
-                    <StatCard
-                        label="Questions" value={dash.today_questions} sub="Solved today"
-                        icon={<HelpCircle size={16} strokeWidth={1.8} />}
-                        iconBg="bg-emerald-500/10 text-emerald-400"
-                    />
-                    <StatCard
-                        label="Lectures" value={`${dash.today_lectures}m`} sub="Today"
-                        icon={<GraduationCap size={16} strokeWidth={1.8} />}
-                        iconBg="bg-violet-500/10 text-violet-400"
-                    />
-                    <StatCard
-                        label="Streak" value={`${dash.current_streak}d`}
-                        sub={`Best: ${dash.longest_streak} days`}
-                        icon={<Flame size={16} strokeWidth={1.8} />}
-                        iconBg="bg-orange-500/10 text-orange-400"
-                    />
+                    {dash ? (
+                        <>
+                            <StatCard
+                                label="Study Hours" value={`${dash.today_hours}h`} sub="Today"
+                                icon={<Clock size={16} strokeWidth={1.8} />}
+                                iconBg="bg-blue-500/10 text-blue-400"
+                            />
+                            <StatCard
+                                label="Questions" value={dash.today_questions} sub="Solved today"
+                                icon={<HelpCircle size={16} strokeWidth={1.8} />}
+                                iconBg="bg-emerald-500/10 text-emerald-400"
+                            />
+                            <StatCard
+                                label="Lectures" value={`${dash.today_lectures}m`} sub="Today"
+                                icon={<GraduationCap size={16} strokeWidth={1.8} />}
+                                iconBg="bg-violet-500/10 text-violet-400"
+                            />
+                            <StatCard
+                                label="Streak" value={`${dash.current_streak}d`}
+                                sub={`Best: ${dash.longest_streak} days`}
+                                icon={<Flame size={16} strokeWidth={1.8} />}
+                                iconBg="bg-orange-500/10 text-orange-400"
+                            />
+                        </>
+                    ) : (
+                        Array.from({ length: 4 }).map((_, index) => <StatCardSkeleton key={index} />)
+                    )}
                 </div>
 
                 {/* Growth Tree + Weekly Progress (side by side) */}
@@ -168,7 +172,8 @@ export default function Dashboard() {
                         </Link>
                     </div>
 
-                    {dash.recent_sessions.length > 0 ? (
+                {dash ? (
+                    dash.recent_sessions.length > 0 ? (
                         <div className="overflow-x-auto rounded-xl border border-white/[.06]">
                         <table className="w-full text-[13px]">
                             <thead>
@@ -206,7 +211,10 @@ export default function Dashboard() {
                             <p className="text-[15px] opacity-30">No sessions yet.</p>
                             <p className="text-[13px] opacity-20 mt-1">Start studying to see your progress grow.</p>
                         </div>
-                    )}
+                    )
+                ) : (
+                    <RecentActivitySkeleton />
+                )}
                 </div>
             </div>
 
@@ -218,6 +226,42 @@ export default function Dashboard() {
                 Share Feedback
             </Link>
         </>
+    )
+}
+
+function StatCardSkeleton() {
+    return (
+        <div className="stat-card animate-pulse">
+            <div className="flex items-start justify-between gap-4">
+                <div className="space-y-3">
+                    <div className="h-3 w-20 rounded bg-white/[.08]" />
+                    <div className="h-8 w-24 rounded bg-white/[.10]" />
+                    <div className="h-3 w-16 rounded bg-white/[.06]" />
+                </div>
+                <div className="h-10 w-10 rounded-2xl bg-white/[.06]" />
+            </div>
+        </div>
+    )
+}
+
+function RecentActivitySkeleton() {
+    return (
+        <div className="overflow-hidden rounded-xl border border-white/[.06]">
+            <div className="border-b border-white/[.04] px-5 py-3">
+                <div className="h-3 w-40 rounded bg-white/[.08]" />
+            </div>
+            <div className="divide-y divide-white/[.03]">
+                {Array.from({ length: 4 }).map((_, index) => (
+                    <div key={index} className="grid grid-cols-5 gap-4 px-5 py-4">
+                        <div className="h-3 w-20 rounded bg-white/[.06]" />
+                        <div className="h-6 w-24 rounded bg-white/[.06]" />
+                        <div className="h-3 w-16 rounded bg-white/[.06]" />
+                        <div className="ml-auto h-3 w-12 rounded bg-white/[.06]" />
+                        <div className="ml-auto h-3 w-10 rounded bg-white/[.06]" />
+                    </div>
+                ))}
+            </div>
+        </div>
     )
 }
 

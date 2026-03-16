@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Menu, Sun, Moon, Flame } from 'lucide-react'
+import { DASHBOARD_UPDATED_EVENT, readCachedDashboard } from '../utils/dashboardCache'
 
 interface User {
     id: number
@@ -15,17 +16,25 @@ interface Props {
 }
 
 export default function TopBar({ onMenuClick, dark, onToggleDark, user }: Props) {
-    const [streak, setStreak] = useState(0)
+    const [streak, setStreak] = useState(() => readCachedDashboard()?.current_streak ?? 0)
     const [dateStr, setDateStr] = useState('')
 
     useEffect(() => {
         setDateStr(new Date().toLocaleDateString('en-IN', {
             weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
         }))
-        fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/dashboard/`, { credentials: 'include' })
-            .then(r => r.json())
-            .then(d => setStreak(d.current_streak))
-            .catch(() => { })
+    }, [])
+
+    useEffect(() => {
+        const handleDashboardUpdate = (event: Event) => {
+            const detail = (event as CustomEvent<{ current_streak?: number }>).detail
+            if (typeof detail?.current_streak === 'number') {
+                setStreak(detail.current_streak)
+            }
+        }
+
+        window.addEventListener(DASHBOARD_UPDATED_EVENT, handleDashboardUpdate)
+        return () => window.removeEventListener(DASHBOARD_UPDATED_EVENT, handleDashboardUpdate)
     }, [])
 
     const bg = dark

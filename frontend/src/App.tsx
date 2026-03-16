@@ -13,6 +13,7 @@ import Login from './pages/Login'
 import OAuthCallback from './pages/OAuthCallback'
 import About from './pages/About'
 import Contact from './pages/Contact'
+import { clearCachedDashboard } from './utils/dashboardCache'
 
 interface User {
   id: number
@@ -41,6 +42,7 @@ export default function App() {
   const handleLogout = () => {
     setUser(null)
     localStorage.removeItem('gate-user')
+    clearCachedDashboard()
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/logout/`, { method: 'POST', credentials: 'include' }).catch(() => { })
   }
 
