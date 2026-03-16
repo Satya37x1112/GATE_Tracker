@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { TreePine, LogIn, UserPlus } from 'lucide-react'
+import SEO from '../components/SEO'
+import PublicShell from '../components/PublicShell'
 
 interface Props {
     onLogin: (user: { id: number; username: string; email: string }) => void
@@ -69,146 +72,165 @@ export default function Login({ onLogin }: Props) {
     }
 
     return (
-        <div className="min-h-screen bg-[#09090b] flex items-center justify-center px-4">
-            {/* Background decoration */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/[.03] rounded-full blur-3xl" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/[.02] rounded-full blur-3xl" />
-            </div>
+        <PublicShell>
+            <SEO
+                title="Free GATE CSE Study Tracker"
+                description="Track GATE CSE study sessions, review analytics, use curated subject resources, and prepare with a transparent, education-focused study platform."
+                path="/"
+            />
 
-            <div className="relative w-full max-w-md">
-                {/* Logo */}
-                <div className="text-center mb-10">
-                    <div className="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center mx-auto mb-5 shadow-xl shadow-emerald-500/20">
-                        <TreePine size={28} className="text-white" />
-                    </div>
-                    <h1 className="text-4xl tracking-tight text-white">GateTracker</h1>
-                    <p className="text-[14px] text-white/25 mt-2">Study Intelligence for GATE 2027</p>
-                </div>
-
-                {/* Card */}
-                <div className="bg-white/[.03] border border-white/[.06] rounded-2xl p-8 backdrop-blur-xl">
-                    {/* Tabs */}
-                    <div className="flex bg-white/[.04] rounded-xl p-1 mb-8">
-                        <button
-                            onClick={() => { setMode('login'); setError('') }}
-                            className={`flex-1 py-2.5 rounded-lg text-[14px] font-medium transition-all ${mode === 'login'
-                                ? 'bg-white/[.08] text-white shadow-sm'
-                                : 'text-white/30 hover:text-white/50'
-                                }`}
-                        >
-                            Sign In
-                        </button>
-                        <button
-                            onClick={() => { setMode('register'); setError('') }}
-                            className={`flex-1 py-2.5 rounded-lg text-[14px] font-medium transition-all ${mode === 'register'
-                                ? 'bg-white/[.08] text-white shadow-sm'
-                                : 'text-white/30 hover:text-white/50'
-                                }`}
-                        >
-                            Create Account
-                        </button>
+            <div className="grid items-start gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
+                <div className="order-2 space-y-4 lg:order-1">
+                    <div>
+                        <p className="section-label mb-3">Study With Structure</p>
+                        <h1 className="text-[42px] leading-none tracking-tight text-white">GateTracker</h1>
+                        <p className="mt-4 max-w-xl text-[15px] leading-7 text-white/65">
+                            A focused workspace for GATE CSE preparation with session tracking, analytics, curated study
+                            resources, and a public feedback loop for continuous improvement.
+                        </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Username */}
-                        <div>
-                            <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-white/30 mb-1.5">
-                                Username
-                            </label>
-                            <input
-                                type="text"
-                                value={username}
-                                onChange={e => setUsername(e.target.value)}
-                                placeholder="johndoe"
-                                required
-                                autoFocus
-                                className="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/[.08] text-white text-[15px] placeholder:text-white/15 outline-none focus:border-white/20 focus:bg-white/[.06] transition-all"
-                            />
+                    <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+                        <div className="glass-panel p-5">
+                            <p className="text-[15px] font-semibold">Original, relevant study data</p>
+                            <p className="mt-2 text-[13px] leading-6 text-white/60">Your dashboard is built from your own study sessions and progress history, not recycled content.</p>
                         </div>
-
-                        {/* Email (register only) */}
-                        {mode === 'register' && (
-                            <div className="animate-slide-up">
-                                <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-white/30 mb-1.5">
-                                    Email
-                                </label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                    placeholder="john@example.com"
-                                    required
-                                    className="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/[.08] text-white text-[15px] placeholder:text-white/15 outline-none focus:border-white/20 focus:bg-white/[.06] transition-all"
-                                />
-                            </div>
-                        )}
-
-                        {/* Password */}
-                        <div>
-                            <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-white/30 mb-1.5">
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                required
-                                minLength={6}
-                                className="w-full px-4 py-3 rounded-xl bg-white/[.04] border border-white/[.08] text-white text-[15px] placeholder:text-white/15 outline-none focus:border-white/20 focus:bg-white/[.06] transition-all"
-                            />
+                        <div className="glass-panel p-5">
+                            <p className="text-[15px] font-semibold">Clear public trust pages</p>
+                            <p className="mt-2 text-[13px] leading-6 text-white/60">Visitors can now review the product context on the <Link to="/about" className="text-emerald-300 hover:text-emerald-200">About Us</Link> and <Link to="/contact" className="text-emerald-300 hover:text-emerald-200">Contact Us</Link> pages before signing in.</p>
                         </div>
-
-                        {/* Error */}
-                        {error && (
-                            <div className="text-red-400 text-[13px] bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2.5 animate-slide-up">
-                                {error}
-                            </div>
-                        )}
-
-                        {/* Submit */}
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-[15px] font-medium transition-all disabled:opacity-40 active:scale-[.98] shadow-lg shadow-emerald-500/20"
-                        >
-                            {mode === 'login' ? <LogIn size={16} /> : <UserPlus size={16} />}
-                            {loading ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
-                        </button>
-                    </form>
-
-                    {/* OAuth Divider */}
-                    <div className="flex items-center gap-3 my-6">
-                        <div className="flex-1 h-px bg-white/[.08]" />
-                        <span className="text-[11px] font-medium tracking-wider uppercase text-white/20">or continue with</span>
-                        <div className="flex-1 h-px bg-white/[.08]" />
-                    </div>
-
-                    {/* OAuth Buttons */}
-                    <div className="flex gap-3">
-                        <a
-                            href={`${API}/api/auth/google/`}
-                            className="flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl bg-white/[.05] border border-white/[.08] hover:bg-white/[.08] hover:border-white/[.12] text-white text-[14px] font-medium transition-all active:scale-[.98]"
-                        >
-                            <GoogleIcon />
-                            Google
-                        </a>
-                        <a
-                            href={`${API}/api/auth/github/`}
-                            className="flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl bg-white/[.05] border border-white/[.08] hover:bg-white/[.08] hover:border-white/[.12] text-white text-[14px] font-medium transition-all active:scale-[.98]"
-                        >
-                            <GitHubIcon />
-                            GitHub
-                        </a>
+                        <div className="glass-panel p-5">
+                            <p className="text-[15px] font-semibold">Fresh improvements over time</p>
+                            <p className="mt-2 text-[13px] leading-6 text-white/60">Resources, feedback workflows, and product features are updated iteratively as the platform evolves.</p>
+                        </div>
                     </div>
                 </div>
 
-                {/* Footer */}
-                <p className="text-center text-[12px] text-white/15 mt-8">
-                    Made with ♥ by Satya Sarthak Manohari
-                </p>
+                <div className="order-1 w-full lg:order-2">
+                    <div className="mx-auto w-full max-w-md">
+                        <div className="mb-10 text-center">
+                            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500 shadow-xl shadow-emerald-500/20">
+                                <TreePine size={28} className="text-white" />
+                            </div>
+                            <h2 className="text-4xl tracking-tight text-white">Welcome back</h2>
+                            <p className="mt-2 text-[14px] text-white/25">Study Intelligence for GATE 2027</p>
+                        </div>
+
+                        <div className="rounded-2xl border border-white/[.06] bg-white/[.03] p-8 backdrop-blur-xl">
+                            <div className="mb-8 flex rounded-xl bg-white/[.04] p-1">
+                                <button
+                                    onClick={() => { setMode('login'); setError('') }}
+                                    className={`flex-1 rounded-lg py-2.5 text-[14px] font-medium transition-all ${mode === 'login'
+                                        ? 'bg-white/[.08] text-white shadow-sm'
+                                        : 'text-white/30 hover:text-white/50'
+                                        }`}
+                                >
+                                    Sign In
+                                </button>
+                                <button
+                                    onClick={() => { setMode('register'); setError('') }}
+                                    className={`flex-1 rounded-lg py-2.5 text-[14px] font-medium transition-all ${mode === 'register'
+                                        ? 'bg-white/[.08] text-white shadow-sm'
+                                        : 'text-white/30 hover:text-white/50'
+                                        }`}
+                                >
+                                    Create Account
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                <div>
+                                    <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-white/30">
+                                        Username
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={username}
+                                        onChange={e => setUsername(e.target.value)}
+                                        placeholder="johndoe"
+                                        required
+                                        autoFocus
+                                        className="w-full rounded-xl border border-white/[.08] bg-white/[.04] px-4 py-3 text-[15px] text-white outline-none transition-all placeholder:text-white/15 focus:border-white/20 focus:bg-white/[.06]"
+                                    />
+                                </div>
+
+                                {mode === 'register' && (
+                                    <div className="animate-slide-up">
+                                        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-white/30">
+                                            Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={e => setEmail(e.target.value)}
+                                            placeholder="john@example.com"
+                                            required
+                                            className="w-full rounded-xl border border-white/[.08] bg-white/[.04] px-4 py-3 text-[15px] text-white outline-none transition-all placeholder:text-white/15 focus:border-white/20 focus:bg-white/[.06]"
+                                        />
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-white/30">
+                                        Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        required
+                                        minLength={6}
+                                        className="w-full rounded-xl border border-white/[.08] bg-white/[.04] px-4 py-3 text-[15px] text-white outline-none transition-all placeholder:text-white/15 focus:border-white/20 focus:bg-white/[.06]"
+                                    />
+                                </div>
+
+                                {error && (
+                                    <div className="animate-slide-up rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-[13px] text-red-400">
+                                        {error}
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-emerald-500 py-3.5 text-[15px] font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400 disabled:opacity-40 active:scale-[.98]"
+                                >
+                                    {mode === 'login' ? <LogIn size={16} /> : <UserPlus size={16} />}
+                                    {loading ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
+                                </button>
+                            </form>
+
+                            <div className="my-6 flex items-center gap-3">
+                                <div className="h-px flex-1 bg-white/[.08]" />
+                                <span className="text-[11px] font-medium uppercase tracking-wider text-white/20">or continue with</span>
+                                <div className="h-px flex-1 bg-white/[.08]" />
+                            </div>
+
+                            <div className="flex gap-3">
+                                <a
+                                    href={`${API}/api/auth/google/`}
+                                    className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-white/[.08] bg-white/[.05] py-3 text-[14px] font-medium text-white transition-all hover:border-white/[.12] hover:bg-white/[.08] active:scale-[.98]"
+                                >
+                                    <GoogleIcon />
+                                    Google
+                                </a>
+                                <a
+                                    href={`${API}/api/auth/github/`}
+                                    className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-white/[.08] bg-white/[.05] py-3 text-[14px] font-medium text-white transition-all hover:border-white/[.12] hover:bg-white/[.08] active:scale-[.98]"
+                                >
+                                    <GitHubIcon />
+                                    GitHub
+                                </a>
+                            </div>
+                        </div>
+
+                        <p className="mt-8 text-center text-[12px] text-white/15">
+                            Made with ♥ by Satya Sarthak Manohari
+                        </p>
+                    </div>
+                </div>
             </div>
-        </div>
+        </PublicShell>
     )
 }

@@ -23,8 +23,8 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Poppins everywhere, except Font Awesome icons */
-*:not(.fa-solid):not(.fa-regular):not(.fa-brands):not([class*="fa-"]) {
+/* Apply the product font consistently across the app */
+* {
   font-family: var(--font-sans) !important;
 }
 

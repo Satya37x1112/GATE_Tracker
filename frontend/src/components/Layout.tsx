@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 import BreakReminder from './BreakReminder'
@@ -43,8 +43,16 @@ export default function Layout({ user, onLogout }: Props) {
                 <main className="flex-1 px-6 py-8 md:px-10 md:py-10 animate-fade-in max-w-[1400px]">
                     <Outlet />
                 </main>
-                <footer className="px-6 py-4 text-center text-[11px] opacity-20 border-t border-white/[.04]">
-                    Made with ♥ by <span className="font-medium opacity-70">Satya Sarthak Manohari</span>
+                <footer className="border-t border-white/[.04] px-6 py-4 text-[11px] opacity-25">
+                    <div className="flex flex-col gap-2 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                        <p>
+                            Made with ♥ by <span className="font-medium opacity-70">Satya Sarthak Manohari</span>
+                        </p>
+                        <div className="flex items-center justify-center gap-4 sm:justify-end">
+                            <Link to="/about" className="hover:opacity-70">About Us</Link>
+                            <Link to="/contact" className="hover:opacity-70">Contact Us</Link>
+                        </div>
+                    </div>
                 </footer>
             </div>
 
