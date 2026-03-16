@@ -7,6 +7,7 @@ Falls back to development defaults when env vars are not set.
 
 import os
 import sys
+import hashlib
 from pathlib import Path
 
 import dj_database_url
@@ -24,6 +25,24 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 BUILD_TIME_COMMANDS = {'collectstatic', 'migrate', 'makemigrations', 'showmigrations', 'test', 'check'}
 is_build_time_command = len(sys.argv) > 1 and sys.argv[1] in BUILD_TIME_COMMANDS
 
+def _derive_runtime_secret_key():
+    """
+    Derive a stable fallback secret from deployment-specific env.
+    This keeps existing Render services bootable even if SECRET_KEY was never provisioned.
+    """
+    seed_parts = [
+        os.environ.get('DATABASE_URL', ''),
+        os.environ.get('RENDER_EXTERNAL_HOSTNAME', ''),
+        os.environ.get('RENDER_SERVICE_ID', ''),
+        os.environ.get('RENDER_PROJECT_ID', ''),
+        os.environ.get('FRONTEND_URL', ''),
+    ]
+    seed = '|'.join(part for part in seed_parts if part)
+    if not seed:
+        return ''
+    digest = hashlib.sha256(seed.encode('utf-8')).hexdigest()
+    return f'render-derived-{digest}'
+
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
     if DEBUG:
@@ -31,7 +50,9 @@ if not SECRET_KEY:
     elif is_build_time_command:
         SECRET_KEY = 'render-build-only-secret-key'
     else:
-        raise ImproperlyConfigured('SECRET_KEY must be set when DEBUG is False')
+        SECRET_KEY = _derive_runtime_secret_key()
+        if not SECRET_KEY:
+            raise ImproperlyConfigured('SECRET_KEY must be set when DEBUG is False')
 
 ALLOWED_HOSTS = [
     host.strip()
