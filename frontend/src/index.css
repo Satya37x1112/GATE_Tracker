@@ -417,6 +417,20 @@ body,
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--border-strong) 30%, transparent);
 }
 
+/* Fix browser autofill destroying the dark theme input background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--app-text);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 select.form-input {
   color-scheme: dark;
   appearance: none;
@@ -494,13 +508,15 @@ select.form-input option {
 }
 
 .glass-primary-button {
-  border: 1px solid rgba(255, 255, 255, .28);
-  background: linear-gradient(135deg, #34d399, #2dd4bf 55%, #38bdf8);
-  box-shadow: 0 20px 36px rgba(16, 185, 129, .22), inset 0 1px 0 rgba(255, 255, 255, .35);
+  border: 1px solid rgba(255, 255, 255, .15);
+  background: linear-gradient(145deg, #10b981, #059669);
+  box-shadow: 0 12px 28px rgba(16, 185, 129, .15), inset 0 1px 0 rgba(255, 255, 255, .25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .glass-primary-button:hover {
-  filter: saturate(1.08) brightness(1.03);
+  filter: brightness(1.15);
+  transform: translateY(-1px);
 }
 
 .glass-secondary-button {
