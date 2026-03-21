@@ -29,7 +29,7 @@ export default function PublicShell({ children, user }: Props) {
             <header className="app-topbar relative z-10 border-b">
                 <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
                     <Link to={user ? '/' : '/'} className="flex items-center gap-3">
-                        <img src="/logo.svg" alt="GateTracker Logo" className="w-10 h-10 rounded-xl shadow-sm" />
+                        <img src="/logo.png" alt="GateTracker Logo" className="w-10 h-10 rounded-xl shadow-sm" />
                         <div>
                             <p className="text-[17px] font-semibold tracking-tight">GateTracker</p>
                             <p className="theme-soft text-[10px] uppercase tracking-[0.18em]">Study Intelligence</p>
