@@ -234,15 +234,25 @@ def api_register(request):
     if not username or not password:
         return JsonResponse({'error': 'Username and password required'}, status=400)
 
+    if len(username) > 150:
+        return JsonResponse({'error': 'Username is too long'}, status=400)
+
     if User.objects.filter(username=username).exists():
         return JsonResponse({'error': 'Username already taken'}, status=409)
+        
+    if email and User.objects.filter(email=email).exists():
+        return JsonResponse({'error': 'Email is already registered'}, status=409)
 
-    user = User.objects.create_user(username=username, email=email, password=password)
-    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    return JsonResponse({
-        'status': 'ok',
-        'user': {'id': user.id, 'username': user.username, 'email': user.email}
-    })
+    try:
+        user = User.objects.create_user(username=username, email=email, password=password)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        return JsonResponse({
+            'status': 'ok',
+            'user': {'id': user.id, 'username': user.username, 'email': user.email}
+        })
+    except Exception as e:
+        logger.error(f"Registration exception: {e}")
+        return JsonResponse({'error': 'Registration failed due to invalid data format'}, status=400)
 
 
 def api_login(request):
@@ -255,15 +265,25 @@ def api_login(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-    user = authenticate(request, username=data.get('username'), password=data.get('password'))
-    if user is None:
-        return JsonResponse({'error': 'Invalid credentials'}, status=401)
+    username = data.get('username', '')
+    password = data.get('password', '')
+    
+    if not username or not password:
+        return JsonResponse({'error': 'Username and password required'}, status=400)
 
-    login(request, user)
-    return JsonResponse({
-        'status': 'ok',
-        'user': {'id': user.id, 'username': user.username, 'email': user.email}
-    })
+    try:
+        user = authenticate(request, username=username, password=password)
+        if user is None:
+            return JsonResponse({'error': 'Invalid credentials'}, status=401)
+
+        login(request, user)
+        return JsonResponse({
+            'status': 'ok',
+            'user': {'id': user.id, 'username': user.username, 'email': user.email}
+        })
+    except Exception as e:
+        logger.error(f"Login exception: {e}")
+        return JsonResponse({'error': 'An internal error occurred during login'}, status=500)
 
 @require_POST
 def api_logout(request):
