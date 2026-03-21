@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-from .models import DailyStats, Feedback, StudySession
+from .models import DailyStats, Feedback, StudySession, VlogPost
 
 
 # ── Enhance the built-in User admin ──────────
@@ -49,6 +49,13 @@ class FeedbackAdmin(admin.ModelAdmin):
     def short_message(obj):
         return obj.message[:80]
 
+
+@admin.register(VlogPost)
+class VlogPostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'date', 'user', 'youtube_url', 'created_at')
+    list_filter = ('user', 'date')
+    search_fields = ('title', 'content', 'user__username')
+    ordering = ('-created_at',)
 
 # Customize admin site header
 admin.site.site_header = 'GateTracker Admin'

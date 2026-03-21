@@ -104,3 +104,22 @@ class Feedback(models.Model):
     def __str__(self):
         label = self.name or self.email or 'Anonymous'
         return f"{label}: {self.message[:50]}"
+
+class VlogPost(models.Model):
+    """Daily vlog posts for 'My GATE Journey'."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='vlog_posts'
+    )
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    youtube_url = models.URLField(blank=True, null=True, help_text="Optional YouTube video URL")
+    date = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date', '-created_at']
+
+    def __str__(self):
+        return f"{self.date} - {self.title[:50]}"

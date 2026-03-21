@@ -14,6 +14,7 @@ import Login from './pages/Login'
 import OAuthCallback from './pages/OAuthCallback'
 import About from './pages/About'
 import Contact from './pages/Contact'
+import Journey from './pages/Journey'
 import { clearCachedDashboard } from './utils/dashboardCache'
 import { API_BASE, fetchWithCsrf } from './api/api'
 
@@ -59,35 +60,36 @@ export default function App() {
     )
   }
 
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/oauth/callback" element={<OAuthCallback onLogin={handleLogin} />} />
-                <Route path="/about" element={<About user={user} />} />
-                <Route path="/contact" element={<Contact user={user} />} />
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/oauth/callback" element={<OAuthCallback onLogin={handleLogin} />} />
+        <Route path="/about" element={<About user={user} />} />
+        <Route path="/contact" element={<Contact user={user} />} />
+        <Route path="/journey" element={<Journey user={user} />} />
 
-                {!user ? (
-                    <>
-                        <Route path="/" element={<Login onLogin={handleLogin} />} />
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </>
-                ) : (
-                    <>
-                        <Route element={<Layout user={user} onLogout={handleLogout} />}>
-                            <Route path="/" element={<Dashboard />} />
-                            <Route path="/start-study" element={<StartStudy />} />
-                            <Route path="/analytics" element={<Analytics />} />
-                            <Route path="/progress" element={<Progress />} />
-                            <Route path="/assistant" element={<Assistant />} />
-                            <Route path="/feedback" element={<Feedback />} />
-                            <Route path="/resources" element={<Resources />} />
-                            <Route path="/news-blogs" element={<NewsBlogs />} />
-                            <Route path="/history" element={<History />} />
-                        </Route>
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </>
-                )}
-            </Routes>
-        </BrowserRouter>
+        {!user ? (
+          <>
+            <Route path="/" element={<Login onLogin={handleLogin} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        ) : (
+          <>
+            <Route element={<Layout user={user} onLogout={handleLogout} />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/start-study" element={<StartStudy />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/progress" element={<Progress />} />
+              <Route path="/assistant" element={<Assistant />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/resources" element={<Resources />} />
+              <Route path="/news-blogs" element={<NewsBlogs />} />
+              <Route path="/history" element={<History />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        )}
+      </Routes>
+    </BrowserRouter>
   )
 }

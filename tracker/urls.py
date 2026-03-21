@@ -36,6 +36,10 @@ urlpatterns = [
     path('api/feedback/<int:feedback_id>/upvote/', views.api_feedback_upvote, name='api_feedback_upvote'),
     path('api/health/', views.api_health, name='api_health'),
 
+    # ── Vlogs ──
+    path('api/vlogs/', views.api_get_vlogs, name='api_get_vlogs'),
+    path('api/vlogs/create/', views.api_create_vlog, name='api_create_vlog'),
+
     # ── POST endpoints ──
     path('save-session/', views.save_session, name='save_session'),
     path('feedback', views.feedback, name='feedback'),

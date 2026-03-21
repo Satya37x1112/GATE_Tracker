@@ -27,7 +27,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from functools import wraps
 
-from .models import DailyStats, Feedback, StudySession
+from .models import DailyStats, Feedback, StudySession, VlogPost
 
 logger = logging.getLogger(__name__)
 
@@ -615,6 +615,56 @@ def api_multi_week_progress(request):
         'total_questions': total_questions,
         'avg_weekly_hours': avg_weekly,
     })
+
+# ══════════════════════════════════════════════
+#  VLOG / JOURNEY ENDPOINTS
+# ══════════════════════════════════════════════
+
+def api_get_vlogs(request):
+    """JSON: List all vlog posts, public read access."""
+    vlogs = VlogPost.objects.all()
+    data = []
+    for v in vlogs:
+        data.append({
+            'id': v.id,
+            'title': v.title,
+            'content': v.content,
+            'date': str(v.date),
+            'youtube_url': v.youtube_url,
+            'author': v.user.username,
+            'created_at': v.created_at.isoformat(),
+        })
+    return JsonResponse(data, safe=False)
+
+
+@login_required_api
+def api_create_vlog(request):
+    """JSON: Create a new vlog post (requires login)."""
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    
+    title = data.get('title', '').strip()
+    content = data.get('content', '').strip()
+    youtube_url = data.get('youtube_url', '').strip() or None
+
+    if not title or not content:
+        return JsonResponse({'error': 'Title and content are required'}, status=400)
+
+    try:
+        post = VlogPost.objects.create(
+            user=request.user,
+            title=title,
+            content=content,
+            youtube_url=youtube_url
+        )
+        return JsonResponse({'status': 'ok', 'id': post.id})
+    except Exception as e:
+        logger.error(f"Failed to create vlog post: {e}")
+        return JsonResponse({'error': 'Failed to create vlog entry'}, status=500)
 
 # ──────────────────────────────────────────────
 
