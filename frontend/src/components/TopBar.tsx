@@ -38,7 +38,7 @@ export default function TopBar({ onMenuClick, dark, onToggleDark, user }: Props)
     }, [])
 
     return (
-        <header className="app-topbar sticky top-0 z-30 border-b px-6 py-3.5 flex items-center justify-between">
+        <header className="app-topbar sticky top-0 z-30 border-b px-4 py-3 md:px-6 md:py-3.5 flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <button onClick={onMenuClick} className="theme-ghost-button lg:hidden p-2 rounded-lg">
                     <Menu size={18} />

@@ -40,7 +40,7 @@ export default function Layout({ user, onLogout }: Props) {
                     onToggleDark={() => setDark(d => !d)}
                     user={user}
                 />
-                <main className="flex-1 min-w-0 px-6 py-8 md:px-10 md:py-10 animate-fade-in max-w-[1400px] w-full">
+                <main className="flex-1 min-w-0 px-4 py-6 md:px-10 md:py-10 mx-auto animate-fade-in max-w-[1400px] w-full">
                     <Outlet />
                 </main>
                 <footer className="app-footer border-t px-6 py-4 text-[11px]">

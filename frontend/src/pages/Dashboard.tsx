@@ -37,7 +37,7 @@ export default function Dashboard() {
 
     return (
         <>
-            <div className="space-y-10">
+            <div className="space-y-6 md:space-y-10">
                 <SEO title="Dashboard" description="Track your GATE CSE 2027 preparation — daily study hours, questions solved, streaks, and progress overview." path="/" />
                 {/* Header */}
                 <div className="flex items-end justify-between">
@@ -93,70 +93,70 @@ export default function Dashboard() {
                 {/* Study hours trend */}
                 {charts && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    {/* Line chart — 2 cols */}
-                    <div className="chart-card lg:col-span-2">
-                        <p className="section-label mb-1">Study Hours</p>
-                        <p className="text-lg font-semibold tracking-tight mb-4">Last 14 Days</p>
-                        <div style={{ height: 240 }}>
-                            <Line
-                                data={{
-                                    labels: charts.daily_labels,
-                                    datasets: [{
-                                        label: 'Hours',
-                                        data: charts.daily_hours,
-                                        borderColor: '#22c55e',
-                                        backgroundColor: 'rgba(34,197,94,.06)',
-                                        fill: true,
-                                        tension: 0.4,
-                                        pointRadius: 3,
-                                        pointBackgroundColor: '#22c55e',
-                                        borderWidth: 2,
-                                    }]
-                                }}
-                                options={lineOpts(dark)}
-                            />
+                        {/* Line chart — 2 cols */}
+                        <div className="chart-card lg:col-span-2">
+                            <p className="section-label mb-1">Study Hours</p>
+                            <p className="text-lg font-semibold tracking-tight mb-4">Last 14 Days</p>
+                            <div style={{ height: 240 }}>
+                                <Line
+                                    data={{
+                                        labels: charts.daily_labels,
+                                        datasets: [{
+                                            label: 'Hours',
+                                            data: charts.daily_hours,
+                                            borderColor: '#22c55e',
+                                            backgroundColor: 'rgba(34,197,94,.06)',
+                                            fill: true,
+                                            tension: 0.4,
+                                            pointRadius: 3,
+                                            pointBackgroundColor: '#22c55e',
+                                            borderWidth: 2,
+                                        }]
+                                    }}
+                                    options={lineOpts(dark)}
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Subject distribution — 1 col */}
-                    <div className="chart-card">
-                        <p className="section-label mb-1">Distribution</p>
-                        <p className="text-lg font-semibold tracking-tight mb-4">By Subject</p>
-                        <div style={{ height: 240 }}>
-                            <Doughnut
-                                data={{
-                                    labels: charts.subject_labels,
-                                    datasets: [{
-                                        data: charts.subject_values,
-                                        backgroundColor: [
-                                            '#22c55e', '#3b82f6', '#a855f7', '#f59e0b',
-                                            '#ef4444', '#06b6d4', '#ec4899', '#84cc16',
-                                            '#f97316', '#6366f1', '#14b8a6'
-                                        ],
-                                        borderWidth: 0,
-                                        hoverOffset: 4,
-                                    }]
-                                }}
-                                options={{
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    cutout: '72%',
-                                    plugins: {
-                                        legend: {
+                        {/* Subject distribution — 1 col */}
+                        <div className="chart-card">
+                            <p className="section-label mb-1">Distribution</p>
+                            <p className="text-lg font-semibold tracking-tight mb-4">By Subject</p>
+                            <div style={{ height: 240 }}>
+                                <Doughnut
+                                    data={{
+                                        labels: charts.subject_labels,
+                                        datasets: [{
+                                            data: charts.subject_values,
+                                            backgroundColor: [
+                                                '#22c55e', '#3b82f6', '#a855f7', '#f59e0b',
+                                                '#ef4444', '#06b6d4', '#ec4899', '#84cc16',
+                                                '#f97316', '#6366f1', '#14b8a6'
+                                            ],
+                                            borderWidth: 0,
+                                            hoverOffset: 4,
+                                        }]
+                                    }}
+                                    options={{
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        cutout: '72%',
+                                        plugins: {
+                                            legend: {
                                                 position: 'bottom',
-                                            labels: {
-                                                color: chartTheme.legend,
-                                                font: { size: 11, family: 'var(--font-sans)' },
-                                                padding: 8,
-                                                usePointStyle: true,
-                                                pointStyleWidth: 8,
+                                                labels: {
+                                                    color: chartTheme.legend,
+                                                    font: { size: 11, family: 'var(--font-sans)' },
+                                                    padding: 8,
+                                                    usePointStyle: true,
+                                                    pointStyleWidth: 8,
+                                                }
                                             }
-                                        }
-                                    },
-                                }}
-                            />
+                                        },
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>
                     </div>
                 )}
 
@@ -175,49 +175,49 @@ export default function Dashboard() {
                         </Link>
                     </div>
 
-                {dash ? (
-                    dash.recent_sessions.length > 0 ? (
-                        <div className="theme-table overflow-x-auto rounded-xl">
-                        <table className="w-full text-[13px]">
-                            <thead>
-                                <tr className="theme-table-head border-b">
-                                    <th className="px-5 py-3 text-left section-label font-semibold">Date</th>
-                                    <th className="px-5 py-3 text-left section-label font-semibold">Subject</th>
-                                    <th className="px-5 py-3 text-left section-label font-semibold">Type</th>
-                                    <th className="px-5 py-3 text-right section-label font-semibold">Duration</th>
-                                    <th className="px-5 py-3 text-right section-label font-semibold">Questions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {dash.recent_sessions.map(s => (
-                                    <tr key={s.id} className="theme-table-row border-b transition-colors last:border-b-0">
-                                        <td className="theme-soft px-5 py-3">{s.date}</td>
-                                        <td className="px-5 py-3">
-                                            <span className="px-2 py-0.5 rounded-md bg-emerald-500/8 text-emerald-400/80 text-[12px] font-medium">
-                                                {s.subject_display}
-                                            </span>
-                                        </td>
-                                        <td className="theme-soft px-5 py-3">{s.study_type}</td>
-                                        <td className="theme-muted px-5 py-3 text-right font-mono tabular-nums">
-                                            {Math.round(s.duration_minutes)}m
-                                        </td>
-                                        <td className="theme-muted px-5 py-3 text-right font-mono tabular-nums">
-                                            {s.questions_solved}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        </div>
+                    {dash ? (
+                        dash.recent_sessions.length > 0 ? (
+                            <div className="theme-table overflow-x-auto rounded-xl">
+                                <table className="w-full text-[13px]">
+                                    <thead>
+                                        <tr className="theme-table-head border-b">
+                                            <th className="px-5 py-3 text-left section-label font-semibold">Date</th>
+                                            <th className="px-5 py-3 text-left section-label font-semibold">Subject</th>
+                                            <th className="px-5 py-3 text-left section-label font-semibold">Type</th>
+                                            <th className="px-5 py-3 text-right section-label font-semibold">Duration</th>
+                                            <th className="px-5 py-3 text-right section-label font-semibold">Questions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {dash.recent_sessions.map(s => (
+                                            <tr key={s.id} className="theme-table-row border-b transition-colors last:border-b-0">
+                                                <td className="theme-soft px-5 py-3">{s.date}</td>
+                                                <td className="px-5 py-3">
+                                                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/8 text-emerald-400/80 text-[12px] font-medium">
+                                                        {s.subject_display}
+                                                    </span>
+                                                </td>
+                                                <td className="theme-soft px-5 py-3">{s.study_type}</td>
+                                                <td className="theme-muted px-5 py-3 text-right font-mono tabular-nums">
+                                                    {Math.round(s.duration_minutes)}m
+                                                </td>
+                                                <td className="theme-muted px-5 py-3 text-right font-mono tabular-nums">
+                                                    {s.questions_solved}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="theme-empty-state text-center py-20 rounded-xl">
+                                <p className="text-[15px] opacity-30">No sessions yet.</p>
+                                <p className="text-[13px] opacity-20 mt-1">Start studying to see your progress grow.</p>
+                            </div>
+                        )
                     ) : (
-                        <div className="theme-empty-state text-center py-20 rounded-xl">
-                            <p className="text-[15px] opacity-30">No sessions yet.</p>
-                            <p className="text-[13px] opacity-20 mt-1">Start studying to see your progress grow.</p>
-                        </div>
-                    )
-                ) : (
-                    <RecentActivitySkeleton />
-                )}
+                        <RecentActivitySkeleton />
+                    )}
                 </div>
             </div>
 
