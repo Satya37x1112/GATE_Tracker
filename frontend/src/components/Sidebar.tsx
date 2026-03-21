@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import {
-    LayoutDashboard, Timer, BarChart3, History, Download, X, TreePine, LogOut, TrendingUp, BookOpen, MessageSquare, MessagesSquare, Newspaper
+    LayoutDashboard, Timer, BarChart3, History, Download, X, LogOut, TrendingUp, BookOpen, MessageSquare, MessagesSquare, Newspaper
 } from 'lucide-react'
 import { getExportUrl } from '../api/api'
 
@@ -42,9 +42,7 @@ export default function Sidebar({ open, onClose, onLogout, user }: Props) {
                 {/* Logo */}
                 <div className="flex items-center justify-between px-6 py-6 border-b border-inherit">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-                            <TreePine size={16} className="text-white" />
-                        </div>
+                        <img src="/logo.svg" alt="GateTracker Logo" className="w-8 h-8 rounded-lg shadow-sm" />
                         <div>
                             <span className="text-[15px] font-semibold tracking-tight">GateTracker</span>
                             <span className="theme-soft block text-[10px] tracking-[0.15em] uppercase">
