@@ -93,39 +93,68 @@ export default function StartStudy() {
             </div>
 
             {/* Timer */}
-            <div className="relative mx-auto w-64 h-64 flex items-center justify-center">
-                {/* Outer ring */}
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 256 256">
-                    <circle cx="128" cy="128" r="120" fill="none"
-                        stroke={running ? 'rgba(34,197,94,.15)' : 'rgba(255,255,255,.04)'}
-                        strokeWidth="2" />
+            <div className="relative mx-auto w-72 h-72 flex items-center justify-center mt-8 mb-12">
+                {/* Glowing backdrop */}
+                {running && <div className="absolute inset-0 rounded-full bg-emerald-500/10 blur-3xl animate-pulse-ring" />}
+
+                {/* Outer glass ring */}
+                <div className="absolute inset-0 rounded-full border-[6px] border-white/5 backdrop-blur-sm shadow-[inset_0_2px_24px_rgba(255,255,255,0.02)]" />
+
+                {/* SVG Progress Ring */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 288 288">
+                    <defs>
+                        <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#10b981" />
+                            <stop offset="100%" stopColor="#06b6d4" />
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+                            <feMerge>
+                                <feMergeNode in="coloredBlur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <circle cx="144" cy="144" r="134" fill="none"
+                        stroke="rgba(0,0,0,0.2)" strokeWidth="6" />
                     {running && (
-                        <circle cx="128" cy="128" r="120" fill="none"
-                            stroke="rgba(34,197,94,.4)" strokeWidth="2"
-                            strokeDasharray="754" strokeDashoffset={754 - (seconds % 60) / 60 * 754}
+                        <circle cx="144" cy="144" r="134" fill="none"
+                            stroke="url(#timerGrad)" strokeWidth="6"
+                            strokeDasharray="842" strokeDashoffset={842 - (seconds % 60) / 60 * 842}
                             strokeLinecap="round"
+                            filter="url(#glow)"
                             style={{ transition: 'stroke-dashoffset 1s linear', transform: 'rotate(-90deg)', transformOrigin: 'center' }} />
                     )}
                 </svg>
-                <span className="text-[52px] font-light tracking-tight tabular-nums font-mono">
-                    {pad(h)}:{pad(m)}:{pad(s)}
-                </span>
+
+                {/* Text Display */}
+                <div className="relative flex flex-col items-center justify-center">
+                    <span className="text-[64px] font-bold tracking-tighter tabular-nums font-mono text-transparent bg-clip-text bg-gradient-to-b from-white to-white/70 drop-shadow-sm leading-none">
+                        {pad(h)}:{pad(m)}:{pad(s)}
+                    </span>
+                    {running && <span className="theme-soft text-[12px] font-semibold tracking-[0.25em] uppercase mt-3 animate-pulse">Focusing</span>}
+                </div>
             </div>
 
             {/* Controls */}
-            <div className="flex justify-center gap-3">
-                <button onClick={start} disabled={running}
-                    className="flex items-center gap-2 px-7 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-[13px] font-medium transition-all disabled:opacity-20 active:scale-[.97]">
-                    <Play size={14} /> {seconds > 0 && !showForm ? 'Resume' : 'Start'}
-                </button>
-                <button onClick={pause} disabled={!running}
-                    className="flex items-center gap-2 px-7 py-3 rounded-full bg-white/[.06] hover:bg-white/[.1] text-[13px] font-medium transition-all disabled:opacity-20 active:scale-[.97]">
-                    <Pause size={14} /> Pause
-                </button>
-                <button onClick={stop} disabled={seconds === 0}
-                    className="flex items-center gap-2 px-7 py-3 rounded-full bg-white/[.06] hover:bg-red-500/20 text-[13px] font-medium transition-all disabled:opacity-20 active:scale-[.97]">
-                    <Square size={14} /> Stop
-                </button>
+            <div className="flex justify-center gap-4 relative z-10">
+                {!running && seconds === 0 ? (
+                    <button onClick={start}
+                        className="glass-primary-button flex items-center justify-center gap-3 px-10 py-4 rounded-full text-[15px] font-medium text-white w-56 shadow-[0_12px_32px_rgba(16,185,129,0.3)] transition-all active:scale-[.96]">
+                        <Play size={18} fill="currentColor" /> Start Session
+                    </button>
+                ) : (
+                    <div className="flex items-center gap-2 p-1.5 rounded-full glass-segment shadow-xl">
+                        <button onClick={running ? pause : start}
+                            className={`flex items-center gap-2.5 px-8 py-3 rounded-full text-[14px] font-semibold transition-all ${running ? 'text-white hover:bg-white/10' : 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-white shadow-lg'}`}>
+                            {running ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />} {running ? 'Pause' : 'Resume'}
+                        </button>
+                        <button onClick={stop}
+                            className="flex items-center gap-2.5 px-8 py-3 rounded-full text-[14px] font-semibold text-red-400 hover:bg-red-500/10 transition-all">
+                            <Square size={16} fill="currentColor" /> End
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Save form */}
