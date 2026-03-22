@@ -1,114 +1,132 @@
-# GATE Study Intelligence Tracker
+# GateTracker: GATE CSE Study Intelligence Platform
 
-A full-stack web application for tracking and analyzing GATE (Graduate Aptitude Test in Engineering) CS/IT exam preparation. Built with a Django REST backend and a React + TypeScript frontend.
+GateTracker is a comprehensive, full-stack study analytics and tracking platform specifically designed for GATE (Graduate Aptitude Test in Engineering) Computer Science candidates. It provides students with data-driven insights, progress monitoring, and resource management to optimize their preparation strategy.
 
-## Architecture
+## 📖 Overview
 
-```
-Frontend (Vercel)          Backend (Render)           Database (Neon)
-React + TypeScript   --->  Django 6.x REST API  --->  PostgreSQL
-Vite + TailwindCSS         Gunicorn + WhiteNoise      Managed cloud DB
-```
+GateTracker enables students to log their study sessions, track topics covered, monitor their daily streak, and visualize their progress over time. Built with a robust Django REST backend and a modern React frontend, the platform ensures a seamless, responsive, and cross-platform user experience.
 
-The frontend communicates with the backend via JSON API endpoints. Authentication uses Django sessions with cross-origin cookie support (`SameSite=None; Secure`).
+## 🏗️ Architecture
 
-## Tech Stack
+The system follows a typical client-server architecture with a decoupled frontend and backend:
 
-### Backend
-- **Framework**: Django 6.x
-- **Server**: Gunicorn
-- **Database**: PostgreSQL (Neon) via `dj-database-url`
-- **Static files**: WhiteNoise
-- **CORS**: django-cors-headers
-- **Environment**: python-dotenv
+- **Frontend**: A Single Page Application (SPA) hosted on Vercel, providing a rich, interactive user interface.
+- **Backend API**: A RESTful Django service hosted on Render, handling business logic, data persistence, and secure cross-origin authentication.
+- **Database**: A fully managed Serverless PostgreSQL instance hosted on Neon.
 
-### Frontend
-- **Framework**: React 18 with TypeScript
-- **Build tool**: Vite 5
+## 🛠️ Technology Stack
+
+### Backend Infrastructure
+- **Framework**: Django 6.x / Django REST Framework
+- **WSGI Server**: Gunicorn
+- **Database**: PostgreSQL (Neon Serverless)
+- **Static File Management**: WhiteNoise
+- **Authentication**: Session-based auth with secure cross-origin cookies (`SameSite=None; Secure`)
+
+### Frontend Ecosystem
+- **Core**: React 18, TypeScript, Vite 5
 - **Styling**: TailwindCSS 3
-- **Charts**: Chart.js + react-chartjs-2
-- **Routing**: react-router-dom v6
-- **Icons**: lucide-react
+- **State Management & Routing**: React Router v6
+- **Data Visualization**: Chart.js, react-chartjs-2
+- **Icons**: Lucide React
 
-### Deployment
-- **Backend**: Render (free tier)
-- **Frontend**: Vercel
-- **Database**: Neon PostgreSQL (serverless)
+## 🗄️ Core Data Models
 
-## Data Models
+The system architecture revolves around two primary entities:
 
-### StudySession
-Records individual study sessions with the following fields:
-- `user` — ForeignKey to Django's auth User
-- `date` — auto-set on creation
-- `subject` — one of: DSA, OS, COA, DBMS, DL, MATHS, CN, TOC, CD, SE, APT
-- `study_type` — Theory, Practice, Lecture, or Revision
-- `duration_minutes` — float, session length in minutes
-- `questions_solved` — integer
-- `lecture_minutes` — integer
-- `notes_created` — boolean
+### 1. `StudySession`
+Represents an atomic unit of a student's study period.
+- `user`: Foreign Key to the User model.
+- `subject`: Domain category (e.g., DSA, OS, DBMS, CN).
+- `study_type`: Methodology (Theory, Practice, Lecture, Revision).
+- `duration_minutes`: Time invested.
+- `questions_solved`: Quantitative output metric.
+- `lecture_minutes`: Time spent on video/audio resources.
 
-### DailyStats
-Aggregated per-user daily statistics, updated automatically when sessions are saved:
-- `total_study_time` — total minutes studied that day
-- `total_questions` — total questions solved
-- `total_lectures` — total lecture minutes
+### 2. `DailyStats`
+An aggregated materialization of user statistics, automatically updated when study sessions are recorded.
+- `total_study_time`: Aggregate daily duration.
+- `total_questions`: Aggregate daily questions solved.
+- `total_lectures`: Aggregate daily lecture time.
 
-## API Endpoints
+## 🔌 API Reference
 
-### Authentication
+### Authentication Services
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/auth/register/` | Register new user (username, email, password) |
-| POST | `/api/auth/login/` | Log in, returns session cookie |
-| POST | `/api/auth/logout/` | Log out, clears session |
-| GET | `/api/auth/check/` | Check authentication status |
+| `POST` | `/api/auth/register/` | Provisions a new user account. |
+| `POST` | `/api/auth/login/` | Authenticates and returns a secure session cookie. |
+| `POST` | `/api/auth/logout/` | Invalidates the current session. |
+| `GET`  | `/api/auth/check/` | Validates current session status. |
 
-### Data (all require authentication)
+### Application Services (Authenticated Context)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/dashboard/` | Today's stats: hours, questions, lectures, streak |
-| GET | `/api/analytics/` | Subject breakdown, averages, totals |
-| GET | `/api/chart-data/` | Time-series data for charts |
-| GET | `/api/history/` | Paginated session history |
-| GET | `/api/heatmap/` | Study activity heatmap data |
-| GET | `/api/weekly-progress/` | Current week progress breakdown |
-| GET | `/api/growth-tree/` | Gamified progress tree data |
-| GET | `/api/progress/` | Multi-week progress comparison |
-| POST | `/save-session/` | Save a new study session |
-| GET | `/export/` | Export all sessions as CSV |
+| `GET`  | `/api/dashboard/` | Retrieves aggregate daily statistics and streak info. |
+| `GET`  | `/api/analytics/` | Fetches subject-specific breakdowns and averages. |
+| `GET`  | `/api/heatmap/` | Provides temporal study activity data. |
+| `POST` | `/save-session/` | Persists a new `StudySession` instance. |
+| `GET`  | `/export/` | Generates a CSV export of user session history. |
 
-## Local Development Setup
+*(Note: Additional endpoints exist for chart data, history, and gamified growth tree elements).*
 
+## 💻 Local Development Setup
 
+To run GateTracker locally, follow these instructions:
 
-## Project Structure
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- PostgreSQL (Local or Cloud instance)
 
-```
+### Backend Setup
+1. Navigate to the project root directory.
+2. Create and activate a Python virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Set up environment variables (`.env`) for `DATABASE_URL`, `SECRET_KEY`, etc.
+5. Apply database migrations and start the server:
+   ```bash
+   python manage.py migrate
+   python manage.py runserver
+   ```
+
+### Frontend Setup
+1. Navigate to the `frontend/` directory.
+2. Install Node dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+
+## 📂 Project Structure
+
+```text
 .
-├── gate_tracker/          # Django project settings
-│   ├── settings.py        # Configuration (DB, CORS, static files)
-│   ├── urls.py            # Root URL routing
-│   └── wsgi.py            # WSGI entry point
-├── tracker/               # Main Django app
-│   ├── models.py          # StudySession, DailyStats models
-│   ├── views.py           # API endpoints and template views
-│   ├── urls.py            # App URL patterns
-│   └── migrations/        # Database migrations
-├── frontend/              # React + TypeScript SPA
+├── gate_tracker/          # Django core settings and WSGI/ASGI configurations
+├── tracker/               # Primary Django application module (Models/Views)
+├── frontend/              # React single-page application
 │   ├── src/
-│   │   ├── api/api.ts     # API client with type definitions
-│   │   ├── components/    # Reusable UI components
-│   │   ├── pages/         # Route-level page components
-│   │   └── data/          # Static subject data (JSON)
-│   ├── vite.config.ts     # Vite configuration
-│   └── tailwind.config.js # TailwindCSS configuration
-├── build.sh               # Render build script
-├── render.yaml            # Render deployment config
-├── requirements.txt       # Python dependencies
-└── manage.py              # Django management CLI
+│   │   ├── api/           # Typed API service clients
+│   │   ├── components/    # Reusable UI elements
+│   │   ├── pages/         # Route-level views
+│   │   └── data/          # Static JSON payloads
+│   ├── vite.config.ts     # Vite bundler configuration
+│   └── tailwind.config.js # Tailwind CSS utility definitions
+├── requirements.txt       # Python dependency definitions
+└── manage.py              # Django administrative CLI
 ```
-## License
+
+## 📄 License
 
 This project is licensed under a proprietary license.  
-The code is available for viewing only and may not be copied, modified, or redistributed without permission.
+The code is available for viewing only and may not be copied, modified, or redistributed without explicit permission from the author.
