@@ -80,53 +80,6 @@ Aggregated per-user daily statistics, updated automatically when sessions are sa
 
 ## Local Development Setup
 
-### Prerequisites
-- Python 3.12+
-- Node.js 18+
-- Git
-
-### Backend
-
-```bash
-# Clone the repository
-git clone https://github.com/Satya37x1112/GATE_Tracker.git
-cd GATE_Tracker
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate   # Linux/macOS
-venv\Scripts\activate      # Windows
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure environment variables
-cp .env.example .env
-# Edit .env and set DATABASE_URL to your PostgreSQL connection string
-
-# Run migrations
-python manage.py migrate
-
-# Create superuser
-python manage.py createsuperuser
-
-# Start development server
-python manage.py runserver
-```
-
-### Frontend
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start dev server (proxies API calls to localhost:8000)
-npm run dev
-```
-
-The frontend runs at `http://localhost:5173` and expects the backend at `http://localhost:8000`.
 
 
 ## Project Structure
