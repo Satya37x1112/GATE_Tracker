@@ -125,8 +125,3 @@ To run GateTracker locally, follow these instructions:
 ├── requirements.txt       # Python dependency definitions
 └── manage.py              # Django administrative CLI
 ```
-
-## 📄 License
-
-This project is licensed under a proprietary license.  
-The code is available for viewing only and may not be copied, modified, or redistributed without explicit permission from the author.

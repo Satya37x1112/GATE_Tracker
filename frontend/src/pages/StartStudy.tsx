@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from 'react'
-import { Play, Pause, Square, Check } from 'lucide-react'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { Play, Pause, Square, Check, Maximize, Minimize } from 'lucide-react'
 import SEO from '../components/SEO'
 import { saveSession } from '../api/api'
 
@@ -34,6 +34,27 @@ export default function StartStudy() {
     const [questions, setQuestions] = useState(0)
     const [lectureMin, setLectureMin] = useState(0)
     const [notes, setNotes] = useState(false)
+
+    const containerRef = useRef<HTMLDivElement>(null)
+    const [isFullscreen, setIsFullscreen] = useState(false)
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement)
+        }
+        document.addEventListener('fullscreenchange', handleFullscreenChange)
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    }, [])
+
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            containerRef.current?.requestFullscreen().catch(err => {
+                console.error(`Error attempting to enable fullscreen: ${err.message}`)
+            })
+        } else {
+            document.exitFullscreen()
+        }
+    }
 
     const start = useCallback(() => {
         if (running) return
@@ -84,10 +105,21 @@ export default function StartStudy() {
     const s = seconds % 60
 
     return (
-        <div className="max-w-xl mx-auto space-y-10">
+        <div
+            ref={containerRef}
+            className={`${isFullscreen ? 'flex flex-col items-center justify-center p-6 space-y-10 h-screen w-screen max-w-none overflow-y-auto' : 'max-w-xl mx-auto space-y-10'}`}
+            style={{ backgroundColor: isFullscreen ? 'var(--app-bg)' : 'transparent' }}
+        >
             <SEO title="Study Timer" description="Start a focused GATE CSE study session. Track time, questions solved, and notes for DSA, OS, DBMS, CN, TOC & more." path="/start-study" />
             {/* Header */}
-            <div className="text-center">
+            <div className={`text-center relative w-full ${isFullscreen ? 'max-w-xl mt-auto' : ''}`}>
+                <button
+                    onClick={toggleFullscreen}
+                    className={`absolute right-0 top-0 p-2 text-[var(--app-muted)] hover:text-[var(--app-text)] transition-colors ${isFullscreen ? 'right-4 top-4 fixed z-50' : ''}`}
+                    title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                >
+                    {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+                </button>
                 <h1 className="text-[32px] font-semibold tracking-tight">Study Timer</h1>
                 <p className="text-[14px] opacity-25 mt-1">Focus. Track. Grow.</p>
             </div>
@@ -159,7 +191,7 @@ export default function StartStudy() {
 
             {/* Save form */}
             {showForm && (
-                <div className="animate-slide-up glass-panel p-6 space-y-5">
+                <div className="animate-slide-up glass-panel p-6 space-y-5 w-full max-w-md">
                     <div className="text-center">
                         <p className="text-[15px] font-semibold">Save Session</p>
                         <p className="text-[13px] opacity-25 mt-0.5">Duration: {pad(h)}:{pad(m)}:{pad(s)}</p>
@@ -205,7 +237,7 @@ export default function StartStudy() {
             )}
 
             {toast && (
-                <div className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white px-5 py-3 rounded-full text-[13px] font-medium shadow-xl animate-slide-up">
+                <div className={`fixed bottom-6 right-6 z-50 bg-emerald-500 text-white px-5 py-3 rounded-full text-[13px] font-medium shadow-xl animate-slide-up ${isFullscreen ? 'bottom-10 right-10' : ''}`}>
                     {toast}
                 </div>
             )}
