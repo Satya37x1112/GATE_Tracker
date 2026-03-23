@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { ExternalLink, MessageCircleMore, Send } from 'lucide-react'
 import SEO from '../components/SEO'
 import PublicShell from '../components/PublicShell'
-import { submitFeedback } from '../api/api'
+import emailjs from '@emailjs/browser'
 
 interface User {
     id: number
@@ -37,6 +37,7 @@ export default function Contact({ user }: Props) {
     const [submitting, setSubmitting] = useState(false)
     const [success, setSuccess] = useState('')
     const [error, setError] = useState('')
+    const formRef = useRef<HTMLFormElement>(null)
 
     const onSubmit = async (event: FormEvent) => {
         event.preventDefault()
@@ -47,10 +48,17 @@ export default function Contact({ user }: Props) {
         setError('')
 
         try {
-            const response = await submitFeedback(form)
-            setSuccess(response.message)
+            if (!formRef.current) return;
+            await emailjs.sendForm(
+                'service_wo6vi4x',
+                'template_9ymhn58',
+                formRef.current,
+                '4IKEq1MPOxpHut2ra'
+            )
+            setSuccess('Message sent successfully!')
             setForm(initialForm)
         } catch (err) {
+            console.error('EmailJS Error:', err)
             setError(err instanceof Error ? err.message : 'Unable to submit your message right now.')
         } finally {
             setSubmitting(false)
@@ -101,11 +109,12 @@ export default function Contact({ user }: Props) {
                     {success && <div className="feedback-alert feedback-alert-success">{success}</div>}
                     {error && <div className="feedback-alert feedback-alert-error">{error}</div>}
 
-                    <form onSubmit={onSubmit} className="mt-4 space-y-4">
+                    <form ref={formRef} onSubmit={onSubmit} className="mt-4 space-y-4">
                         <div className="grid gap-4 md:grid-cols-2">
                             <label className="block">
                                 <span className="mb-2 block text-[13px] opacity-70">Name <span className="opacity-35">(optional)</span></span>
                                 <input
+                                    name="name"
                                     className="form-input"
                                     value={form.name}
                                     onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
@@ -116,6 +125,7 @@ export default function Contact({ user }: Props) {
                                 <span className="mb-2 block text-[13px] opacity-70">Email <span className="opacity-35">(optional)</span></span>
                                 <input
                                     type="email"
+                                    name="email"
                                     className="form-input"
                                     value={form.email}
                                     onChange={e => setForm(prev => ({ ...prev, email: e.target.value }))}
@@ -127,6 +137,7 @@ export default function Contact({ user }: Props) {
                         <label className="block">
                             <span className="mb-2 block text-[13px] opacity-70">Message</span>
                             <textarea
+                                name="message"
                                 className="form-input min-h-[180px] resize-y"
                                 value={form.message}
                                 onChange={e => setForm(prev => ({ ...prev, message: e.target.value }))}
