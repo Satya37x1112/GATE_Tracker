@@ -17,8 +17,7 @@ from django.conf import settings as django_settings
 from django.core.mail import EmailMessage
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.db.models import F
-from django.db.models import Sum
+from django.db.models import F, Sum, Count
 from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import render, redirect
@@ -520,38 +519,53 @@ def api_multi_week_progress(request):
     user = request.user
     today = date.today()
     monday = today - timedelta(days=today.weekday())
+    start_of_8_weeks = monday - timedelta(weeks=7)
+
+    # Pre-fetch and group stats
+    all_stats = DailyStats.objects.filter(user=user, date__gte=start_of_8_weeks, date__lte=today)
+    stats_by_week = {w: [] for w in range(8)}
+    for stat in all_stats:
+        w_index = (stat.date - start_of_8_weeks).days // 7
+        if 0 <= w_index < 8:
+            stats_by_week[w_index].append(stat)
+
+    # Pre-fetch and group sessions
+    all_sessions_raw = StudySession.objects.filter(user=user, date__gte=start_of_8_weeks, date__lte=today).values('date', 'subject', 'duration_minutes')
+    sessions_by_week = {w: {'count': 0, 'subjects': {}} for w in range(8)}
+    for s in all_sessions_raw:
+        w_index = (s['date'] - start_of_8_weeks).days // 7
+        if 0 <= w_index < 8:
+            sessions_by_week[w_index]['count'] += 1
+            subj = s['subject']
+            sessions_by_week[w_index]['subjects'][subj] = sessions_by_week[w_index]['subjects'].get(subj, 0) + s['duration_minutes']
+
     weeks = []
-
-    for w in range(7, -1, -1):  # 8 weeks, oldest first
-        wk_start = monday - timedelta(weeks=w)
+    
+    for w in range(8):
+        wk_start = start_of_8_weeks + timedelta(weeks=w)
         wk_end = wk_start + timedelta(days=6)
-        actual_end = min(wk_end, today)
-
-        stats = DailyStats.objects.filter(user=user, date__gte=wk_start, date__lte=actual_end)
-        total_mins = stats.aggregate(t=Sum('total_study_time'))['t'] or 0
-        total_q = stats.aggregate(q=Sum('total_questions'))['q'] or 0
-        total_lec = stats.aggregate(l=Sum('total_lectures'))['l'] or 0
-
-        sessions = StudySession.objects.filter(user=user, date__gte=wk_start, date__lte=actual_end)
-        session_count = sessions.count()
-
-        # Days actually studied
-        days_studied = stats.filter(total_study_time__gt=0).count()
-
-        # Subject breakdown for this week
-        subj = (
-            sessions.values('subject')
-            .annotate(total=Sum('duration_minutes'))
-            .order_by('-total')[:5]
-        )
+        
+        w_stats = stats_by_week[w]
+        total_mins = sum(s.total_study_time for s in w_stats)
+        total_q = sum(s.total_questions for s in w_stats)
+        total_lec = sum(s.total_lectures for s in w_stats)
+        days_studied = sum(1 for s in w_stats if s.total_study_time > 0)
+        
+        best_day = max(w_stats, key=lambda s: s.total_study_time, default=None) if w_stats else None
+        
+        w_sessions = sessions_by_week[w]
+        session_count = w_sessions['count']
+        
+        # Subject breakdown
+        subj_list = [{'subject': k, 'total': v} for k, v in w_sessions['subjects'].items()]
+        subj_list.sort(key=lambda x: x['total'], reverse=True)
+        subj_list = subj_list[:5]
+        
         subject_breakdown = [
             {'subject': SUBJECT_MAP.get(s['subject'], s['subject']),
              'hours': round(s['total'] / 60, 2)}
-            for s in subj
+            for s in subj_list
         ]
-
-        # Best day
-        best_day = stats.order_by('-total_study_time').first()
 
         weeks.append({
             'week_label': f"{wk_start.strftime('%b %d')}",
@@ -564,7 +578,7 @@ def api_multi_week_progress(request):
             'subject_breakdown': subject_breakdown,
             'best_day_hours': round((best_day.total_study_time / 60), 1) if best_day else 0,
             'best_day_date': str(best_day.date) if best_day else None,
-            'is_current': w == 0,
+            'is_current': w == 7,
         })
 
     # Week-over-week analysis
@@ -804,10 +818,10 @@ def api_chart_data(request):
     subject_values = [round(s['total'] / 60, 2) for s in subject_dist]
 
     # Type comparison
-    type_totals = []
-    for t in ['Lecture', 'Practice', 'Theory', 'Revision']:
-        mins = StudySession.objects.filter(user=user, study_type=t).aggregate(t=Sum('duration_minutes'))['t'] or 0
-        type_totals.append(round(mins / 60, 2))
+    types = ['Lecture', 'Practice', 'Theory', 'Revision']
+    type_agg = StudySession.objects.filter(user=user, study_type__in=types).values('study_type').annotate(t=Sum('duration_minutes'))
+    type_dict = {item['study_type']: item['t'] or 0 for item in type_agg}
+    type_totals = [round(type_dict.get(t, 0) / 60, 2) for t in types]
 
     return JsonResponse({
         'daily_labels': daily_labels,
@@ -866,11 +880,19 @@ def api_weekly_progress(request):
     monday = today - timedelta(days=today.weekday())
     last_monday = monday - timedelta(days=7)
 
+    # Pre-fetch data for the week to avoid N+1 queries
+    week_end = monday + timedelta(days=6)
+    week_stats = DailyStats.objects.filter(user=user, date__gte=monday, date__lte=week_end)
+    stats_dict = {s.date: s for s in week_stats}
+    
+    week_sessions_agg = StudySession.objects.filter(user=user, date__gte=monday, date__lte=week_end).values('date').annotate(count=Count('id'))
+    sessions_dict = {s['date']: s['count'] for s in week_sessions_agg}
+
     days = []
     for i in range(7):
         d = monday + timedelta(days=i)
-        stats = DailyStats.objects.filter(user=user, date=d).first()
-        sessions_count = StudySession.objects.filter(user=user, date=d).count()
+        stats = stats_dict.get(d)
+        sessions_count = sessions_dict.get(d, 0)
         days.append({
             'date': str(d),
             'day': d.strftime('%a'),
@@ -882,13 +904,10 @@ def api_weekly_progress(request):
             'is_future': d > today,
         })
 
-    # This week totals
-    this_week_mins = DailyStats.objects.filter(
-        user=user, date__gte=monday, date__lte=today
-    ).aggregate(t=Sum('total_study_time'))['t'] or 0
-    this_week_q = DailyStats.objects.filter(
-        user=user, date__gte=monday, date__lte=today
-    ).aggregate(q=Sum('total_questions'))['q'] or 0
+    # This week totals calculated from pre-fetched stats to save queries
+    valid_this_week_stats = [s for s in week_stats if s.date <= today]
+    this_week_mins = sum(s.total_study_time for s in valid_this_week_stats)
+    this_week_q = sum(s.total_questions for s in valid_this_week_stats)
 
     # Last week totals
     last_week_mins = DailyStats.objects.filter(
