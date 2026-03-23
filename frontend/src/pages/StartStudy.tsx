@@ -112,7 +112,7 @@ export default function StartStudy() {
         >
             <SEO title="Study Timer" description="Start a focused GATE CSE study session. Track time, questions solved, and notes for DSA, OS, DBMS, CN, TOC & more." path="/start-study" />
             {/* Header */}
-            <div className={`text-center relative w-full ${isFullscreen ? 'max-w-xl mt-auto' : ''}`}>
+            <div className={`text-center relative w-full ${isFullscreen ? 'max-w-xl' : ''}`}>
                 <button
                     onClick={toggleFullscreen}
                     className={`absolute right-0 top-0 p-2 text-[var(--app-muted)] hover:text-[var(--app-text)] transition-colors ${isFullscreen ? 'right-4 top-4 fixed z-50' : ''}`}
