@@ -13,7 +13,6 @@ interface Props {
 }
 
 const publicLinks = [
-    { to: '/journey', label: 'My Journey' },
     { to: '/about', label: 'About Us' },
     { to: '/contact', label: 'Contact Us' },
 ]
