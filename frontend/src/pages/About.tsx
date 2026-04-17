@@ -1,4 +1,4 @@
-import { BookOpenCheck, LayoutGrid, ShieldCheck, Sparkles } from 'lucide-react'
+import { BookOpenCheck, Sparkles } from 'lucide-react'
 import SEO from '../components/SEO'
 import PublicShell from '../components/PublicShell'
 
@@ -14,19 +14,16 @@ interface Props {
 
 const commitments = [
     {
-        icon: Sparkles,
-        title: 'Useful, original study support',
-        body: 'GateTracker is built to help GATE CSE aspirants record their own study effort, review progress clearly, and work through curated resource collections with purpose.',
+        title: 'Original, relevant study data',
+        body: 'Your dashboard is built from your own study sessions and progress history, not recycled content.',
     },
     {
-        icon: ShieldCheck,
-        title: 'Safe, review-friendly experience',
-        body: 'The product is designed for exam preparation and community feedback. Public pages avoid adult, hateful, violent, or otherwise restricted material.',
+        title: 'Clear public trust pages',
+        body: 'Visitors can review the product context on the About Us and Contact Us pages before signing in.',
     },
     {
-        icon: LayoutGrid,
-        title: 'Transparent product information',
-        body: 'This site now includes public About Us and Contact Us pages so visitors, reviewers, and ad partners can quickly understand who the site serves and how to reach the project.',
+        title: 'Fresh improvements over time',
+        body: 'Resources, feedback workflows, and product features are updated iteratively as the platform evolves.',
     },
 ]
 
@@ -71,8 +68,7 @@ export default function About({ user }: Props) {
             <section className="mt-6 grid gap-4 md:grid-cols-3">
                 {commitments.map(item => (
                     <article key={item.title} className="glass-panel p-6 hover-lift">
-                        <item.icon size={20} className="text-emerald-400" />
-                        <h2 className="mt-4 text-[20px] font-semibold tracking-tight">{item.title}</h2>
+                        <h2 className="text-[20px] font-semibold tracking-tight">{item.title}</h2>
                         <p className="mt-3 text-[13px] leading-6 opacity-65">{item.body}</p>
                     </article>
                 ))}
