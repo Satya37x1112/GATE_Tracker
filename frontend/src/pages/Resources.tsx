@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { ChevronDown, ChevronRight, ExternalLink, BookOpen, Clock, Play, CheckCircle2, RotateCcw } from 'lucide-react'
+import { ChevronDown, ChevronRight, BookOpen, Clock, Play, CheckCircle2, RotateCcw } from 'lucide-react'
 import SEO from '../components/SEO'
 import {
     type Video, type Subject,
-    SUBJECTS, CHANNELS,
+    SUBJECTS,
     loadSubjectVideos, formatDuration, cleanTitle,
     partitionIntoDays, getWatched, setWatched,
 } from '../data/resources'
@@ -89,7 +89,7 @@ export default function Resources() {
                                 }
               `}
                         >
-                            <span className="text-2xl">{sub.icon}</span>
+
                             <p className="text-[13px] font-medium mt-2 leading-tight">{sub.name}</p>
                             {selectedSubject?.code === sub.code && (
                                 <div className="mt-2 flex items-center gap-1">
@@ -326,33 +326,7 @@ export default function Resources() {
                 </div>
             )}
 
-            {/* Recommended Channels */}
-            <div>
-                <p className="section-label mb-3">Recommended Channels</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {CHANNELS.map(ch => (
-                        <a
-                            key={ch.name}
-                            href={ch.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="glass-panel p-4 flex items-center gap-4 hover:bg-white/[.04] hover:border-white/[.12] transition-all group"
-                        >
-                            <img
-                                src={ch.thumbnail}
-                                alt={ch.name}
-                                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                                loading="lazy"
-                            />
-                            <div className="flex-1 min-w-0">
-                                <p className="text-[14px] font-medium group-hover:text-emerald-400 transition-colors">{ch.name}</p>
-                                <p className="text-[11px] opacity-30 mt-0.5">{ch.description}</p>
-                            </div>
-                            <ExternalLink size={14} className="opacity-20 group-hover:opacity-50 transition-opacity flex-shrink-0" />
-                        </a>
-                    ))}
-                </div>
-            </div>
+
         </div>
     )
 }
