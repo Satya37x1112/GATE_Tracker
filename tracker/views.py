@@ -6,8 +6,10 @@ All data endpoints filter by request.user for per-user data isolation.
 """
 
 import csv
+import html
 import json
 import logging
+import re
 import secrets
 from datetime import date, timedelta
 from functools import lru_cache
@@ -641,14 +643,28 @@ def api_get_vlogs(request):
     for v in vlogs:
         data.append({
             'id': v.id,
-            'title': v.title,
-            'content': v.content,
+            'title': _sanitize_text(v.title),
+            'content': _sanitize_text(v.content),
             'date': str(v.date),
             'youtube_url': v.youtube_url,
             'author': v.user.username,
             'created_at': v.created_at.isoformat(),
         })
     return JsonResponse(data, safe=False)
+
+
+def _sanitize_text(text):
+    """Strip HTML tags and escape special characters to prevent XSS."""
+    # Remove all HTML tags
+    clean = re.sub(r'<[^>]+>', '', text)
+    # Collapse any leftover angle brackets
+    clean = clean.replace('<', '&lt;').replace('>', '&gt;')
+    # Unescape so stored text is plain (React auto-escapes on render)
+    clean = html.unescape(clean)
+    # Strip any remaining dangerous patterns
+    clean = re.sub(r'(?i)javascript\s*:', '', clean)
+    clean = re.sub(r'(?i)on\w+\s*=', '', clean)
+    return clean.strip()
 
 
 @login_required_api
@@ -661,12 +677,25 @@ def api_create_vlog(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     
-    title = data.get('title', '').strip()
-    content = data.get('content', '').strip()
+    raw_title = data.get('title', '').strip()
+    raw_content = data.get('content', '').strip()
     youtube_url = data.get('youtube_url', '').strip() or None
 
-    if not title or not content:
+    if not raw_title or not raw_content:
         return JsonResponse({'error': 'Title and content are required'}, status=400)
+
+    # Sanitize inputs to prevent XSS / HTML injection
+    title = _sanitize_text(raw_title)
+    content = _sanitize_text(raw_content)
+
+    if not title or not content:
+        return JsonResponse({'error': 'Invalid content detected. Please use plain text only.'}, status=400)
+
+    # Validate YouTube URL format if provided
+    if youtube_url:
+        yt_pattern = re.compile(r'^https?://(www\.)?(youtube\.com|youtu\.be)/')
+        if not yt_pattern.match(youtube_url):
+            return JsonResponse({'error': 'Invalid YouTube URL format'}, status=400)
 
     try:
         post = VlogPost.objects.create(
@@ -679,6 +708,24 @@ def api_create_vlog(request):
     except Exception as e:
         logger.error(f"Failed to create vlog post: {e}")
         return JsonResponse({'error': 'Failed to create vlog entry'}, status=500)
+
+
+@login_required_api
+@require_POST
+def api_delete_vlog(request, vlog_id):
+    """JSON: Delete a vlog post (owner or staff only)."""
+    try:
+        post = VlogPost.objects.get(id=vlog_id)
+    except VlogPost.DoesNotExist:
+        return JsonResponse({'error': 'Vlog not found'}, status=404)
+
+    # Only the author or staff can delete
+    if post.user != request.user and not request.user.is_staff:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+
+    post.delete()
+    return JsonResponse({'status': 'ok'})
+
 
 # ──────────────────────────────────────────────
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, Video } from 'lucide-react'
+import { Plus, Video, Trash2 } from 'lucide-react'
 import SEO from '../components/SEO'
 import PublicShell from '../components/PublicShell'
 import { API_BASE, fetchWithCsrf } from '../api/api'
@@ -83,6 +83,24 @@ export default function Journey({ user }: Props) {
             setError(e.message)
         } finally {
             setSubmitting(false)
+        }
+    }
+
+    const handleDelete = async (vlogId: number) => {
+        if (!confirm('Are you sure you want to delete this entry?')) return
+        try {
+            const res = await fetchWithCsrf(`${API_BASE}/api/vlogs/${vlogId}/delete/`, {
+                method: 'POST',
+            })
+            if (!res.ok) {
+                const data = await res.json()
+                alert(data.error || 'Failed to delete')
+                return
+            }
+            setVlogs(vlogs.filter(v => v.id !== vlogId))
+        } catch (e) {
+            console.error('Failed to delete vlog', e)
+            alert('Failed to delete entry')
         }
     }
 
@@ -194,12 +212,23 @@ export default function Journey({ user }: Props) {
 
                                         <div className="glass-panel p-5 sm:p-7">
                                             <div className="mb-4">
-                                                <div className="flex items-center gap-3 mb-1">
-                                                    <span className="text-[12px] font-bold uppercase tracking-wider text-emerald-400">
-                                                        {new Date(vlog.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                                                    </span>
-                                                    <span className="theme-divider-bg w-1.5 h-1.5 rounded-full" />
-                                                    <span className="text-[12px] theme-soft">by {vlog.author}</span>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3 mb-1">
+                                                        <span className="text-[12px] font-bold uppercase tracking-wider text-emerald-400">
+                                                            {new Date(vlog.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                                        </span>
+                                                        <span className="theme-divider-bg w-1.5 h-1.5 rounded-full" />
+                                                        <span className="text-[12px] theme-soft">by {vlog.author}</span>
+                                                    </div>
+                                                    {user && (user.username === vlog.author) && (
+                                                        <button
+                                                            onClick={() => handleDelete(vlog.id)}
+                                                            className="text-red-400/60 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-500/10"
+                                                            title="Delete entry"
+                                                        >
+                                                            <Trash2 size={15} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                                 <h3 className="text-2xl font-bold tracking-tight">{vlog.title}</h3>
                                             </div>

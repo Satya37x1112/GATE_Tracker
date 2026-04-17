@@ -39,6 +39,7 @@ urlpatterns = [
     # ── Vlogs ──
     path('api/vlogs/', views.api_get_vlogs, name='api_get_vlogs'),
     path('api/vlogs/create/', views.api_create_vlog, name='api_create_vlog'),
+    path('api/vlogs/<int:vlog_id>/delete/', views.api_delete_vlog, name='api_delete_vlog'),
 
     # ── POST endpoints ──
     path('save-session/', views.save_session, name='save_session'),
