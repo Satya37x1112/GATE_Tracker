@@ -76,7 +76,7 @@ export default function Contact({ user }: Props) {
             <section className="feedback-hero-panel">
                 <div>
                     <p className="section-label mb-3">Contact Us</p>
-                    <h1 className="flex items-center gap-3 text-[34px] font-semibold tracking-tight leading-tight">
+                    <h1 className="page-header-title flex items-center gap-3">
                         <MessageCircleMore size={30} className="text-cyan-400" />
                         Reach the GateTracker team
                     </h1>
@@ -160,7 +160,7 @@ export default function Contact({ user }: Props) {
                     <h2 className="text-[24px] font-semibold tracking-tight">How to contact us effectively</h2>
                     <div className="mt-5 space-y-4">
                         {contactOptions.map(item => (
-                            <div key={item.title} className="rounded-2xl border border-white/[.08] bg-white/[.03] p-4">
+                            <div key={item.title} className="rounded-2xl border border-white/[.08] bg-white/[.03] p-4 hover-lift">
                                 <h3 className="text-[15px] font-semibold">{item.title}</h3>
                                 <p className="mt-2 text-[13px] leading-6 opacity-65">{item.body}</p>
                             </div>

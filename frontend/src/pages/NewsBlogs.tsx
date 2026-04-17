@@ -14,7 +14,7 @@ export default function NewsBlogs() {
             <section className="glass-panel overflow-hidden">
                 <div className="relative bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.18),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.16),_transparent_28%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-6 md:p-8">
                     <p className="section-label mb-3">Separate Feed</p>
-                    <h1 className="text-[30px] font-semibold tracking-tight flex items-center gap-3">
+                    <h1 className="page-header-title flex items-center gap-3">
                         <Newspaper size={30} className="text-cyan-300" />
                         News & Blogs
                     </h1>

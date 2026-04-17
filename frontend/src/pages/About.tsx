@@ -49,7 +49,7 @@ export default function About({ user }: Props) {
             <section className="feedback-hero-panel">
                 <div>
                     <p className="section-label mb-3">About Us</p>
-                    <h1 className="flex items-center gap-3 text-[34px] font-semibold tracking-tight leading-tight">
+                    <h1 className="page-header-title flex items-center gap-3">
                         <BookOpenCheck size={30} className="text-emerald-400" />
                         About GateTracker
                     </h1>
@@ -70,7 +70,7 @@ export default function About({ user }: Props) {
 
             <section className="mt-6 grid gap-4 md:grid-cols-3">
                 {commitments.map(item => (
-                    <article key={item.title} className="glass-panel p-6">
+                    <article key={item.title} className="glass-panel p-6 hover-lift">
                         <item.icon size={20} className="text-emerald-400" />
                         <h2 className="mt-4 text-[20px] font-semibold tracking-tight">{item.title}</h2>
                         <p className="mt-3 text-[13px] leading-6 opacity-65">{item.body}</p>

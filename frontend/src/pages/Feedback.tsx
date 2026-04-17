@@ -69,7 +69,7 @@ export default function Feedback() {
             <section className="feedback-hero-panel">
                 <div>
                     <p className="section-label mb-3">Community Feedback</p>
-                    <h1 className="text-[32px] font-semibold tracking-tight leading-tight flex items-center gap-3">
+                    <h1 className="page-header-title flex items-center gap-3">
                         <MessageCircleMore size={30} className="text-cyan-400" />
                         Help shape GateTracker
                     </h1>

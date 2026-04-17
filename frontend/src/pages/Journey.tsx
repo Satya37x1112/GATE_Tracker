@@ -120,12 +120,12 @@ export default function Journey({ user }: Props) {
         <PublicShell user={user}>
             <SEO title="My GATE Journey" description="A daily vlog and journal tracking GATE CSE preparation progress." path="/journey" />
 
-            <div className="max-w-3xl mx-auto space-y-10 animate-fade-in pb-20">
+            <div className="max-w-3xl mx-auto space-y-10 animate-page-enter pb-20">
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-6">
                     <div>
-                        <h1 className="text-4xl font-bold tracking-tight mb-2">My GATE Journey</h1>
-                        <p className="theme-soft text-[15px]">Tracking daily progress, struggles, and growth toward GATE CSE 2027.</p>
+                        <h1 className="page-header-title">My GATE Journey</h1>
+                        <p className="page-header-sub">Tracking daily progress, struggles, and growth toward GATE CSE 2027</p>
                     </div>
                     {user && (
                         <button
