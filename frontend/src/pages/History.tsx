@@ -44,8 +44,8 @@ export default function History() {
         <div className="space-y-10">
             <SEO title="History" description="Review and filter all your GATE CSE study sessions — search by subject, type, and date." path="/history" />
             <div>
-                <h1 className="text-[32px] font-semibold tracking-tight">History</h1>
-                <p className="text-[14px] opacity-30 mt-1">Review and filter all study sessions.</p>
+                <h1 className="page-header-title">History</h1>
+                <p className="page-header-sub">Review and filter all study sessions</p>
             </div>
 
             {/* Filters */}

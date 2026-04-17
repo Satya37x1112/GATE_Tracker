@@ -77,11 +77,20 @@ export default function Login({ onLogin }: Props) {
                 path="/"
             />
 
-            <div className="grid items-start gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
+            {/* Floating animated orbs */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="login-orb login-orb-1" />
+                <div className="login-orb login-orb-2" />
+                <div className="login-orb login-orb-3" />
+            </div>
+
+            <div className="relative z-10 grid items-start gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
                 <div className="order-2 space-y-4 lg:order-1">
                     <div>
                         <p className="section-label mb-3">Study With Structure</p>
-                        <h1 className="text-[42px] leading-none tracking-tight">GateTracker</h1>
+                        <h1 className="text-[42px] leading-none tracking-tight">
+                            <span className="gradient-text">Gate</span>Tracker
+                        </h1>
                         <p className="theme-soft mt-4 max-w-xl text-[15px] leading-7">
                             A focused workspace for GATE CSE preparation with session tracking, analytics, curated study
                             resources, and a public feedback loop for continuous improvement.
@@ -89,25 +98,40 @@ export default function Login({ onLogin }: Props) {
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-                        <div className="glass-panel p-5">
-                            <p className="text-[15px] font-semibold">Original, relevant study data</p>
-                            <p className="theme-soft mt-2 text-[13px] leading-6">Your dashboard is built from your own study sessions and progress history, not recycled content.</p>
-                        </div>
-                        <div className="glass-panel p-5">
-                            <p className="text-[15px] font-semibold">Clear public trust pages</p>
-                            <p className="theme-soft mt-2 text-[13px] leading-6">Visitors can now review the product context on the <Link to="/about" className="text-emerald-400 hover:text-emerald-300">About Us</Link> and <Link to="/contact" className="text-emerald-400 hover:text-emerald-300">Contact Us</Link> pages before signing in.</p>
-                        </div>
-                        <div className="glass-panel p-5">
-                            <p className="text-[15px] font-semibold">Fresh improvements over time</p>
-                            <p className="theme-soft mt-2 text-[13px] leading-6">Resources, feedback workflows, and product features are updated iteratively as the platform evolves.</p>
-                        </div>
+                        {[
+                            {
+                                title: 'Original, relevant study data',
+                                desc: 'Your dashboard is built from your own study sessions and progress history, not recycled content.',
+                                emoji: '📊'
+                            },
+                            {
+                                title: 'Clear public trust pages',
+                                desc: <>Visitors can review the product context on the <Link to="/about" className="text-emerald-400 hover:text-emerald-300 transition-colors">About Us</Link> and <Link to="/contact" className="text-emerald-400 hover:text-emerald-300 transition-colors">Contact Us</Link> pages before signing in.</>,
+                                emoji: '🔍'
+                            },
+                            {
+                                title: 'Fresh improvements over time',
+                                desc: 'Resources, feedback workflows, and product features are updated iteratively as the platform evolves.',
+                                emoji: '🚀'
+                            }
+                        ].map((item, i) => (
+                            <div key={i} className="glass-panel p-5 hover-lift" style={{ animationDelay: `${i * 100}ms` }}>
+                                <div className="flex items-start gap-3">
+                                    <span className="text-xl">{item.emoji}</span>
+                                    <div>
+                                        <p className="text-[15px] font-semibold">{item.title}</p>
+                                        <p className="theme-soft mt-2 text-[13px] leading-6">{item.desc}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
                 <div className="order-1 w-full lg:order-2">
                     <div className="mx-auto w-full max-w-md">
                         <div className="mb-10 text-center">
-                            <div className="glass-primary-button mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-[24px] text-white">
+                            <div className="glass-primary-button mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-[24px] text-white shadow-[0_16px_40px_rgba(16,185,129,.2)]">
                                 <TreePine size={28} className="text-white" />
                             </div>
                             <h2 className="text-4xl tracking-tight">Welcome back</h2>
@@ -118,7 +142,7 @@ export default function Login({ onLogin }: Props) {
                             <div className="glass-segment mb-8 flex p-1">
                                 <button
                                     onClick={() => { setMode('login'); setError('') }}
-                                    className={`glass-segment-button flex-1 rounded-full py-2.5 text-[14px] font-medium transition-all ${mode === 'login'
+                                    className={`glass-segment-button flex-1 rounded-full py-2.5 text-[14px] font-medium ${mode === 'login'
                                         ? 'active'
                                         : 'hover:opacity-80'
                                         }`}
@@ -127,7 +151,7 @@ export default function Login({ onLogin }: Props) {
                                 </button>
                                 <button
                                     onClick={() => { setMode('register'); setError('') }}
-                                    className={`glass-segment-button flex-1 rounded-full py-2.5 text-[14px] font-medium transition-all ${mode === 'register'
+                                    className={`glass-segment-button flex-1 rounded-full py-2.5 text-[14px] font-medium ${mode === 'register'
                                         ? 'active'
                                         : 'hover:opacity-80'
                                         }`}
@@ -208,14 +232,14 @@ export default function Login({ onLogin }: Props) {
                             <div className="flex gap-3">
                                 <a
                                     href={`${API_BASE}/api/auth/google/`}
-                                    className="glass-secondary-button flex flex-1 items-center justify-center gap-2.5 rounded-[18px] py-3 text-[14px] font-medium transition-all active:scale-[.98]"
+                                    className="glass-secondary-button flex flex-1 items-center justify-center gap-2.5 rounded-[18px] py-3 text-[14px] font-medium transition-all active:scale-[.98] hover:border-blue-400/30"
                                 >
                                     <GoogleIcon />
                                     Google
                                 </a>
                                 <a
                                     href={`${API_BASE}/api/auth/github/`}
-                                    className="glass-secondary-button flex flex-1 items-center justify-center gap-2.5 rounded-[18px] py-3 text-[14px] font-medium transition-all active:scale-[.98]"
+                                    className="glass-secondary-button flex flex-1 items-center justify-center gap-2.5 rounded-[18px] py-3 text-[14px] font-medium transition-all active:scale-[.98] hover:border-white/20"
                                 >
                                     <GitHubIcon />
                                     GitHub
@@ -224,7 +248,7 @@ export default function Login({ onLogin }: Props) {
                         </div>
 
                         <p className="theme-soft mt-8 text-center text-[12px]">
-                            Made with ♥ by Satya Sarthak Manohari
+                            Made with ♥ by <span className="gradient-text font-medium">Satya Sarthak Manohari</span>
                         </p>
                     </div>
                 </div>

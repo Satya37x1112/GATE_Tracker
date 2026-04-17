@@ -6,7 +6,7 @@ import {
     LineElement, BarElement, ArcElement, Tooltip, Legend, Filler
 } from 'chart.js'
 import { Line, Doughnut } from 'react-chartjs-2'
-import { Clock, HelpCircle, GraduationCap, Flame, ArrowRight } from 'lucide-react'
+import { Clock, HelpCircle, GraduationCap, Flame, ArrowRight, BookOpen } from 'lucide-react'
 import StatCard from '../components/StatCard'
 import Heatmap from '../components/Heatmap'
 import GrowthTree from '../components/GrowthTree'
@@ -42,12 +42,12 @@ export default function Dashboard() {
                 {/* Header */}
                 <div className="flex items-end justify-between">
                     <div>
-                        <h1 className="text-[32px] font-semibold tracking-tight leading-tight">Dashboard</h1>
-                        <p className="text-[14px] opacity-30 mt-1">Your GATE preparation at a glance.</p>
+                        <h1 className="page-header-title">Dashboard</h1>
+                        <p className="page-header-sub">Your GATE preparation at a glance</p>
                     </div>
                     <Link
                         to="/start-study"
-                        className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-[13px] font-medium transition-all active:scale-[.97]"
+                        className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-primary-button text-white text-[13px] font-medium transition-all active:scale-[.97]"
                     >
                         Start Studying <ArrowRight size={14} />
                     </Link>
@@ -105,12 +105,17 @@ export default function Dashboard() {
                                             label: 'Hours',
                                             data: charts.daily_hours,
                                             borderColor: '#22c55e',
-                                            backgroundColor: 'rgba(34,197,94,.06)',
+                                            backgroundColor: dark
+                                                ? 'rgba(34,197,94,.08)'
+                                                : 'rgba(34,197,94,.12)',
                                             fill: true,
                                             tension: 0.4,
                                             pointRadius: 3,
+                                            pointHoverRadius: 6,
                                             pointBackgroundColor: '#22c55e',
-                                            borderWidth: 2,
+                                            pointBorderColor: dark ? '#09090b' : '#f5f7fb',
+                                            pointBorderWidth: 2,
+                                            borderWidth: 2.5,
                                         }]
                                     }}
                                     options={lineOpts(dark)}
@@ -134,7 +139,7 @@ export default function Dashboard() {
                                                 '#f97316', '#6366f1', '#14b8a6'
                                             ],
                                             borderWidth: 0,
-                                            hoverOffset: 4,
+                                            hoverOffset: 6,
                                         }]
                                     }}
                                     options={{
@@ -170,8 +175,8 @@ export default function Dashboard() {
                             <p className="section-label mb-1">Sessions</p>
                             <p className="text-lg font-semibold tracking-tight">Recent Activity</p>
                         </div>
-                        <Link to="/history" className="text-[13px] opacity-30 hover:opacity-60 transition-opacity">
-                            View all →
+                        <Link to="/history" className="text-[13px] theme-soft hover:text-[var(--app-text)] transition-colors flex items-center gap-1">
+                            View all <ArrowRight size={12} />
                         </Link>
                     </div>
 
@@ -193,7 +198,7 @@ export default function Dashboard() {
                                             <tr key={s.id} className="theme-table-row border-b transition-colors last:border-b-0">
                                                 <td className="theme-soft px-5 py-3">{s.date}</td>
                                                 <td className="px-5 py-3">
-                                                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/8 text-emerald-400/80 text-[12px] font-medium">
+                                                    <span className="px-2.5 py-1 rounded-lg bg-emerald-500/8 text-emerald-400/80 text-[12px] font-medium">
                                                         {s.subject_display}
                                                     </span>
                                                 </td>
@@ -211,8 +216,15 @@ export default function Dashboard() {
                             </div>
                         ) : (
                             <div className="theme-empty-state text-center py-20 rounded-xl">
-                                <p className="text-[15px] opacity-30">No sessions yet.</p>
-                                <p className="text-[13px] opacity-20 mt-1">Start studying to see your progress grow.</p>
+                                <BookOpen size={40} className="mx-auto theme-soft animate-float mb-4" />
+                                <p className="text-[15px] theme-soft font-medium">No sessions yet</p>
+                                <p className="text-[13px] theme-soft mt-1">Start studying to see your progress grow.</p>
+                                <Link
+                                    to="/start-study"
+                                    className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-full glass-primary-button text-white text-[13px] font-medium"
+                                >
+                                    Start a session <ArrowRight size={13} />
+                                </Link>
                             </div>
                         )
                     ) : (
@@ -223,7 +235,7 @@ export default function Dashboard() {
 
             <Link
                 to="/feedback"
-                className="fixed right-5 bottom-5 z-30 inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white text-[13px] font-medium shadow-[0_18px_42px_rgba(10,16,32,0.45)] hover:translate-y-[-1px] transition-all"
+                className="fixed right-5 bottom-5 z-30 inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 text-white text-[13px] font-medium shadow-[0_18px_42px_rgba(10,16,32,0.45)] hover:translate-y-[-2px] hover:shadow-[0_22px_52px_rgba(10,16,32,0.55)] transition-all"
             >
                 <span className="text-[16px]">💬</span>
                 Share Feedback
@@ -234,12 +246,12 @@ export default function Dashboard() {
 
 function StatCardSkeleton() {
     return (
-        <div className="stat-card animate-pulse">
+        <div className="stat-card">
             <div className="flex items-start justify-between gap-4">
                 <div className="space-y-3">
-                    <div className="theme-skeleton h-3 w-20 rounded" />
-                    <div className="theme-skeleton h-8 w-24 rounded" />
-                    <div className="theme-skeleton h-3 w-16 rounded" />
+                    <div className="theme-skeleton h-3 w-20 rounded-lg" />
+                    <div className="theme-skeleton h-8 w-24 rounded-lg" />
+                    <div className="theme-skeleton h-3 w-16 rounded-lg" />
                 </div>
                 <div className="theme-skeleton h-10 w-10 rounded-2xl" />
             </div>
@@ -251,16 +263,16 @@ function RecentActivitySkeleton() {
     return (
         <div className="theme-table overflow-hidden rounded-xl">
             <div className="theme-table-head border-b px-5 py-3">
-                <div className="theme-skeleton h-3 w-40 rounded" />
+                <div className="theme-skeleton h-3 w-40 rounded-lg" />
             </div>
             <div>
                 {Array.from({ length: 4 }).map((_, index) => (
                     <div key={index} className="theme-table-row grid grid-cols-5 gap-4 border-b px-5 py-4 last:border-b-0">
-                        <div className="theme-skeleton h-3 w-20 rounded" />
-                        <div className="theme-skeleton h-6 w-24 rounded" />
-                        <div className="theme-skeleton h-3 w-16 rounded" />
-                        <div className="theme-skeleton ml-auto h-3 w-12 rounded" />
-                        <div className="theme-skeleton ml-auto h-3 w-10 rounded" />
+                        <div className="theme-skeleton h-3 w-20 rounded-lg" />
+                        <div className="theme-skeleton h-6 w-24 rounded-lg" />
+                        <div className="theme-skeleton h-3 w-16 rounded-lg" />
+                        <div className="theme-skeleton ml-auto h-3 w-12 rounded-lg" />
+                        <div className="theme-skeleton ml-auto h-3 w-10 rounded-lg" />
                     </div>
                 ))}
             </div>
@@ -273,6 +285,10 @@ function lineOpts(dark: boolean) {
     return {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+            intersect: false,
+            mode: 'index' as const,
+        },
         scales: {
             x: {
                 ticks: { color: theme.tick, font: { size: 11 } },

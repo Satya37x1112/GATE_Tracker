@@ -43,7 +43,10 @@ export default function Sidebar({ open, onClose, onLogout, user }: Props) {
                 {/* Logo */}
                 <div className="flex items-center justify-between px-6 py-6 border-b border-inherit">
                     <div className="flex items-center gap-3">
-                        <img src="/logo.png" alt="GateTracker Logo" className="w-8 h-8 rounded-lg shadow-sm" />
+                        <div className="relative">
+                            <img src="/logo.png" alt="GateTracker Logo" className="w-9 h-9 rounded-xl shadow-sm" />
+                            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[var(--chrome-bg)]" />
+                        </div>
                         <div>
                             <span className="text-[15px] font-semibold tracking-tight">GateTracker</span>
                             <span className="theme-soft block text-[10px] tracking-[0.15em] uppercase">
@@ -57,14 +60,15 @@ export default function Sidebar({ open, onClose, onLogout, user }: Props) {
                 </div>
 
                 {/* Nav */}
-                <nav className="flex-1 px-3 py-5 space-y-0.5">
+                <nav className="flex-1 px-3 py-5 space-y-0.5 overflow-y-auto">
                     <p className="section-label px-3 mb-3">Navigation</p>
-                    {links.map(l => (
+                    {links.map((l, i) => (
                         <NavLink
                             key={l.to}
                             to={l.to}
                             onClick={onClose}
                             className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                            style={{ animationDelay: `${i * 30}ms` }}
                         >
                             <l.icon size={16} strokeWidth={1.8} />
                             {l.label}
@@ -84,8 +88,10 @@ export default function Sidebar({ open, onClose, onLogout, user }: Props) {
                 <div className={`px-4 py-4 border-t border-inherit`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="theme-surface-soft theme-muted w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold">
-                                {user.username.charAt(0).toUpperCase()}
+                            <div className="user-avatar-ring">
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold theme-muted">
+                                    {user.username.charAt(0).toUpperCase()}
+                                </div>
                             </div>
                             <div>
                                 <p className="text-[13px] font-medium leading-tight">{user.username}</p>
@@ -94,7 +100,7 @@ export default function Sidebar({ open, onClose, onLogout, user }: Props) {
                         </div>
                         <button
                             onClick={onLogout}
-                            className="theme-ghost-button p-2 rounded-lg transition-all hover:text-red-500 dark:hover:text-red-400"
+                            className="theme-ghost-button p-2 rounded-lg transition-all hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10"
                             title="Sign out"
                         >
                             <LogOut size={15} />

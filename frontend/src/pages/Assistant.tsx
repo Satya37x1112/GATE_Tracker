@@ -68,11 +68,11 @@ export default function Assistant() {
       />
 
       <div>
-        <h1 className="text-[28px] font-semibold tracking-tight flex items-center gap-3">
+        <h1 className="page-header-title flex items-center gap-3">
           <MessageSquare size={28} className="text-emerald-400" />
           Vistra AI Assistant
         </h1>
-        <p className="text-[13px] opacity-30 mt-1">
+        <p className="page-header-sub">
           Practical GATE CSE guidance focused on consistency, revision and PYQs
         </p>
       </div>

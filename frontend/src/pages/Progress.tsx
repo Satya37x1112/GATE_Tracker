@@ -49,8 +49,8 @@ export default function Progress() {
             <SEO title="Progress" description="Track your weekly GATE CSE study patterns, momentum trends, and multi-week progress with visual charts." path="/progress" />
             {/* Header */}
             <div>
-                <h1 className="text-[32px] tracking-tight">Progress</h1>
-                <p className="text-[14px] opacity-25 mt-1">Track your weekly study patterns and momentum.</p>
+                <h1 className="page-header-title">Progress</h1>
+                <p className="page-header-sub">Track your weekly study patterns and momentum</p>
             </div>
 
             {/* Overview cards */}

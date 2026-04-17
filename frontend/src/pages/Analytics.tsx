@@ -36,8 +36,8 @@ export default function Analytics() {
         <div className="space-y-10">
             <SEO title="Analytics" description="Deep dive into your GATE CSE preparation patterns — study trends, subject breakdown, streaks, and performance insights." path="/analytics" />
             <div>
-                <h1 className="text-[32px] font-semibold tracking-tight">Analytics</h1>
-                <p className="text-[14px] opacity-30 mt-1">Deep dive into your preparation patterns.</p>
+                <h1 className="page-header-title">Analytics</h1>
+                <p className="page-header-sub">Deep dive into your preparation patterns</p>
             </div>
 
             {/* Stat cards */}

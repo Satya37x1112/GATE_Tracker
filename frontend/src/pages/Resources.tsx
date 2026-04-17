@@ -63,11 +63,11 @@ export default function Resources() {
             <SEO title="Study Resources" description="Curated GATE lectures, subject playlists, and recommended channels for focused GATE preparation." path="/resources" />
             {/* Header */}
             <div>
-                <h1 className="text-[28px] font-semibold tracking-tight flex items-center gap-3">
+                <h1 className="page-header-title flex items-center gap-3">
                     <BookOpen size={28} className="text-emerald-400" />
                     Study Resources
                 </h1>
-                <p className="text-[13px] opacity-30 mt-1">
+                <p className="page-header-sub">
                     Curated lectures, structured playlists, and recommended channels for your GATE workflow
                 </p>
             </div>

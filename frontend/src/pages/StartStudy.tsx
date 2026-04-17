@@ -120,8 +120,8 @@ export default function StartStudy() {
                 >
                     {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
                 </button>
-                <h1 className="text-[32px] font-semibold tracking-tight">Study Timer</h1>
-                <p className="text-[14px] opacity-25 mt-1">Focus. Track. Grow.</p>
+                <h1 className="page-header-title">Study Timer</h1>
+                <p className="page-header-sub">Focus. Track. Grow</p>
             </div>
 
             {/* Timer */}

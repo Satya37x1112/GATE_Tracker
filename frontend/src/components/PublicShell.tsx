@@ -27,11 +27,15 @@ export default function PublicShell({ children, user }: Props) {
             </div>
 
             <header className="app-topbar relative z-10 border-b">
+                <div className="topbar-gradient-line" />
                 <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-                    <Link to={user ? '/' : '/'} className="flex items-center gap-3">
-                        <img src="/logo.png" alt="GateTracker Logo" className="w-10 h-10 rounded-xl shadow-sm" />
+                    <Link to={user ? '/' : '/'} className="flex items-center gap-3 group">
+                        <div className="relative">
+                            <img src="/logo.png" alt="GateTracker Logo" className="w-10 h-10 rounded-xl shadow-sm transition-transform group-hover:scale-105" />
+                            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[var(--chrome-bg)]" />
+                        </div>
                         <div>
-                            <p className="text-[17px] font-semibold tracking-tight">GateTracker</p>
+                            <p className="text-[17px] font-semibold tracking-tight"><span className="gradient-text">Gate</span>Tracker</p>
                             <p className="theme-soft text-[10px] uppercase tracking-[0.18em]">Study Intelligence</p>
                         </div>
                     </Link>
@@ -56,7 +60,7 @@ export default function PublicShell({ children, user }: Props) {
                 </div>
             </header>
 
-            <main className="relative z-10 mx-auto min-w-0 w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+            <main className="relative z-10 mx-auto min-w-0 w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12 animate-page-enter">
                 {children}
             </main>
 
@@ -64,13 +68,13 @@ export default function PublicShell({ children, user }: Props) {
                 <div className="theme-soft mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-6 text-[12px] sm:flex-row sm:items-center sm:justify-between sm:px-6">
                     <p>GateTracker helps GATE CSE aspirants track progress, discover curated resources, and study with more structure.</p>
                     <div className="flex items-center gap-4">
-                        <Link to="/about" className="hover:opacity-80">About Us</Link>
-                        <Link to="/contact" className="hover:opacity-80">Contact Us</Link>
+                        <Link to="/about" className="footer-link hover:opacity-80">About Us</Link>
+                        <Link to="/contact" className="footer-link hover:opacity-80">Contact Us</Link>
                         <a
                             href="https://github.com/Satya37x1112/GATE_Tracker"
                             target="_blank"
                             rel="noreferrer"
-                            className="hover:opacity-80"
+                            className="footer-link hover:opacity-80"
                         >
                             GitHub
                         </a>
