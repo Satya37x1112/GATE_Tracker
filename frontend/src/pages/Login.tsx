@@ -102,26 +102,20 @@ export default function Login({ onLogin }: Props) {
                             {
                                 title: 'Original, relevant study data',
                                 desc: 'Your dashboard is built from your own study sessions and progress history, not recycled content.',
-                                emoji: '📊'
                             },
                             {
                                 title: 'Clear public trust pages',
                                 desc: <>Visitors can review the product context on the <Link to="/about" className="text-emerald-400 hover:text-emerald-300 transition-colors">About Us</Link> and <Link to="/contact" className="text-emerald-400 hover:text-emerald-300 transition-colors">Contact Us</Link> pages before signing in.</>,
-                                emoji: '🔍'
                             },
                             {
                                 title: 'Fresh improvements over time',
                                 desc: 'Resources, feedback workflows, and product features are updated iteratively as the platform evolves.',
-                                emoji: '🚀'
                             }
                         ].map((item, i) => (
                             <div key={i} className="glass-panel p-5 hover-lift" style={{ animationDelay: `${i * 100}ms` }}>
-                                <div className="flex items-start gap-3">
-                                    <span className="text-xl">{item.emoji}</span>
-                                    <div>
-                                        <p className="text-[15px] font-semibold">{item.title}</p>
-                                        <p className="theme-soft mt-2 text-[13px] leading-6">{item.desc}</p>
-                                    </div>
+                                <div>
+                                    <p className="text-[15px] font-semibold">{item.title}</p>
+                                    <p className="theme-soft mt-2 text-[13px] leading-6">{item.desc}</p>
                                 </div>
                             </div>
                         ))}
