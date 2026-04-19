@@ -60,7 +60,12 @@ export default function Resources() {
 
     return (
         <div className="space-y-8">
-            <SEO title="Study Resources" description="Curated GATE lectures, subject playlists, and recommended channels for focused GATE preparation." path="/resources" />
+            <SEO
+                title="GATE CSE Study Resources — Curated Lectures & Playlists"
+                description="Curated YouTube lectures and subject playlists for GATE CSE 2027 — DSA, OS, DBMS, CN, TOC, Compiler Design & more. Organize into daily study plans with progress tracking."
+                path="/resources"
+                keywords="GATE CSE resources, GATE YouTube lectures, GATE DSA playlist, GATE OS videos, GATE study material free, GATE subject wise resources"
+            />
             {/* Header */}
             <div>
                 <h1 className="page-header-title flex items-center gap-3">

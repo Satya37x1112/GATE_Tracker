@@ -38,9 +38,10 @@ export default function About({ user }: Props) {
     return (
         <PublicShell user={user}>
             <SEO
-                title="About Us"
-                description="Learn what GateTracker is, who it serves, and how the platform approaches quality, transparency, and useful GATE CSE study support."
+                title="About GateTracker — Free GATE CSE Study Intelligence Platform"
+                description="Learn what GateTracker is — a free study intelligence tracker for GATE CSE 2027 aspirants. Track study hours, access curated resources, and monitor progress with analytics, heatmaps & growth tree."
                 path="/about"
+                keywords="about GateTracker, GATE CSE study platform, GATE preparation tool, GATE study intelligence"
             />
 
             <section className="feedback-hero-panel">

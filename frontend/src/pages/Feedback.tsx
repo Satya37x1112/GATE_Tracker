@@ -61,9 +61,10 @@ export default function Feedback() {
     return (
         <div className="space-y-8">
             <SEO
-                title="Community Feedback"
-                description="Share suggestions, issues, and ideas to improve GateTracker."
+                title="Community Feedback — Help Improve GateTracker"
+                description="Share suggestions, report issues, and pitch ideas to improve GateTracker — the free GATE CSE 2027 study tracker. Vote on community ideas and shape the roadmap."
                 path="/feedback"
+                keywords="GateTracker feedback, GATE tracker suggestions, GATE study tool improvement"
             />
 
             <section className="feedback-hero-panel">

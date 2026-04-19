@@ -72,9 +72,10 @@ export default function Login({ onLogin }: Props) {
     return (
         <PublicShell>
             <SEO
-                title="Free GATE CSE Study Tracker"
-                description="Track GATE CSE study sessions, review analytics, use curated subject resources, and prepare with a transparent, education-focused study platform."
+                title="Free GATE CSE 2027 Study Tracker & Planner"
+                description="Track GATE CSE study sessions, review analytics with heatmaps & growth tree, access curated YouTube lectures for DSA, OS, DBMS, CN, TOC & more. 100% free study planner for GATE 2027."
                 path="/"
+                keywords="GATE CSE study tracker, GATE 2027 planner, free GATE tracker, GATE preparation app, GATE study planner online"
             />
 
             {/* Floating animated orbs */}

@@ -6,9 +6,11 @@ export default function NewsBlogs() {
     return (
         <div className="space-y-8">
             <SEO
-                title="News and Blogs"
-                description="Separate GATE news coverage and blog-style reads, distinct from the main study resources library."
+                title="GATE CSE News & Blogs — Latest Updates & Articles"
+                description="Stay updated with the latest GATE CSE news, exam updates, preparation blogs, and curated articles. Separate from study resources for focused reading."
                 path="/news-blogs"
+                keywords="GATE CSE news, GATE 2027 updates, GATE exam news, GATE preparation blog, GATE articles"
+                type="article"
             />
 
             <section className="glass-panel overflow-hidden">

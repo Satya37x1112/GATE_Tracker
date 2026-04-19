@@ -38,7 +38,12 @@ export default function Dashboard() {
     return (
         <>
             <div className="space-y-6 md:space-y-10">
-                <SEO title="Dashboard" description="Track your GATE CSE 2027 preparation — daily study hours, questions solved, streaks, and progress overview." path="/" />
+                <SEO
+                    title="Dashboard — GATE CSE Study Overview"
+                    description="Track your GATE CSE 2027 preparation at a glance — daily study hours, questions solved, streaks, progress heatmap, and growth tree overview."
+                    path="/"
+                    keywords="GATE dashboard, GATE study overview, GATE preparation progress"
+                />
                 {/* Header */}
                 <div className="flex items-end justify-between">
                     <div>

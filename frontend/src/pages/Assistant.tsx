@@ -62,9 +62,10 @@ export default function Assistant() {
   return (
     <div className="space-y-6">
       <SEO
-        title="Vistra AI Assistant"
-        description="Vistra AI helps GATE CSE aspirants with daily plans, weak-subject strategy, consistency and PYQ-focused study guidance."
+        title="Vistra AI — GATE CSE Study Assistant"
+        description="Vistra AI helps GATE CSE aspirants with daily study plans, weak-subject strategies, consistency advice, and PYQ-focused preparation guidance."
         path="/assistant"
+        keywords="GATE AI assistant, GATE study help, GATE preparation AI, GATE study planner AI"
       />
 
       <div>

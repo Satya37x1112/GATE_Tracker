@@ -110,7 +110,12 @@ export default function StartStudy() {
             className={`${isFullscreen ? 'flex flex-col items-center justify-center p-6 space-y-10 h-screen w-screen max-w-none overflow-y-auto' : 'max-w-xl mx-auto space-y-10'}`}
             style={{ backgroundColor: isFullscreen ? 'var(--app-bg)' : 'transparent' }}
         >
-            <SEO title="Study Timer" description="Start a focused GATE CSE study session. Track time, questions solved, and notes for DSA, OS, DBMS, CN, TOC & more." path="/start-study" />
+            <SEO
+                title="Study Timer — Log GATE CSE Sessions"
+                description="Start a focused GATE CSE study session. Track time, questions solved, and notes for DSA, OS, DBMS, CN, TOC, Compiler Design & more subjects."
+                path="/start-study"
+                keywords="GATE study timer, GATE session tracker, GATE study log, GATE pomodoro timer"
+            />
             {/* Header */}
             <div className={`text-center relative w-full ${isFullscreen ? 'max-w-xl' : ''}`}>
                 <button

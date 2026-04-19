@@ -118,7 +118,12 @@ export default function Journey({ user }: Props) {
 
     return (
         <PublicShell user={user}>
-            <SEO title="My GATE Journey" description="A daily vlog and journal tracking GATE CSE preparation progress." path="/journey" />
+            <SEO
+                title="My GATE Journey — Daily Study Vlog & Journal"
+                description="A daily vlog and journal tracking GATE CSE preparation progress. Share updates, milestones, and insights from your study journey."
+                path="/journey"
+                keywords="GATE preparation journal, GATE study vlog, GATE daily log, GATE journey tracker"
+            />
 
             <div className="max-w-3xl mx-auto space-y-10 animate-page-enter pb-20">
                 {/* Header Section */}

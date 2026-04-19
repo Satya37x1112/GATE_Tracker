@@ -46,7 +46,12 @@ export default function Progress() {
 
     return (
         <div className="space-y-10 animate-fade-in">
-            <SEO title="Progress" description="Track your weekly GATE CSE study patterns, momentum trends, and multi-week progress with visual charts." path="/progress" />
+            <SEO
+                title="Progress — GATE CSE Weekly Tracking"
+                description="Track your weekly GATE CSE study patterns, momentum trends, and multi-week progress with visual charts and detailed breakdowns."
+                path="/progress"
+                keywords="GATE study progress, GATE weekly tracking, GATE preparation momentum"
+            />
             {/* Header */}
             <div>
                 <h1 className="page-header-title">Progress</h1>

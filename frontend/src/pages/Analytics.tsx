@@ -34,7 +34,12 @@ export default function Analytics() {
 
     return (
         <div className="space-y-10">
-            <SEO title="Analytics" description="Deep dive into your GATE CSE preparation patterns — study trends, subject breakdown, streaks, and performance insights." path="/analytics" />
+            <SEO
+                title="Analytics — GATE CSE Study Insights"
+                description="Deep dive into your GATE CSE preparation patterns — study trends, subject breakdown, streaks, and performance insights with visual charts."
+                path="/analytics"
+                keywords="GATE study analytics, GATE preparation insights, GATE study patterns"
+            />
             <div>
                 <h1 className="page-header-title">Analytics</h1>
                 <p className="page-header-sub">Deep dive into your preparation patterns</p>

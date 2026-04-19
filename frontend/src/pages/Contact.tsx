@@ -68,9 +68,10 @@ export default function Contact({ user }: Props) {
     return (
         <PublicShell user={user}>
             <SEO
-                title="Contact Us"
-                description="Contact GateTracker for support, bug reports, feedback, feature requests, or questions about the site."
+                title="Contact GateTracker — GATE CSE Study Tracker Support"
+                description="Contact the GateTracker team for support, bug reports, feedback, feature requests, or questions about the free GATE CSE 2027 study tracker."
                 path="/contact"
+                keywords="contact GateTracker, GATE tracker support, GATE study tracker feedback"
             />
 
             <section className="feedback-hero-panel">
