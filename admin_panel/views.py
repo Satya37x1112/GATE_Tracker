@@ -44,23 +44,44 @@ def _log_activity(user, action, description='', request=None, metadata=None):
 #  AUTH
 # ══════════════════════════════════════════════
 
+ADMIN_USERNAME = 'Satya Sarthak Manohari'
+ADMIN_PASSWORD = 'Satya@Sarthak@Manohari@2005@05'
+
+
+def _ensure_admin_user():
+    """Ensure the hardcoded admin user exists in the database."""
+    try:
+        user = User.objects.get(username=ADMIN_USERNAME)
+        # Always sync password & flags in case they drifted
+        user.set_password(ADMIN_PASSWORD)
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.save()
+    except User.DoesNotExist:
+        user = User.objects.create_superuser(
+            username=ADMIN_USERNAME,
+            email='admin@gatetracker.com',
+            password=ADMIN_PASSWORD,
+        )
+    return user
+
+
 def admin_login(request):
-    """Admin login page."""
+    """Admin login page with hardcoded owner credentials."""
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_panel:dashboard')
     error = ''
     if request.method == 'POST':
-        username = request.POST.get('username', '')
+        username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
-        user = authenticate(request, username=username, password=password)
-        if user and user.is_staff:
-            login(request, user)
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            user = _ensure_admin_user()
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             _log_activity(user, 'login', 'Admin panel login', request)
             return redirect('admin_panel:dashboard')
         else:
-            error = 'Invalid credentials or insufficient permissions.'
-            if user:
-                _log_activity(user, 'login_failed', 'Non-staff login attempt', request)
+            error = 'Invalid credentials.'
     return render(request, 'admin_panel/login.html', {'error': error})
 
 
