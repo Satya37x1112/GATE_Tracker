@@ -98,6 +98,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
     'tracker',
+    'admin_panel',
 ]
 
 SITE_ID = 1
